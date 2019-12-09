@@ -11,7 +11,7 @@
 #include <boost/math/special_functions/bessel.hpp>
 #include <cassert>
 #include <cmath>
-#include <eigen3/eigen/Eigen>
+//#include <eigen3/eigen/Eigen>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
@@ -71,17 +71,17 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::setupInterpGrid() {
         interpParameters(i, xcount - 1, ycount - 1, 3) = 0;
         for (int j = 0; j < xcount - 1; j++)
             for (int k = 0; k < ycount - 1; k++) {
-                double x1 = xset[j],
+                /*double x1 = xset[j],
                        x2 = xset[j + 1],
                        y1 = yset[k],
-                       y2 = yset[k + 1];
+                       y2 = yset[k + 1];*/
 
                 double Q11 = gridValues(i, j, k),
                        Q12 = gridValues(i, j + 1, k),
                        Q21 = gridValues(i, j, k + 1),
                        Q22 = gridValues(i, j + 1, k + 1);
 
-                Matrix4d mat;
+                /*Matrix4d mat;
                 mat << 1, x1, y1, x1 * y1,
                     1, x1, y2, x1 * y2,
                     1, x2, y1, x2 * y1,
@@ -92,7 +92,25 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::setupInterpGrid() {
                 interpParameters(i, j, k, 0) = anums(0);
                 interpParameters(i, j, k, 1) = anums(1);
                 interpParameters(i, j, k, 2) = anums(2);
-                interpParameters(i, j, k, 3) = anums(3);
+                interpParameters(i, j, k, 3) = anums(3);*/
+
+                double x = xset[j],
+                       a = xset[j + 1],
+                       y = yset[k],
+                       b = yset[k + 1];
+                double denom = (a - x) * (b - y);
+                interpParameters(i, j, k, 0) = (a * b * Q11 - a * y * Q12 - b * x * Q21 + x * y * Q22) / denom;
+                interpParameters(i, j, k, 1) = (-b * Q11 + y * Q12 + b * Q21 - y * Q22) / denom;
+                interpParameters(i, j, k, 2) = (-a * Q11 + a * Q12 + x * Q21 - x * Q22) / denom;
+                interpParameters(i, j, k, 3) = (Q11 - Q12 - Q21 + Q22) / denom;
+                /*if (std::abs(anums(0) - a1) > 1e-14)
+                    std::cout << "Error1";
+                if (std::abs(anums(1) - a2) > 1e-14)
+                    std::cout << "Error2";
+                if (std::abs(anums(2) - a3) > 1e-14)
+                    std::cout << "Error3";
+                if (std::abs(anums(3) - a4) > 1e-14)
+                    std::cout << "Error4";*/
             }
     }
 }
@@ -275,7 +293,7 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
     std::cout << "That was assembly time.\n";
     t.start();
     std::cout << GATensor.size() << "\n";
-    for (int counter = 0; counter < 1; counter++) {
+    for (int counter = 0; counter < 1000; counter++) {
         setupInterpGrid();
         fastGACalc();
     }
