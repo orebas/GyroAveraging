@@ -104,12 +104,12 @@ inline double
 BilinearInterpolation(double q11, double q12, double q21, double q22, double x1, double x2, double y1, double y2, double x, double y);
 std::vector<double> LinearSpacedArray(double a, double b, int N);
 
-struct sparseEntry {
+/*struct sparseEntry {
     std::array<int, 3> target; //target entry i,j,k
     std::array<double, 4> coeffs;
     std::array<int, 3> source;
     sparseEntry(std::array<int, 3> t, std::array<double, 4> c, std::array<int, 3> s) : target(t), coeffs(c), source(s) {}
-};
+};*/
 
 struct sparseOffset { //no constructor.
     int target, source;
@@ -139,12 +139,12 @@ private:
     fullgrid almostExactGA;          //stores value of GA calculated as trapezoid rule on input f
     fullgrid truncatedAlmostExactGA; //above, except f hard truncated to 0 outside grid
     fullgrid trapezoidInterp;        //GA calculated as trapezoid rule on interpolated, truncated f
-    fullgrid fastGACalcResult;
+    //fullgrid fastGACalcResult;
     fullgrid fastGACalcResultOffset;
     fullgrid analytic_averages; // stores value of expected GA computed analytically
     fullgrid exactF;
     fullgridInterp interpParameters; //will store the bilinear interp parameters.
-    std::vector<sparseEntry> GATensor;
+    //std::vector<sparseEntry> GATensor;
     std::vector<sparseOffset> GAOffsetTensor;
 
     void csvPrinter(const fullgrid &m, int rho) {
@@ -237,7 +237,7 @@ public:
     }
     void setupInterpGrid();
     void assembleFastGACalc(void);
-    void fastGACalc();
+    //void fastGACalc();
     void fastGACalcOffset();
     std::array<double, 4> arcIntegral(double rho, double xc, double yc, double s0, double s1);
     template <typename TFunc1, typename TFunc2>
