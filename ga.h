@@ -211,7 +211,8 @@ private:
     //below fills a grid, given a function of i,j,k
     template <typename TFunc>
     void fillbyindex(fullgrid &m, TFunc f) {
-        for (int i = 0; i < rhocount; i++)
+#pragma omp parallel for
+      for (int i = 0; i < rhocount; i++)
             for (int j = 0; j < xcount; j++)
                 for (int k = 0; k < ycount; k++) {
                     m(i, j, k) = f(i, j, k);
