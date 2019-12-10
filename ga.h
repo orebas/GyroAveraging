@@ -164,12 +164,12 @@ private:
                 }
         }
     }
-    double FrobNorm(const fullgrid &m, int rho) {
+    double RMSNorm(const fullgrid &m, int rho) {
         double result = 0;
         for (int j = 0; j < xcount; j++)
             for (int k = 0; k < ycount; k++)
                 result += m(rho, j, k) * m(rho, j, k);
-        return std::sqrt(result);
+        return std::sqrt(result / (xcount * ycount));
     }
     double maxNorm(const fullgrid &m, int rho) {
         double result = 0;
@@ -179,14 +179,14 @@ private:
         return result;
     }
 
-    double FrobNormDiff(const fullgrid &m1, const fullgrid &m2, int rho) {
+    double RMSNormDiff(const fullgrid &m1, const fullgrid &m2, int rho) {
         double result = 0;
         for (int j = 0; j < xcount; j++)
             for (int k = 0; k < ycount; k++) {
                 double t = m1(rho, j, k) - m2(rho, j, k);
                 result += t * t;
             }
-        return std::sqrt(result);
+        return std::sqrt(result / (xcount * ycount));
     }
     double maxNormDiff(const fullgrid &m1, const fullgrid &m2, int rho) {
         double result = 0;
