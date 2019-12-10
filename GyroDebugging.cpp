@@ -295,7 +295,9 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
     std::cout << "The was the time require to run dot-product gyroaverage calc " << times << " times. \n "
               << std::endl;
     t.start();
-    std::cout << "Below are some summary statistics for various grid.  Under each header is a pair of values.  The first is the RMS of a matrix, the second is the max absolute entry in a matrix.\n" std::cout << "rho        Input Grid                   Analytic Estimates              Trapezoid Rule                  Impact of truncation            Trapezoid rule vs bilin interp  Fast dot-product GA\n";
+    std::cout << "Below are some summary statistics for various grid.  Under each header is a pair of values.  The first is the RMS of a matrix, the second is the max absolute entry in a matrix.\n";
+
+    std::cout << "rho        Input Grid                   Analytic Estimates              Trapezoid Rule                  Impact of truncation            Trapezoid rule vs bilin interp  Fast dot-product GA\n";
 
     for (int i = 0; i < rhocount; i++) {
 
