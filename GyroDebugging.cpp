@@ -1,24 +1,24 @@
 // GyroDebugging.cpp : This file contains the 'main' function. Program execution begins and ends there.
 ////#include "pch.h"
 
-#include <boost/timer/timer.hpp>
-
 #include "ga.h"
 #include <algorithm>
 #include <array>
 #include <boost/math/quadrature/tanh_sinh.hpp>
 #include <boost/math/quadrature/trapezoidal.hpp>
 #include <boost/math/special_functions/bessel.hpp>
+#include <boost/timer/timer.hpp>
 #include <cassert>
 #include <cmath>
+#include <omp.h>
 //#include <eigen3/eigen/Eigen>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
+#include <map>
 #include <math.h>
 #include <vector>
-
-#undef NDEBUG
+#define NDEBUG
 
 template <typename TFunc>
 double TanhSinhIntegrate(double x, double y, TFunc f) { //used to be trapezoid rule.
@@ -63,7 +63,7 @@ we can optimize this better later.
 */
 template <int rhocount, int xcount, int ycount>
 void GyroAveragingGrid<rhocount, xcount, ycount>::setupInterpGrid() {
-    using namespace Eigen;
+    //using namespace Eigen;
     for (int i = 0; i < rhocount; i++) {
         interpParameters(i, xcount - 1, ycount - 1, 0) = 0; // CHANGE BACK TO 0
         interpParameters(i, xcount - 1, ycount - 1, 1) = 0;
@@ -135,6 +135,7 @@ std::array<double, 4> GyroAveragingGrid<rhocount, xcount, ycount>::arcIntegral(
 //add handling for rho =0.
 template <int rhocount, int xcount, int ycount>
 void GyroAveragingGrid<rhocount, xcount, ycount>::assembleFastGACalc(void) {
+    std::map<std::pair<int, int>, std::array<double, 4>> GAOffsetMap;
     for (auto i = 0; i < rhocount; i++) {
         for (auto j = 0; j < xcount; j++)
             for (auto k = 0; k < ycount; k++) {
@@ -192,7 +193,7 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::assembleFastGACalc(void) {
                     coeffs = arcIntegral(rho, xc, yc, s0, s1);
                     interpIndexSearch(i, xmid, ymid, xInterpIndex, yInterpIndex);
                     sparseEntry se({i, j, k}, coeffs, {i, xInterpIndex, yInterpIndex});
-                    //sparseOffset so; //fill this in
+                    sparseOffset so; //fill this in
 
                     se.target[0] = i;
                     se.target[1] = j;
@@ -205,14 +206,73 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::assembleFastGACalc(void) {
                     se.coeffs[2] = coeffs[2] / (2 * pi);
                     se.coeffs[3] = coeffs[3] / (2 * pi);
                     GATensor.push_back(se);
+                    so.target = &(fastGACalcResultOffset(i, j, k)) - &(fastGACalcResultOffset(0, 0, 0));
+                    so.source = &(interpParameters(i, xInterpIndex, yInterpIndex, 0)) - &(interpParameters(0, 0, 0, 0));
+                    so.coeffs[0] = coeffs[0] / (2 * pi);
+                    so.coeffs[1] = coeffs[1] / (2 * pi);
+                    so.coeffs[2] = coeffs[2] / (2 * pi);
+                    so.coeffs[3] = coeffs[3] / (2 * pi);
+                    //                    GAOffsetTensor.push_back(so);
+                    GAOffsetMap[std::pair<int, int>(so.source, so.target)] = GAOffsetMap[std::pair<int, int>(so.source, so.target)] + std::array<double, 4>({so.coeffs[0], so.coeffs[1], so.coeffs[2], so.coeffs[3]});
                 }
             }
     }
+    std::cout << "Size: " << GATensor.size() << " and sizeof is " << sizeof(sparseEntry) << std::endl;
+    std::cout << "Size: " << GAOffsetTensor.size() << " and sizeof is " << sizeof(sparseOffset) << std::endl;
+    for (auto iter = GAOffsetMap.begin(); iter != GAOffsetMap.end(); ++iter) {
+        sparseOffset so;
+        so.source = (iter->first).first;
+        so.target = (iter->first).second;
+        so.coeffs[0] = (iter->second)[0];
+        so.coeffs[1] = (iter->second)[1];
+        so.coeffs[2] = (iter->second)[2];
+        so.coeffs[3] = (iter->second)[3];
+        GAOffsetTensor.push_back(so);
+    }
+    std::sort(GAOffsetTensor.begin(), GAOffsetTensor.end(), [](sparseOffset a, sparseOffset b) -> bool { 
+				if(a.source == b.source)
+                    return a.target < b.target;
+                else
+					return a.source < b.source; });
+    int dupCounter = 0; /*
+    for (int c = 0; c < GAOffsetTensor.size() - 1; c++) {
+        if (GAOffsetTensor[c].source == GAOffsetTensor[c + 1].source)
+            if (GAOffsetTensor[c].target == GAOffsetTensor[c + 1].target) {
+                GAOffsetTensor[c].coeffs[0] += GAOffsetTensor[c + 1].coeffs[0];
+                GAOffsetTensor[c].coeffs[1] += GAOffsetTensor[c + 1].coeffs[1];
+                GAOffsetTensor[c].coeffs[2] += GAOffsetTensor[c + 1].coeffs[2];
+                GAOffsetTensor[c].coeffs[3] += GAOffsetTensor[c + 1].coeffs[3];
+                GAOffsetTensor.erase(GAOffsetTensor.begin() + c + 1);
+                if (c > 0)
+                    c--;
+            }
+    }*/
+    for (int c = 0; c < GAOffsetTensor.size() - 1; c++) {
+        if (GAOffsetTensor[c].source == GAOffsetTensor[c + 1].source)
+            if (GAOffsetTensor[c].target == GAOffsetTensor[c + 1].target)
+                dupCounter++;
+    }
+    std::cout << "There are this many duplicates: " << dupCounter << std::endl;
+    std::cout << "Size: " << GATensor.size() << " and sizeof is " << sizeof(sparseEntry) << std::endl;
+    std::cout << "Size: " << GAOffsetTensor.size() << " and sizeof is " << sizeof(sparseOffset) << std::endl;
+    int small1 = 0, small2 = 0, totalcount = 0;
+    for (auto &v : GAOffsetTensor) {
+        for (int m = 0; m < 4; m++) {
+            totalcount++;
+            if (std::abs(v.coeffs[m]) < 1e-6)
+                small1++;
+            if (std::abs(v.coeffs[m]) < 1e-12)
+                small2++;
+        }
+    }
+    //    std::cout << "Less than 1e-6: " << small1 << " less than 1e-12: " << small2 << " out of " << totalcount << std::endl;
 }
 
 template <int rhocount, int xcount, int ycount>
 void GyroAveragingGrid<rhocount, xcount, ycount>::fastGACalc() {
-    for (size_t i = 0; i < GATensor.size(); i++) {
+    clearGrid(fastGACalcResult);
+    int limit = GATensor.size();
+    for (size_t i = 0; i < limit; i++) {
         sparseEntry v = GATensor[i]; //store raw data indices for speed.
         fastGACalcResult(v.target[0], v.target[1], v.target[2]) += v.coeffs[0] * interpParameters(v.source[0], v.source[1], v.source[2], 0);
         fastGACalcResult(v.target[0], v.target[1], v.target[2]) += v.coeffs[1] * interpParameters(v.source[0], v.source[1], v.source[2], 1);
@@ -221,6 +281,19 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::fastGACalc() {
     }
 }
 
+template <int rhocount, int xcount, int ycount>
+void GyroAveragingGrid<rhocount, xcount, ycount>::fastGACalcOffset() {
+    clearGrid(fastGACalcResultOffset);
+    int size = GAOffsetTensor.size();
+#pragma omp parallel for
+    for (int i = 0; i < size; ++i) {
+        auto interpPlace = interpParameters.data.begin() + GAOffsetTensor[i].source;
+        fastGACalcResultOffset.data[GAOffsetTensor[i].target] += GAOffsetTensor[i].coeffs[0] * interpPlace[0];
+        fastGACalcResultOffset.data[GAOffsetTensor[i].target] += GAOffsetTensor[i].coeffs[1] * interpPlace[1];
+        fastGACalcResultOffset.data[GAOffsetTensor[i].target] += GAOffsetTensor[i].coeffs[2] * interpPlace[2];
+        fastGACalcResultOffset.data[GAOffsetTensor[i].target] += GAOffsetTensor[i].coeffs[3] * interpPlace[3];
+    }
+}
 /* Run test suite.  We expect the test suite to:
 1)     Calculate the gyroaverage transform of f, using f on a full grid, filling only [x,y]
 2)     above, using f but truncating it to be 0 outside of our grid
@@ -293,12 +366,23 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
     std::cout << "That was assembly time.\n";
     t.start();
     std::cout << GATensor.size() << "\n";
-    for (int counter = 0; counter < 1000; counter++) {
+    for (int counter = 0; counter < 10; counter++) {
         setupInterpGrid();
         fastGACalc();
     }
+
     t.report();
-    std::cout << "That was fastGACalc timing. (100 runs)\n\n"
+    std::cout << "That was fastGACalc timing. (10 runs)\n\n"
+              << std::endl;
+    t.start();
+
+    for (int counter = 0; counter < 1000; counter++) {
+        setupInterpGrid();
+        fastGACalcOffset();
+    }
+
+    t.report();
+    std::cout << "That was fastGACalcOffset timing. (1000 runs)\n\n"
               << std::endl;
     t.start();
 
@@ -317,7 +401,9 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
              << FrobNorm(trapezoidInterp, i) << "\t"
              << maxNorm(trapezoidInterp, i) << "\t"
              << FrobNorm(fastGACalcResult, i) << "\t"
-             << maxNorm(fastGACalcResult, i) << "\n";
+             << maxNorm(fastGACalcResult, i) << "\t"
+             << FrobNorm(fastGACalcResultOffset, i) << "\t"
+             << maxNorm(fastGACalcResultOffset, i) << "\n";
     }
     for (int i = 0; i < rhocount; i++) {
         using std::cout;
@@ -333,10 +419,15 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
              << maxNormDiff(analytic_averages, trapezoidInterp, i) << "\t"
              << FrobNormDiff(trapezoidInterp, fastGACalcResult, i) << "\t"
              << maxNormDiff(trapezoidInterp, fastGACalcResult, i) << "\t"
-             << FrobNormDiff(truncatedAlmostExactGA, fastGACalcResult, i) << "\t"
-             << maxNormDiff(truncatedAlmostExactGA, fastGACalcResult, i) << "\t"
-             << FrobNormDiff(analytic_averages, fastGACalcResult, i) << "\t"
-             << maxNormDiff(analytic_averages, fastGACalcResult, i) << "\n";
+             << FrobNormDiff(trapezoidInterp, fastGACalcResultOffset, i) << "\t"
+             << maxNormDiff(trapezoidInterp, fastGACalcResultOffset, i) << "\n";
+
+        //<< FrobNormDiff(truncatedAlmostExactGA, fastGACalcResult, i) << "\t"
+        //<< maxNormDiff(truncatedAlmostExactGA, fastGACalcResult, i) << "\t"
+        //<< FrobNormDiff(analytic_averages, fastGACalcResult, i) << "\t"
+        //<< maxNormDiff(analytic_averages, fastGACalcResult, i) << "\t"
+        //<< FrobNormDiff(analytic_averages, fastGACalcResultOffset, i) << "\t"
+        //<< maxNormDiff(analytic_averages, fastGACalcResultOffset, i) << "\n";
     }
 }
 
