@@ -116,7 +116,13 @@ struct sparseOffset { //no constructor.
     double coeffs[4];
 };
 
-std::array<double, 4> operator+(const std::array<double, 4> &l, const std::array<double, 4> &r) {
+struct LTOffset {
+    int target, source;
+    double coeff;
+};
+
+std::array<double, 4>
+operator+(const std::array<double, 4> &l, const std::array<double, 4> &r) {
     std::array<double, 4> ret;
     ret[0] = l[0] + r[0];
     ret[1] = l[1] + r[1];
@@ -141,11 +147,13 @@ private:
     fullgrid trapezoidInterp;        //GA calculated as trapezoid rule on interpolated, truncated f
     //fullgrid fastGACalcResult;
     fullgrid fastGACalcResultOffset;
+    fullgrid fastGALTResult;
     fullgrid analytic_averages; // stores value of expected GA computed analytically
-    fullgrid exactF;
+    //fullgrid exactF;
     fullgridInterp interpParameters; //will store the bilinear interp parameters.
     //std::vector<sparseEntry> GATensor;
     std::vector<sparseOffset> GAOffsetTensor;
+    std::vector<LTOffset> LTOffsetTensor;
 
     void csvPrinter(const fullgrid &m, int rho) {
         for (int j = 0; j < xcount; j++) {
@@ -212,7 +220,7 @@ private:
     template <typename TFunc>
     void fillbyindex(fullgrid &m, TFunc f) {
 #pragma omp parallel for
-      for (int i = 0; i < rhocount; i++)
+        for (int i = 0; i < rhocount; i++)
             for (int j = 0; j < xcount; j++)
                 for (int k = 0; k < ycount; k++) {
                     m(i, j, k) = f(i, j, k);
@@ -240,6 +248,7 @@ public:
     void assembleFastGACalc(void);
     //void fastGACalc();
     void fastGACalcOffset();
+    void fastLTCalcOffset();
     std::array<double, 4> arcIntegral(double rho, double xc, double yc, double s0, double s1);
     template <typename TFunc1, typename TFunc2>
     void GyroAveragingTestSuite(TFunc1 f,
