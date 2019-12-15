@@ -146,13 +146,13 @@ private:
     fullgrid truncatedAlmostExactGA; //above, except f hard truncated to 0 outside grid
     fullgrid trapezoidInterp;        //GA calculated as trapezoid rule on interpolated, truncated f
     //fullgrid fastGACalcResult;
-    fullgrid fastGACalcResultOffset;
+    //fullgrid fastGACalcResultOffset;
     fullgrid fastGALTResult;
     fullgrid analytic_averages; // stores value of expected GA computed analytically
     //fullgrid exactF;
     fullgridInterp interpParameters; //will store the bilinear interp parameters.
     //std::vector<sparseEntry> GATensor;
-    std::vector<sparseOffset> GAOffsetTensor;
+    //std::vector<sparseOffset> GAOffsetTensor;
     std::vector<LTOffset> LTOffsetTensor;
 
     void csvPrinter(const fullgrid &m, int rho) {
