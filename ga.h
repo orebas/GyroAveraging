@@ -209,7 +209,8 @@ private:
     //below fills a grid, given a function of rho, x, and y
     template <typename TFunc>
     void fill(fullgrid &m, TFunc f) {
-        for (auto i = 0; i < rhocount; i++) {
+#pragma omp parallel for
+      for (auto i = 0; i < rhocount; i++) {
             for (auto j = 0; j < xcount; j++)
                 for (auto k = 0; k < ycount; k++) {
                     m(i, j, k) = f(rhoset[i], xset[j], yset[k]);
