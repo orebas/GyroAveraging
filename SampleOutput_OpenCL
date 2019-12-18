@@ -1,0 +1,9 @@
+ 0.014171s wall, 0.530000s user + 0.000000s system = 0.530000s CPU (3740.0%)
+That was the time required to calculate analytic gyroaverages.
+ 0.455553s wall, 10.980000s user + 0.000000s system = 10.980000s CPU (2410.3%)
+That was the time required to calculate gyroaverages from the definition, with the trapezoid rule.
+ 0.419311s wall, 10.840000s user + 0.000000s system = 10.840000s CPU (2585.2%)
+That was the time required to calculate gryoaverages by def (as above), except we hard truncated f() to 0 off-grid.
+ 5.338780s wall, 168.090000s user + 0.020000s system = 168.110000s CPU (3148.8%)
+That was the time required to calc gyroaverages by def, replacing f() by its bilinear interpolant.
+Number of double  products needed for LT calc: 131630684 and rough memory usage is 2106090944

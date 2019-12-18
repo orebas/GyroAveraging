@@ -335,7 +335,7 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
         double yc = yset[k];
         if (rhoset[i] == 0)
             return f(i, xc, yc);
-        auto new_f = [&](double x) -> double { return f(i, xc + rhoset[i] * std::sin(x), yc - rhoset[i] * std::cos(x)); };
+        auto new_f = [&](double x) -> double { return f(rhoset[i], xc + rhoset[i] * std::sin(x), yc - rhoset[i] * std::cos(x)); };
         double result = TrapezoidIntegrate(0, 2 * pi, new_f) / (2 * pi);
         return result;
     });
@@ -354,7 +354,7 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
                 return 0;
             if ((why < yset[0]) || (why > yset.back()))
                 return 0;
-            return f(i, ex, why);
+            return f(rhoset[i], ex, why);
         };
         double result = TrapezoidIntegrate(0, 2 * pi, new_f) / (2 * pi);
         return result;
@@ -367,7 +367,7 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
         double xc = xset[j];
         double yc = yset[k];
         if (rhoset[i] == 0)
-            return f(i, xc, yc);
+            return f(rhoset[i], xc, yc);
         auto new_f = [&](double x) -> double { return interp2d(i, xc + rhoset[i] * std::sin(x), yc - rhoset[i] * std::cos(x)); };
         double result = TrapezoidIntegrate(0, 2 * pi, new_f) / (2 * pi);
         return result;
@@ -379,7 +379,7 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
     t.report();
     std::cout << "That was the time required to assemble the sparse matrix in the fast-GA dot product calculation." << std::endl;
     t.start();
-    int times = 5;
+    int times = 10;
     /*for (int counter = 0; counter < 1; counter++) {
         setupInterpGrid();
         fastGACalcOffset();
@@ -568,7 +568,7 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
     std::cout
         << "Below are some summary statistics for various grid.  Under each header is a pair of values.  The first is the RMS of a matrix, the second is the max absolute entry in a matrix.\n";
 
-    std::cout << "rho        Input Grid                   Analytic Estimates              Trapezoid Rule                  Impact of truncation            Trapezoid rule vs bilin interp  Fast dot-product GA\n";
+    std::cout << "rho        Input Grid                   Analytic Estimates              Trapezoid Rule                  Trap Rule truncation            Trapezoid rule of bilin interp  Fast dot-product GA\n";
 
     for (int i = 0; i < rhocount; i++) {
 
@@ -587,7 +587,7 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
                   << maxNorm(fastGALTResult, i) << "\n";
     }
     std::cout << "Diffs:\n";
-    std::cout << "rho        Analytic vs Quadrature       Error due to truncation         Error due to interp             Analytic vs interp              interp vs dot-product GA \n";
+    std::cout << "rho        Analytic vs Quadrature       Error due to truncation         Error due to interp             Analytic vs interp              interp vs dot-product GA          GPU vs CPU\n";
     for (int i = 0; i < rhocount; i++) {
         std::cout.precision(5);
         std::cout << std::fixed << rhoset[i] << std::scientific << std::setw(15)
@@ -652,32 +652,43 @@ int main() {
 	double B = 2.0;*/
 
     constexpr double rhomax = 3, rhomin = 0.0;             // set from 0 to 3 maybe?  remember to test annoying integral multiples. TEST 0. test negative.
-    constexpr int xcount = 64, ycount = 64, rhocount = 35; //bump up to 64x64x35 later
+    constexpr int xcount = 128, ycount = 128, rhocount = 35; //bump up to 64x64x35 later
     constexpr double xmin = -5, xmax = 5;
     constexpr double ymin = -5, ymax = 5;
     constexpr double A = 5;
-    constexpr double B = 5.0;
+    constexpr double B = 5;
     constexpr double Normalizer = 50.0;
     std::vector<double> rhoset;
     std::vector<double> xset;
     std::vector<double> yset;
 
-    /*auto verySmoothFunc = [](double row, double ex, double why) -> double {
+    auto verySmoothFunc = [](double row, double ex, double why) -> double {
         double temp = ex * ex + why * why;
         if (temp >= 25)
             return 0;
         else
             return (15 * std::exp(1 / (temp / 25.0 - 1.0)));
-    };*/
-    //auto constantFuncAnalytic = [](double row, double ex, double why) -> double {return 2*pi;};
-    //auto linearFunc = [](double row, double ex, double why) -> double {return std::max(0.0,5 - std::abs(ex) - std::abs(why));};
-    //auto constantFuncAnalytic = [](double row, double ex, double why) -> double {return 2*pi;};
-    auto testfunc1 = [A](double row, double ex, double why) -> double { return Normalizer * exp(-A * (ex * ex + why * why)); };
-    auto testfunc1_analytic = [A](double row, double ex, double why) -> double {
-        return Normalizer * exp(-A * (ex * ex + why * why + row * row)) * boost::math::cyl_bessel_i(0, 2 * A * row * std::sqrt(ex * ex + why * why));
     };
-    //auto testfunc2 = [Normalizer, A, B](double row, double ex, double why) -> double { return Normalizer * exp(-A * (ex * ex + why * why)) * exp(-B * row * row); };
-    //auto testfunc2_analytic = [Normalizer, A, B](double row, double ex, double why) -> double { return Normalizer * exp(-B * row * row) * exp(-A * (ex * ex + why * why + row * row)) * boost::math::cyl_bessel_i(0, 2 * A * row * std::sqrt(ex * ex + why * why)); };
+
+      auto verySmoothFunc2 = [](double row, double ex, double why) -> double {
+        double temp = ex * ex + why * why;
+        if (temp >= 25)
+            return 0;
+        else
+	  return std::exp(-row) * (30 * std::exp(1 / (temp / 25.0 - 1.0)));
+    };
+
+
+      auto ZeroFunc = [] (double row, double ex, double why) -> double {return 0;};
+	auto constantFuncAnalytic = [](double row, double ex, double why) -> double {return 2*pi;};
+      auto linearFunc = [](double row, double ex, double why) -> double {return std::max(0.0,5 - std::abs(ex) - std::abs(why));};
+      //auto constantFuncAnalytic = [](double row, double ex, double why) -> double {return 2*pi;};
+      auto testfunc1 = [A,Normalizer](double row, double ex, double why) -> double { return Normalizer * exp(-A * (ex * ex + why * why)); };
+      auto testfunc1_analytic = [A,Normalizer](double row, double ex, double why) -> double {
+				  return Normalizer * exp(-A * (ex * ex + why * why + row * row)) * boost::math::cyl_bessel_i(0, 2 * A * row * std::sqrt(ex * ex + why * why));
+    };
+    auto testfunc2 = [Normalizer, A, B](double row, double ex, double why) -> double { return Normalizer * exp(-A * (ex * ex + why * why)) * exp(-B * row * row); };
+    auto testfunc2_analytic = [Normalizer, A, B](double row, double ex, double why) -> double { return Normalizer * exp(-B * row * row) * exp(-A * (ex * ex + why * why + row * row)) * boost::math::cyl_bessel_i(0, 2 * A * row * std::sqrt(ex * ex + why * why)); };
     /*auto testfunc2_analytic = [A, B](double row, double ex, double why) -> double {
         double rsquared = ex * ex + why * why;  //THIS SEEMS WRONG.
         double alpha = (A * B) / (A + B);
@@ -688,5 +699,5 @@ int main() {
     yset = LinearSpacedArray(ymin, ymax, ycount);
 
     GyroAveragingGrid<rhocount, xcount, ycount> g(rhoset, xset, yset);
-    g.GyroAveragingTestSuite(testfunc1, testfunc1_analytic);
+    g.GyroAveragingTestSuite(testfunc2, testfunc2_analytic);
 }
