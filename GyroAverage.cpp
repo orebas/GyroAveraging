@@ -120,28 +120,28 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::setupDerivsGrid() {
     for (int i = 0; i < rhocount; i++) {
         for (int j = 0; j < xcount; j++) {
             for (int k = 0; k < ycount; k++) {
-                derivsGrid(i, j, k, 0) = gridValues(i, j, k);
+                derivs(i, j, k, 0) = gridValues(i, j, k);
             }
         }
         //
         for (int k = 0; k < ycount; k++) {
-            derivsGrid(i, 0, k, 1) = 0;
-            derivsGrid(i, xcount - 1, k, 1) = 0;
-            derivsGrid(i, 1, k, 1) = (-3.0 * gridValues(i, 0, k) +
+            derivs(i, 0, k, 1) = 0;
+            derivs(i, xcount - 1, k, 1) = 0;
+            derivs(i, 1, k, 1) = (-3.0 * gridValues(i, 0, k) +
                                       -10.0 * gridValues(i, 1, k) +
                                       18 * gridValues(i, 2, k) +
                                       -6 * gridValues(i, 3, k) +
                                       1 * gridValues(i, 4, k)) /
                                      12.0;
 
-            derivsGrid(i, xcount - 2, k, 1) = (3.0 * gridValues(i, xcount - 1, k) +
+            derivs(i, xcount - 2, k, 1) = (3.0 * gridValues(i, xcount - 1, k) +
                                                10.0 * gridValues(i, xcount - 2, k) +
                                                -18.0 * gridValues(i, xcount - 3, k) +
                                                6.0 * gridValues(i, xcount - 4, k) +
                                                -1.0 * gridValues(i, xcount - 5, k)) /
                                               12.0;
             for (int j = 2; j <= xcount - 3; j++)
-                derivsGrid(i, j, k, 1) = (1.0 * gridValues(i, j - 2, k) +
+                derivs(i, j, k, 1) = (1.0 * gridValues(i, j - 2, k) +
                                           -8.0 * gridValues(i, j - 1, k) +
                                           0.0 * gridValues(i, j, k) + //just to show we know it's there
                                           8.0 * gridValues(i, j + 1, k) +
@@ -149,22 +149,22 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::setupDerivsGrid() {
                                          12.0;
         }
         for (int j = 0; j < xcount; j++) {
-            derivsGrid(i, j, 0, 2) = 0;
-            derivsGrid(i, j, ycount - 1, 2) = 0;
-            derivsGrid(i, j, 1, 2) = (-3.0 * gridValues(i, j, 0) +
+            derivs(i, j, 0, 2) = 0;
+            derivs(i, j, ycount - 1, 2) = 0;
+            derivs(i, j, 1, 2) = (-3.0 * gridValues(i, j, 0) +
                                       -10.0 * gridValues(i, j, 1) +
                                       18.0 * gridValues(i, j, 2) +
                                       -6.0 * gridValues(i, j, 3) +
                                       1.0 * gridValues(i, j, 4)) /
                                      12.0;
-            derivsGrid(i, j, ycount - 2, 2) = (3.0 * gridValues(i, j, ycount - 1) +
+            derivs(i, j, ycount - 2, 2) = (3.0 * gridValues(i, j, ycount - 1) +
                                                10.0 * gridValues(i, j, ycount - 2) +
                                                -18.0 * gridValues(i, j, ycount - 3) +
                                                6.0 * gridValues(i, j, ycount - 4) +
                                                -1 * gridValues(i, j, ycount - 5)) /
                                               12.0;
             for (int k = 2; k < ycount - 3; k++) {
-                derivsGrid(i, j, k, 2) = (1.0 * gridValues(i, j, k - 2) +
+                derivs(i, j, k, 2) = (1.0 * gridValues(i, j, k - 2) +
                                           -8.0 * gridValues(i, j, k - 1) +
                                           0.0 * gridValues(i, j, k) +
                                           8.0 * gridValues(i, j, k + 1) +
@@ -756,7 +756,8 @@ template <typename TFunc1, typename TFunc2, typename TFunc3, typename TFunc4>
 void derivTest(const gridDomain &g, TFunc1 f,
                TFunc2 f_x, TFunc3 f_y, TFunc4 f_xy) {
 
-    int count = 20;
+    constexpr int count = 20;
+    constexpr int rhocount =4;
     std::vector<double> rhoset;
     std::vector<double> xset;
     std::vector<double> yset;
@@ -764,8 +765,25 @@ void derivTest(const gridDomain &g, TFunc1 f,
     xset = LinearSpacedArray(g.xmin, g.xmax, count);
     yset = LinearSpacedArray(g.ymin, g.ymax, count);
     GyroAveragingGrid<rhocount, count, count> grid(rhoset, xset, yset);
-    grid.derivErrorAnalysis(f, f_x, f_y, f_xy);
+    grid.derivsErrorAnalysis(f, f_x, f_y, f_xy);
 }
+
+
+template <int rhocount, int xcount, int ycount>
+template <typename TFunc1, typename TFunc2, typename TFunc3, typename TFunc4>
+void GyroAveragingGrid<rhocount, xcount, ycount>::derivsErrorAnalysis(TFunc1 f, TFunc2 f_x, TFunc3, f_y, TFunc4, f_xy) {
+    fill(gridValues, f);
+    setupInterpGrid();
+    setupDerivsGrid();
+    derivsGrid analytic;
+    for(int i=0; i<rhocount;i++)
+        for(int j=0;j<xcount;j++)
+            for(int k=0;k<ycount;k++) {
+
+    }
+}
+
+
 
 template <int rhocount, int xcount, int ycount>
 template <typename TFunc1, typename TFunc2>

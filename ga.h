@@ -312,6 +312,12 @@ public:
     void InterpErrorAnalysis(TFunc1 f,
                              TFunc2 analytic);
 
+template <typename TFunc1, typename TFunc2, typename TFunc3, typename TFunc4>
+    void derivsErrorAnalysis(TFunc1 f,
+                             TFunc2 f_x, TFunc3 f_y, TFunc4 f_xy);
+
+
+
     double interp2d(int rhoindex, const double x, const double y);
 };
 
