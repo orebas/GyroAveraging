@@ -1,35 +1,31 @@
 // GyroDebugging.cpp : This file contains the 'main' function. Program execution begins and ends there.
 ////#include "pch.h"
 
-
 #ifndef NDEBUG
- #define NDEBUG
+#define NDEBUG
 #endif
 
 #define VIENNACL_WITH_UBLAS 1
 
+#include <boost/numeric/ublas/lu.hpp>
+#include <boost/numeric/ublas/matrix_sparse.hpp>
+#include <boost/numeric/ublas/operation_sparse.hpp>
 #include <boost/numeric/ublas/triangular.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/vector_proxy.hpp>
-#include <boost/numeric/ublas/matrix_sparse.hpp>
-#include <boost/numeric/ublas/operation_sparse.hpp>
-#include <boost/numeric/ublas/lu.hpp>
 
-
-#include "viennacl/scalar.hpp"
-#include "viennacl/vector.hpp"
-#include "viennacl/coordinate_matrix.hpp"
 #include "viennacl/compressed_matrix.hpp"
+#include "viennacl/coordinate_matrix.hpp"
 #include "viennacl/ell_matrix.hpp"
 #include "viennacl/hyb_matrix.hpp"
-#include "viennacl/sliced_ell_matrix.hpp"
-#include "viennacl/linalg/prod.hpp"
-#include "viennacl/linalg/norm_2.hpp"
 #include "viennacl/io/matrix_market.hpp"
 #include "viennacl/linalg/ilu.hpp"
+#include "viennacl/linalg/norm_2.hpp"
+#include "viennacl/linalg/prod.hpp"
+#include "viennacl/scalar.hpp"
+#include "viennacl/sliced_ell_matrix.hpp"
 #include "viennacl/tools/timer.hpp"
-
-
+#include "viennacl/vector.hpp"
 
 #include "ga.h"
 #include <algorithm>
@@ -47,9 +43,6 @@
 #include <math.h>
 #include <omp.h>
 #include <vector>
-
-
-
 
 template <typename TFunc>
 double TanhSinhIntegrate(double x, double y, TFunc f) { //used to be trapezoid rule.
@@ -119,6 +112,75 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::setupInterpGrid() {
     }
 }
 
+// setupDerivsGrid assumes the values of f are already in gridValues
+// then populates derivs with vectors of the form [f,f_x,f_y, f_xy]
+// we are using finite difference
+template <int rhocount, int xcount, int ycount>
+void GyroAveragingGrid<rhocount, xcount, ycount>::setupDerivsGrid() {
+    for (int i = 0; i < rhocount; i++) {
+        for (int j = 0; j < xcount; j++) {
+            for (int k = 0; k < ycount; k++) {
+                derivsGrid(i, j, k, 0) = gridValues(i, j, k);
+            }
+        }
+        //
+        for (int k = 0; k < ycount; k++) {
+            derivsGrid(i, 0, k, 1) = 0;
+            derivsGrid(i, xcount - 1, k, 1) = 0;
+            derivsGrid(i, 1, k, 1) = (-3.0 * gridValues(i, 0, k) +
+                                      -10.0 * gridValues(i, 1, k) +
+                                      18 * gridValues(i, 2, k) +
+                                      -6 * gridValues(i, 3, k) +
+                                      1 * gridValues(i, 4, k)) /
+                                     12.0;
+
+            derivsGrid(i, xcount - 2, k, 1) = (3.0 * gridValues(i, xcount - 1, k) +
+                                               10.0 * gridValues(i, xcount - 2, k) +
+                                               -18.0 * gridValues(i, xcount - 3, k) +
+                                               6.0 * gridValues(i, xcount - 4, k) +
+                                               -1.0 * gridValues(i, xcount - 5, k)) /
+                                              12.0;
+            for (int j = 2; j <= xcount - 3; j++)
+                derivsGrid(i, j, k, 1) = (1.0 * gridValues(i, j - 2, k) +
+                                          -8.0 * gridValues(i, j - 1, k) +
+                                          0.0 * gridValues(i, j, k) + //just to show we know it's there
+                                          8.0 * gridValues(i, j + 1, k) +
+                                          -1.0 * gridValues(i, j + 2, k)) /
+                                         12.0;
+        }
+        for (int j = 0; j < xcount; j++) {
+            derivsGrid(i, j, 0, 2) = 0;
+            derivsGrid(i, j, ycount - 1, 2) = 0;
+            derivsGrid(i, j, 1, 2) = (-3.0 * gridValues(i, j, 0) +
+                                      -10.0 * gridValues(i, j, 1) +
+                                      18.0 * gridValues(i, j, 2) +
+                                      -6.0 * gridValues(i, j, 3) +
+                                      1.0 * gridValues(i, j, 4)) /
+                                     12.0;
+            derivsGrid(i, j, ycount - 2, 2) = (3.0 * gridValues(i, j, ycount - 1) +
+                                               10.0 * gridValues(i, j, ycount - 2) +
+                                               -18.0 * gridValues(i, j, ycount - 3) +
+                                               6.0 * gridValues(i, j, ycount - 4) +
+                                               -1 * gridValues(i, j, ycount - 5)) /
+                                              12.0;
+            for (int k = 2; k < ycount - 3; k++) {
+                derivsGrid(i, j, k, 2) = (1.0 * gridValues(i, j, k - 2) +
+                                          -8.0 * gridValues(i, j, k - 1) +
+                                          0.0 * gridValues(i, j, k) +
+                                          8.0 * gridValues(i, j, k + 1) +
+                                          -1.0 * gridValues(i, j, k + 2)) /
+                                         12.0;
+            }
+        }
+
+        /*double x = xset[j],
+                       a = xset[j + 1],
+                       y = yset[k],
+                       b = yset[k + 1];
+                double denom = (a - x) * (b - y);*/
+    }
+}
+
 //arcIntegral computes the analytic integral of a bilinear function over an arc of a circle
 //the circle is centered at xc,yc with radius rho, and the function is determined
 //by a previously setup interp grid.
@@ -141,11 +203,11 @@ template <int rhocount, int xcount, int ycount>
 void GyroAveragingGrid<rhocount, xcount, ycount>::assembleFastGACalc(void) {
     //std::map<std::pair<int, int>, std::array<double, 4>> GAOffsetMap;
 
-  std::vector <std::map<std::pair<int, int>, double>> GALookThruOffsetMapArray(rhocount);
+    std::vector<std::map<std::pair<int, int>, double>> GALookThruOffsetMapArray(rhocount);
 
-    #pragma omp parallel for
+#pragma omp parallel for
     for (auto i = 0; i < rhocount; i++) {
-      std::map<std::pair<int,int>, double> &GALookThruOffsetMap =  GALookThruOffsetMapArray[i]; 
+        std::map<std::pair<int, int>, double> &GALookThruOffsetMap = GALookThruOffsetMapArray[i];
         for (auto j = 0; j < xcount; j++)
             for (auto k = 0; k < ycount; k++) {
                 std::vector<indexedPoint> intersections;
@@ -255,15 +317,15 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::assembleFastGACalc(void) {
         so.coeffs[3] = (iter->second)[3];
         GAOffsetTensor.push_back(so);
     }*/
-    for(int i=0; i<rhocount;i++){
-      auto  & GALookThruOffsetMap =  GALookThruOffsetMapArray[i];
-      for (auto iter = GALookThruOffsetMap.begin(); iter != GALookThruOffsetMap.end(); ++iter) {
-	LTOffset lto;
-        lto.source = (iter->first).first;
-        lto.target = (iter->first).second;
-        lto.coeff = (iter->second);
-        LTOffsetTensor.push_back(lto);
-      }
+    for (int i = 0; i < rhocount; i++) {
+        auto &GALookThruOffsetMap = GALookThruOffsetMapArray[i];
+        for (auto iter = GALookThruOffsetMap.begin(); iter != GALookThruOffsetMap.end(); ++iter) {
+            LTOffset lto;
+            lto.source = (iter->first).first;
+            lto.target = (iter->first).second;
+            lto.coeff = (iter->second);
+            LTOffsetTensor.push_back(lto);
+        }
     }
     /*std::sort(GAOffsetTensor.begin(), GAOffsetTensor.end(), [](sparseOffset a, sparseOffset b) -> bool { 
 				if(a.source == b.source)
@@ -310,6 +372,169 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::fastLTCalcOffset() {
     }
 }
 
+template <int rhocount, int xcount, int ycount>
+template <typename TFunc1, typename TFunc2>
+void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuite(TFunc1 f, TFunc2 analytic) {
+
+    boost::timer::auto_cpu_timer t;
+
+    //begin ViennaCL calc
+
+    std::vector<std::map<int, double>>
+        cpu_sparse_matrix(xcount * ycount * rhocount);
+    viennacl::compressed_matrix<double> vcl_sparse_matrix(xcount * ycount * rhocount, xcount * ycount * rhocount);
+    boost::numeric::ublas::compressed_matrix<double> ublas_matrix(xcount * ycount * rhocount, xcount * ycount * rhocount);
+    t.start();
+
+    for (int m = 0; m < LTOffsetTensor.size(); ++m) {
+        cpu_sparse_matrix[LTOffsetTensor[m].target][LTOffsetTensor[m].source] = LTOffsetTensor[m].coeff;
+    }
+    viennacl::copy(cpu_sparse_matrix, vcl_sparse_matrix);
+
+    viennacl::backend::finish();
+    t.report();
+    std::cout << "That was the time to create the CPU matrix and copy it once to GPU." << std::endl;
+    t.start();
+    viennacl::copy(vcl_sparse_matrix, ublas_matrix);
+    viennacl::backend::finish();
+    t.report();
+    t.start();
+    std::cout << "That was the time just to setup the ublas matrix." << std::endl;
+
+    viennacl::compressed_matrix<double, 1> vcl_compressed_matrix_1(xcount * ycount * rhocount, xcount * ycount * rhocount);
+    viennacl::compressed_matrix<double, 4> vcl_compressed_matrix_4(xcount * ycount * rhocount, xcount * ycount * rhocount);
+    viennacl::compressed_matrix<double, 8> vcl_compressed_matrix_8(xcount * ycount * rhocount, xcount * ycount * rhocount);
+    viennacl::coordinate_matrix<double> vcl_coordinate_matrix_128(xcount * ycount * rhocount, xcount * ycount * rhocount);
+    viennacl::ell_matrix<double, 1> vcl_ell_matrix_1();
+    viennacl::hyb_matrix<double, 1> vcl_hyb_matrix_1();
+    viennacl::sliced_ell_matrix<double> vcl_sliced_ell_matrix_1(xcount * ycount * rhocount, xcount * ycount * rhocount);
+
+    viennacl::vector<double> gpu_source(gridValues.data.size());
+    viennacl::vector<double> gpu_target(gridValues.data.size());
+    copy(cpu_sparse_matrix, vcl_sparse_matrix); //default alignment, benchmark different options.
+    copy(gridValues.data.begin(), gridValues.data.end(), gpu_source.begin());
+    copy(gridValues.data.begin(), gridValues.data.end(), gpu_target.begin());
+    //we are going to compute each product once and then sync, to compile all kernels.
+    //this will feel like a ~1 second delay in user space.
+
+    viennacl::copy(ublas_matrix, vcl_compressed_matrix_1);
+    viennacl::copy(ublas_matrix, vcl_compressed_matrix_4);
+    viennacl::copy(ublas_matrix, vcl_compressed_matrix_8);
+    viennacl::copy(ublas_matrix, vcl_coordinate_matrix_128);
+    //    viennacl::copy(cpu_sparse_matrix,vcl_ell_matrix_1);
+    //viennacl::copy(ublas_matrix,vcl_hyb_matrix_1);
+    viennacl::copy(cpu_sparse_matrix, vcl_sliced_ell_matrix_1);
+    viennacl::backend::finish();
+    t.report();
+    t.start();
+    std::cout << "That was the time to copy everything onto the GPU." << std::endl;
+
+    fullgrid cpu_results[8];
+
+    gpu_target = viennacl::linalg::prod(vcl_sparse_matrix, gpu_source);
+    viennacl::backend::finish();
+
+    gpu_target = viennacl::linalg::prod(vcl_compressed_matrix_1, gpu_source);
+    viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[0].data.begin());
+
+    gpu_target = viennacl::linalg::prod(vcl_compressed_matrix_4, gpu_source);
+    gpu_target = viennacl::linalg::prod(vcl_compressed_matrix_8, gpu_source);
+    gpu_target = viennacl::linalg::prod(vcl_coordinate_matrix_128, gpu_source);
+    //gpu_target = viennacl::linalg::prod(vcl_ell_matrix_1,gpu_source);
+    //gpu_target = viennacl::linalg::prod(vcl_hyb_matrix_1,gpu_source);
+    gpu_target = viennacl::linalg::prod(vcl_sliced_ell_matrix_1, gpu_source);
+
+    viennacl::backend::finish();
+    viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[0].data.begin());
+    viennacl::backend::finish();
+
+    t.report();
+    std::cout << "That was the time to do all of the products, and copy the result back only once." << std::endl;
+
+    constexpr int gputimes = 3;
+    //At this point everything has been done once.  We start benchmarking.  We are going to include cost of vectors transfers back and forth.
+
+    t.start();
+    for (int count = 0; count < gputimes; ++count) {
+        copy(gridValues.data.begin(), gridValues.data.end(), gpu_source.begin());
+        viennacl::backend::finish();
+        gpu_target = viennacl::linalg::prod(vcl_sparse_matrix, gpu_source);
+        viennacl::backend::finish();
+        viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[0].data.begin());
+        viennacl::backend::finish();
+    }
+    t.report();
+    std::cout << "That was the full cycle time to do " << gputimes << "  products using default sparse matrix." << std::endl;
+
+    t.start();
+    for (int count = 0; count < gputimes; ++count) {
+        copy(gridValues.data.begin(), gridValues.data.end(), gpu_source.begin());
+        viennacl::backend::finish();
+        gpu_target = viennacl::linalg::prod(vcl_compressed_matrix_1, gpu_source);
+        viennacl::backend::finish();
+        viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[1].data.begin());
+        viennacl::backend::finish();
+    }
+    t.report();
+    std::cout << "That was the full cycle time to do " << gputimes << "  products using compressed_matrix_1 matrix." << std::endl;
+
+    t.start();
+    for (int count = 0; count < gputimes; ++count) {
+        copy(gridValues.data.begin(), gridValues.data.end(), gpu_source.begin());
+        viennacl::backend::finish();
+        gpu_target = viennacl::linalg::prod(vcl_compressed_matrix_4, gpu_source);
+        viennacl::backend::finish();
+        viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[2].data.begin());
+        viennacl::backend::finish();
+    }
+    t.report();
+    std::cout << "That was the full cycle time to do " << gputimes << "  products using compressed_matrix_4 matrix." << std::endl;
+
+    t.start();
+    for (int count = 0; count < gputimes; ++count) {
+        copy(gridValues.data.begin(), gridValues.data.end(), gpu_source.begin());
+        viennacl::backend::finish();
+        gpu_target = viennacl::linalg::prod(vcl_compressed_matrix_8, gpu_source);
+        viennacl::backend::finish();
+        viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[3].data.begin());
+        viennacl::backend::finish();
+    }
+    t.report();
+    std::cout << "That was the full cycle time to do " << gputimes << "  products using compressed_matrix_8 matrix." << std::endl;
+
+    t.start();
+    /*    for(int count =0; count<gputimes;++count){
+      copy(gridValues.data.begin(),gridValues.data.end(),gpu_source.begin());
+      viennacl::backend::finish();
+      gpu_target = viennacl::linalg::prod(vcl_coordinate_matrix_128,gpu_source);
+      viennacl::backend::finish();
+      viennacl::copy(gpu_target.begin(),gpu_target.end(),cpu_results[4].data.begin());
+      viennacl::backend::finish();
+    }
+    t.report();*/
+    std::cout << "That was the full cycle time to do " << gputimes * 0 << "  products using coordinate_matrix_128 matrix." << std::endl;
+
+    t.start();
+    for (int count = 0; count < gputimes; ++count) {
+        copy(gridValues.data.begin(), gridValues.data.end(), gpu_source.begin());
+        viennacl::backend::finish();
+        gpu_target = viennacl::linalg::prod(vcl_sliced_ell_matrix_1, gpu_source);
+        viennacl::backend::finish();
+        viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[4].data.begin());
+        viennacl::backend::finish();
+    }
+    t.report();
+    std::cout << "That was the full cycle time to do " << gputimes << "  products using sliced_ell_matrix_1 matrix." << std::endl;
+
+    std::cout << "Next we report errors for each GPU calc (in above order) vs CPU dot-product calc.  Here we only report maxabs norm" << std::endl;
+    for (int i = 0; i < rhocount; i++) {
+        std::cout.precision(5);
+        std::cout << std::fixed << rhoset[i] << std::scientific << std::setw(15) << maxNormDiff(fastGALTResult, cpu_results[0], i) << "\t" << maxNormDiff(fastGALTResult, cpu_results[1], i) << "\t" << maxNormDiff(fastGALTResult, cpu_results[2], i) << "\t" << maxNormDiff(fastGALTResult, cpu_results[3], i) << "\t" << maxNormDiff(fastGALTResult, cpu_results[4], i) << std::endl;
+    }
+
+    //end ViennaCL calc
+}
+
 /* Run test suite.  We expect the test suite to:
 1)     Calculate the gyroaverage transform of f, using f on a full grid, at each grid point
 2)     above, using f but truncating it to be 0 outside of our grid
@@ -330,64 +555,23 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
     std::cout << "That was the time required to calculate analytic gyroaverages.\n";
     setupInterpGrid();
     t.start();
-    fillbyindex(almostExactGA, [&](int i, int j, int k) -> double { //adaptive trapezoid rule on actual input function.
-        double xc = xset[j];
-        double yc = yset[k];
-        if (rhoset[i] == 0)
-            return f(i, xc, yc);
-        auto new_f = [&](double x) -> double { return f(rhoset[i], xc + rhoset[i] * std::sin(x), yc - rhoset[i] * std::cos(x)); };
-        double result = TrapezoidIntegrate(0, 2 * pi, new_f) / (2 * pi);
-        return result;
-    });
+    fillAlmostExactGA(almostExactGA, f);
     t.report();
     std::cout << "That was the time required to calculate gyroaverages from the definition, with the trapezoid rule.\n";
     t.start();
-    fillbyindex(truncatedAlmostExactGA, [&](int i, int j, int k) -> double {
-        double xc = xset[j];
-        double yc = yset[k];
-        if (rhoset[i] == 0)
-            return f(i, xc, yc);
-        auto new_f = [&](double x) -> double {
-            double ex = xc + rhoset[i] * std::sin(x);
-            double why = yc - rhoset[i] * std::cos(x);
-            if ((ex < xset[0]) || (ex > xset.back()))
-                return 0;
-            if ((why < yset[0]) || (why > yset.back()))
-                return 0;
-            return f(rhoset[i], ex, why);
-        };
-        double result = TrapezoidIntegrate(0, 2 * pi, new_f) / (2 * pi);
-        return result;
-    });
+    fillTruncatedAlmostExactGA(truncatedAlmostExactGA, f);
     t.report();
     std::cout << "That was the time required to calculate gryoaverages by def (as above), except we hard truncated f() to 0 off-grid.\n";
     t.start();
-
-    fillbyindex(trapezoidInterp, [&](int i, int j, int k) -> double {
-        double xc = xset[j];
-        double yc = yset[k];
-        if (rhoset[i] == 0)
-            return f(rhoset[i], xc, yc);
-        auto new_f = [&](double x) -> double { return interp2d(i, xc + rhoset[i] * std::sin(x), yc - rhoset[i] * std::cos(x)); };
-        double result = TrapezoidIntegrate(0, 2 * pi, new_f) / (2 * pi);
-        return result;
-    });
+    fillTrapezoidInterp(trapezoidInterp, f);
     t.report();
-    std::cout << "That was the time required to calc gyroaverages by def, replacing f() by its bilinear interpolant." <<std::endl;
+    std::cout << "That was the time required to calc gyroaverages by def, replacing f() by its bilinear interpolant." << std::endl;
     t.start();
     assembleFastGACalc();
     t.report();
     std::cout << "That was the time required to assemble the sparse matrix in the fast-GA dot product calculation." << std::endl;
     t.start();
-    int times = 10;
-    /*for (int counter = 0; counter < 1; counter++) {
-        setupInterpGrid();
-        fastGACalcOffset();
-    }
-
-    t.report();
-    std::cout << "The was the time require to run dot-product gyroaverage calc " << 1 << " times. \n " << std::endl;
-    t.start();*/
+    int times = 3;
     for (int counter = 0; counter < times; counter++) {
         fastLTCalcOffset();
     }
@@ -395,175 +579,7 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
     t.report();
     std::cout << "The was the time require to run LT gyroaverage calc " << times << " times. \n " << std::endl;
 
-
-    //begin ViennaCL calc
-
-    std::vector<std::map<int,double> > cpu_sparse_matrix(xcount*ycount*rhocount);
-    viennacl::compressed_matrix<double> vcl_sparse_matrix(xcount*ycount*rhocount,xcount*ycount*rhocount);
- boost::numeric::ublas::compressed_matrix<double> ublas_matrix (xcount*ycount*rhocount,xcount*ycount*rhocount);
- t.start();
-
-    for (int m = 0; m < LTOffsetTensor.size(); ++m) {
-      cpu_sparse_matrix[LTOffsetTensor[m].target][LTOffsetTensor[m].source] = LTOffsetTensor[m].coeff;
-    }
-    viennacl::copy(cpu_sparse_matrix,vcl_sparse_matrix);
-    
-    viennacl::backend::finish();
-    t.report();
-    std::cout<< "That was the time to create the CPU matrix and copy it once to GPU." << std::endl;
-    t.start();
-    viennacl::copy(vcl_sparse_matrix,ublas_matrix);
- viennacl::backend::finish();
- t.report();
- t.start();
- std::cout << "That was the time just to setup the ublas matrix." << std::endl;   
-
-    viennacl::compressed_matrix<double, 1> vcl_compressed_matrix_1(xcount*ycount*rhocount,xcount*ycount*rhocount);
-    viennacl::compressed_matrix<double, 4> vcl_compressed_matrix_4(xcount*ycount*rhocount,xcount*ycount*rhocount);
-    viennacl::compressed_matrix<double, 8> vcl_compressed_matrix_8(xcount*ycount*rhocount,xcount*ycount*rhocount);
-    viennacl::coordinate_matrix<double> vcl_coordinate_matrix_128(xcount*ycount*rhocount,xcount*ycount*rhocount);
-    viennacl::ell_matrix<double, 1> vcl_ell_matrix_1();
-    viennacl::hyb_matrix<double, 1> vcl_hyb_matrix_1();
-    viennacl::sliced_ell_matrix<double> vcl_sliced_ell_matrix_1(xcount*ycount*rhocount,xcount*ycount*rhocount);
-
-    
-
-    viennacl::vector<double> gpu_source(gridValues.data.size());
-    viennacl::vector<double> gpu_target( gridValues.data.size());
-    copy(cpu_sparse_matrix,vcl_sparse_matrix); //default alignment, benchmark different options.
-    copy(gridValues.data.begin(),gridValues.data.end(),gpu_source.begin());
-    copy(gridValues.data.begin(),gridValues.data.end(),gpu_target.begin());
-	 //we are going to compute each product once and then sync, to compile all kernels.
-	 //this will feel like a ~1 second delay in user space.
-
-    viennacl::copy(ublas_matrix,vcl_compressed_matrix_1); 
-    viennacl::copy(ublas_matrix,vcl_compressed_matrix_4); 
-    viennacl::copy(ublas_matrix,vcl_compressed_matrix_8); 
-    viennacl::copy(ublas_matrix,vcl_coordinate_matrix_128); 
-    //    viennacl::copy(cpu_sparse_matrix,vcl_ell_matrix_1); 
-    //viennacl::copy(ublas_matrix,vcl_hyb_matrix_1); 
-    viennacl::copy(cpu_sparse_matrix,vcl_sliced_ell_matrix_1);
-    viennacl::backend::finish();
-    t.report();
-    t.start();
-    std::cout << "That was the time to copy everything onto the GPU." << std::endl;
-
-    fullgrid cpu_results[8];
-	 
-    gpu_target = viennacl::linalg::prod(vcl_sparse_matrix,gpu_source);
-    viennacl::backend::finish();
-    
-    gpu_target = viennacl::linalg::prod(vcl_compressed_matrix_1,gpu_source);
-    viennacl::copy(gpu_target.begin(),gpu_target.end(),cpu_results[0].data.begin());
-    
-    gpu_target = viennacl::linalg::prod(vcl_compressed_matrix_4,gpu_source);
-    gpu_target = viennacl::linalg::prod(vcl_compressed_matrix_8,gpu_source);
-    gpu_target = viennacl::linalg::prod(vcl_coordinate_matrix_128,gpu_source);
-    //gpu_target = viennacl::linalg::prod(vcl_ell_matrix_1,gpu_source);
-    //gpu_target = viennacl::linalg::prod(vcl_hyb_matrix_1,gpu_source);
-    gpu_target = viennacl::linalg::prod(vcl_sliced_ell_matrix_1,gpu_source);
-    
-    
-    viennacl::backend::finish();
-    viennacl::copy(gpu_target.begin(),gpu_target.end(),cpu_results[0].data.begin());
-    viennacl::backend::finish();
-    
-    t.report();
-    std::cout << "That was the time to do all of the products, and copy the result back only once." << std::endl;
-    
-    
-    
-    constexpr int gputimes = 1000;
-    //At this point everything has been done once.  We start benchmarking.  We are going to include cost of vectors transfers back and forth.
-    
-    
-    t.start();
-    for(int count =0; count<gputimes;++count){
-      copy(gridValues.data.begin(),gridValues.data.end(),gpu_source.begin());
-      viennacl::backend::finish();
-      gpu_target = viennacl::linalg::prod(vcl_sparse_matrix,gpu_source);
-      viennacl::backend::finish();
-      viennacl::copy(gpu_target.begin(),gpu_target.end(),cpu_results[0].data.begin());
-      viennacl::backend::finish();
-    }
-    t.report();
-    std::cout <<"That was the full cycle time to do " <<gputimes << "  products using default sparse matrix." << std::endl;
-
-    t.start();
-    for(int count =0; count<gputimes;++count){
-      copy(gridValues.data.begin(),gridValues.data.end(),gpu_source.begin());
-      viennacl::backend::finish();
-      gpu_target = viennacl::linalg::prod(vcl_compressed_matrix_1,gpu_source);
-      viennacl::backend::finish();
-      viennacl::copy(gpu_target.begin(),gpu_target.end(),cpu_results[1].data.begin());
-      viennacl::backend::finish();
-    }
-    t.report();
-    std::cout <<"That was the full cycle time to do " <<gputimes << "  products using compressed_matrix_1 matrix." << std::endl;
-
- t.start();
-    for(int count =0; count<gputimes;++count){
-      copy(gridValues.data.begin(),gridValues.data.end(),gpu_source.begin());
-      viennacl::backend::finish();
-      gpu_target = viennacl::linalg::prod(vcl_compressed_matrix_4,gpu_source);
-      viennacl::backend::finish();
-      viennacl::copy(gpu_target.begin(),gpu_target.end(),cpu_results[2].data.begin());
-      viennacl::backend::finish();
-    }
-    t.report();
-    std::cout <<"That was the full cycle time to do " <<gputimes << "  products using compressed_matrix_4 matrix." << std::endl;
-
- t.start();
-    for(int count =0; count<gputimes;++count){
-      copy(gridValues.data.begin(),gridValues.data.end(),gpu_source.begin());
-      viennacl::backend::finish();
-      gpu_target = viennacl::linalg::prod(vcl_compressed_matrix_8,gpu_source);
-      viennacl::backend::finish();
-      viennacl::copy(gpu_target.begin(),gpu_target.end(),cpu_results[3].data.begin());
-      viennacl::backend::finish();
-    }
-    t.report();
-    std::cout <<"That was the full cycle time to do " <<gputimes << "  products using compressed_matrix_8 matrix." << std::endl;
-
- t.start();
- /*    for(int count =0; count<gputimes;++count){
-      copy(gridValues.data.begin(),gridValues.data.end(),gpu_source.begin());
-      viennacl::backend::finish();
-      gpu_target = viennacl::linalg::prod(vcl_coordinate_matrix_128,gpu_source);
-      viennacl::backend::finish();
-      viennacl::copy(gpu_target.begin(),gpu_target.end(),cpu_results[4].data.begin());
-      viennacl::backend::finish();
-    }
-    t.report();*/
-    std::cout <<"That was the full cycle time to do " <<gputimes*0 << "  products using coordinate_matrix_128 matrix." << std::endl;
-
- t.start();
-    for(int count =0; count<gputimes;++count){
-      copy(gridValues.data.begin(),gridValues.data.end(),gpu_source.begin());
-      viennacl::backend::finish();
-      gpu_target = viennacl::linalg::prod(vcl_sliced_ell_matrix_1,gpu_source);
-      viennacl::backend::finish();
-      viennacl::copy(gpu_target.begin(),gpu_target.end(),cpu_results[4].data.begin());
-      viennacl::backend::finish();
-    }
-    t.report();
-    std::cout <<"That was the full cycle time to do " <<gputimes << "  products using sliced_ell_matrix_1 matrix." << std::endl;
-
-    std::cout <<"Next we report errors for each GPU calc (in above order) vs CPU dot-product calc.  Here we only report maxabs norm" <<std::endl;
-    for (int i=0;i<rhocount;i++){
-      std::cout.precision(5);
-      std::cout <<std::fixed<<rhoset[i] << std::scientific << std::setw(15) <<
-	maxNormDiff(fastGALTResult,cpu_results[0],i) << "\t" <<
-	maxNormDiff(fastGALTResult,cpu_results[1],i) << "\t" <<
-	maxNormDiff(fastGALTResult,cpu_results[2],i) << "\t" <<
-	maxNormDiff(fastGALTResult,cpu_results[3],i) << "\t" <<
-	maxNormDiff(fastGALTResult,cpu_results[4],i)  << std::endl;
-      
-      }
-    //end ViennaCL calc
-    
-
-    
+    GPUTestSuite(f, analytic);
 
     std::cout
         << "Below are some summary statistics for various grid.  Under each header is a pair of values.  The first is the RMS of a matrix, the second is the max absolute entry in a matrix.\n";
@@ -600,10 +616,10 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
                   << RMSNormDiff(analytic_averages, trapezoidInterp, i) << "\t"
                   << maxNormDiff(analytic_averages, trapezoidInterp, i) << "\t"
                   << RMSNormDiff(trapezoidInterp, fastGALTResult, i) << "\t"
-                  << maxNormDiff(trapezoidInterp, fastGALTResult, i) << "\t"
-		  << RMSNormDiff(fastGALTResult, cpu_results[0],i) << "\t"
-		  << maxNormDiff(fastGALTResult,cpu_results[0],i) << "\n";
-	
+                  << maxNormDiff(trapezoidInterp, fastGALTResult, i) << "\n";
+        //     << RMSNormDiff(fastGALTResult, cpu_results[0], i) << "\t"
+        //    << maxNormDiff(fastGALTResult, cpu_results[0], i) << "\n";
+
         //<< RMSNormDiff(fastGALTResult, fastGACalcResultOffset, i) << "\t"
         //<< maxNormDiff(fastGALTResult, fastGACalcResultOffset, i) << "\n";
     }
@@ -651,10 +667,12 @@ int main() {
 	const double A = 1;
 	double B = 2.0;*/
 
-    constexpr double rhomax = 3, rhomin = 0.0;             // set from 0 to 3 maybe?  remember to test annoying integral multiples. TEST 0. test negative.
-    constexpr int xcount = 128, ycount = 128, rhocount = 35; //bump up to 64x64x35 later
-    constexpr double xmin = -5, xmax = 5;
-    constexpr double ymin = -5, ymax = 5;
+    gridDomain g;
+    g.rhomax = 0;
+    g.rhomin = 0.9;
+    g.xmin = g.ymin = -5;
+    g.xmax = g.ymax = 5;
+    constexpr int xcount = 48, ycount = 48, rhocount = 4; //bump up to 64x64x35 later or 128x128x35
     constexpr double A = 5;
     constexpr double B = 5;
     constexpr double Normalizer = 50.0;
@@ -670,34 +688,121 @@ int main() {
             return (15 * std::exp(1 / (temp / 25.0 - 1.0)));
     };
 
-      auto verySmoothFunc2 = [](double row, double ex, double why) -> double {
+    auto verySmoothFunc2 = [](double row, double ex, double why) -> double {
         double temp = ex * ex + why * why;
         if (temp >= 25)
             return 0;
         else
-	  return std::exp(-row) * (30 * std::exp(1 / (temp / 25.0 - 1.0)));
+            return std::exp(-row) * (30 * std::exp(1 / (temp / 25.0 - 1.0)));
     };
 
-
-      auto ZeroFunc = [] (double row, double ex, double why) -> double {return 0;};
-	auto constantFuncAnalytic = [](double row, double ex, double why) -> double {return 2*pi;};
-      auto linearFunc = [](double row, double ex, double why) -> double {return std::max(0.0,5 - std::abs(ex) - std::abs(why));};
-      //auto constantFuncAnalytic = [](double row, double ex, double why) -> double {return 2*pi;};
-      auto testfunc1 = [A,Normalizer](double row, double ex, double why) -> double { return Normalizer * exp(-A * (ex * ex + why * why)); };
-      auto testfunc1_analytic = [A,Normalizer](double row, double ex, double why) -> double {
-				  return Normalizer * exp(-A * (ex * ex + why * why + row * row)) * boost::math::cyl_bessel_i(0, 2 * A * row * std::sqrt(ex * ex + why * why));
+    auto ZeroFunc = [](double row, double ex, double why) -> double { return 0; };
+    auto constantFuncAnalytic = [](double row, double ex, double why) -> double { return 2 * pi; };
+    auto linearFunc = [](double row, double ex, double why) -> double { return std::max(0.0, 5 - std::abs(ex) - std::abs(why)); };
+    //auto constantFuncAnalytic = [](double row, double ex, double why) -> double {return 2*pi;};
+    auto testfunc1 = [A, Normalizer](double row, double ex, double why) -> double { return Normalizer * exp(-A * (ex * ex + why * why)); };
+    auto testfunc1_analytic = [A, Normalizer](double row, double ex, double why) -> double {
+        return Normalizer * exp(-A * (ex * ex + why * why + row * row)) * boost::math::cyl_bessel_i(0, 2 * A * row * std::sqrt(ex * ex + why * why));
     };
     auto testfunc2 = [Normalizer, A, B](double row, double ex, double why) -> double { return Normalizer * exp(-A * (ex * ex + why * why)) * exp(-B * row * row); };
     auto testfunc2_analytic = [Normalizer, A, B](double row, double ex, double why) -> double { return Normalizer * exp(-B * row * row) * exp(-A * (ex * ex + why * why + row * row)) * boost::math::cyl_bessel_i(0, 2 * A * row * std::sqrt(ex * ex + why * why)); };
+    auto testfunc2_analytic_dx = [Normalizer, A, B](double row, double ex, double why) -> double { return -2 * A * ex * Normalizer * exp(-A * (ex * ex + why * why)) * exp(-B * row * row); };
+    auto testfunc2_analytic_dy = [Normalizer, A, B](double row, double ex, double why) -> double { return -2 * A * why * Normalizer * exp(-A * (ex * ex + why * why)) * exp(-B * row * row); };
+    auto testfunc2_analytic_dx_dy = [Normalizer, A, B](double row, double ex, double why) -> double { return 4 * A * A * ex * why * Normalizer * exp(-A * (ex * ex + why * why)) * exp(-B * row * row); };
+
     /*auto testfunc2_analytic = [A, B](double row, double ex, double why) -> double {
         double rsquared = ex * ex + why * why;  //THIS SEEMS WRONG.
         double alpha = (A * B) / (A + B);
         return (exp(-alpha * rsquared) / (2 * (A + B)));
     };*/
-    rhoset = LinearSpacedArray(rhomin, rhomax, rhocount);
-    xset = LinearSpacedArray(xmin, xmax, xcount);
-    yset = LinearSpacedArray(ymin, ymax, ycount);
+    rhoset = LinearSpacedArray(g.rhomin, g.rhomax, rhocount);
+    xset = LinearSpacedArray(g.xmin, g.xmax, xcount);
+    yset = LinearSpacedArray(g.ymin, g.ymax, ycount);
 
-    GyroAveragingGrid<rhocount, xcount, ycount> g(rhoset, xset, yset);
-    g.GyroAveragingTestSuite(testfunc2, testfunc2_analytic);
+    //GyroAveragingGrid<rhocount, xcount, ycount> g(rhoset, xset, yset);
+    //g.GyroAveragingTestSuite(testfunc2, testfunc2_analytic);
+    derivTest(g, testfunc2, testfunc2_analytic_dx, testfunc2_analytic_dy, testfunc2_analytic_dx_dy);
+    interpAnalysis(g, testfunc2, testfunc2_analytic);
+}
+
+template <int count, typename TFunc1, typename TFunc2>
+void interpAnalysisInnerLoop(const gridDomain &g, TFunc1 f,
+                             TFunc2 analytic) {
+    constexpr int rhocount = 4; //TODO MAGIC NUMBER SHOULD BE PASSED IN
+    std::vector<double> rhoset;
+    std::vector<double> xset;
+    std::vector<double> yset;
+    rhoset = LinearSpacedArray(g.rhomin, g.rhomax, rhocount);
+    xset = LinearSpacedArray(g.xmin, g.xmax, count);
+    yset = LinearSpacedArray(g.ymin, g.ymax, count);
+    GyroAveragingGrid<rhocount, count, count> grid(rhoset, xset, yset);
+    grid.InterpErrorAnalysis(f, analytic);
+}
+
+template <typename TFunc1, typename TFunc2>
+void interpAnalysis(const gridDomain &g, TFunc1 f,
+                    TFunc2 analytic) {
+
+    constexpr int counts[] = {6, 12, 24, 48, 96, 192};
+    interpAnalysisInnerLoop<counts[0]>(g, f, analytic);
+    interpAnalysisInnerLoop<counts[1]>(g, f, analytic);
+    interpAnalysisInnerLoop<counts[2]>(g, f, analytic);
+    interpAnalysisInnerLoop<counts[3]>(g, f, analytic);
+    interpAnalysisInnerLoop<counts[4]>(g, f, analytic);
+    interpAnalysisInnerLoop<counts[5]>(g, f, analytic);
+}
+
+template <typename TFunc1, typename TFunc2, typename TFunc3, typename TFunc4>
+void derivTest(const gridDomain &g, TFunc1 f,
+               TFunc2 f_x, TFunc3 f_y, TFunc4 f_xy) {
+
+    int count = 20;
+    std::vector<double> rhoset;
+    std::vector<double> xset;
+    std::vector<double> yset;
+    rhoset = LinearSpacedArray(g.rhomin, g.rhomax, rhocount);
+    xset = LinearSpacedArray(g.xmin, g.xmax, count);
+    yset = LinearSpacedArray(g.ymin, g.ymax, count);
+    GyroAveragingGrid<rhocount, count, count> grid(rhoset, xset, yset);
+    grid.derivErrorAnalysis(f, f_x, f_y, f_xy);
+}
+
+template <int rhocount, int xcount, int ycount>
+template <typename TFunc1, typename TFunc2>
+void GyroAveragingGrid<rhocount, xcount, ycount>::InterpErrorAnalysis(TFunc1 f, TFunc2 analytic) {
+    //boost::timer::auto_cpu_timer t;
+    fill(gridValues, f);               //This is the base grid of values we will interpolate.
+    fill(analytic_averages, analytic); //analytic formula for gyroaverages
+    //t.report();
+    //t.start();
+    //std::cout << "That was the time required to calculate analytic gyroaverages.\n";
+    setupInterpGrid();
+    fillAlmostExactGA(almostExactGA, f);
+    //t.report();
+    //t.start();
+    //std::cout << "That was the time required to calculate gyroaverages from the definition, with the trapezoid rule.\n";
+    fillTruncatedAlmostExactGA(truncatedAlmostExactGA, f);
+    //t.report();
+    //t.start();
+    //std::cout << "That was the time required to calculate gryoaverages by def (as above), except we hard truncated f() to 0 off-grid.\n";
+    fillTrapezoidInterp(trapezoidInterp, f);
+    //t.report();
+    //t.start();
+    //std::cout << "That was the time required to calc gyroaverages by def, replacing f() by its bilinear interpolant." << std::endl;
+    std::cout << "There were " << trapezoidInterp.data.size() << " entries. \n";
+    std::cout << "Diffs:\n";
+    std::cout << "rho        Analytic vs Quadrature       Error due to truncation         Error due to interp             Analytic vs interp              interp vs dot-product GA          GPU vs CPU\n";
+
+    for (int i = 0; i < rhocount; i++) {
+        std::cout.precision(5);
+        std::cout << std::fixed << rhoset[i] << std::scientific << std::setw(15)
+                  << RMSNormDiff(analytic_averages, almostExactGA, i) << "\t"
+                  << maxNormDiff(analytic_averages, almostExactGA, i) << "\t"
+                  << RMSNormDiff(almostExactGA, truncatedAlmostExactGA, i) << "\t"
+                  << maxNormDiff(almostExactGA, truncatedAlmostExactGA, i) << "\t"
+                  << RMSNormDiff(truncatedAlmostExactGA, trapezoidInterp, i) << "\t"
+                  << maxNormDiff(truncatedAlmostExactGA, trapezoidInterp, i) << "\t"
+                  << RMSNormDiff(analytic_averages, trapezoidInterp, i) << "\t"
+                  << maxNormDiff(analytic_averages, trapezoidInterp, i) << "\n";
+    }
 }

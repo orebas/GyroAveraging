@@ -136,6 +136,7 @@ class GyroAveragingGrid {
 public:
     typedef Array3d<rhocount, xcount, ycount, double> fullgrid;
     typedef Array4d<rhocount, xcount, ycount, 4, double> fullgridInterp;
+    typedef Array4d<rhocount, xcount, ycount, 4, double> derivsGrid; //at each rho,x,y calculate [f,f_x,f_y,f_xy]
 
 private:
     std::vector<double> rhoset;
@@ -154,6 +155,8 @@ private:
     //std::vector<sparseEntry> GATensor;
     //std::vector<sparseOffset> GAOffsetTensor;
     std::vector<LTOffset> LTOffsetTensor;
+    std::vector<LTOffset> FDTensor; //finite difference tensor, used to populate derivs from gridValues
+    derivsGrid derivs;
 
     void csvPrinter(const fullgrid &m, int rho) {
         for (int j = 0; j < xcount; j++) {
@@ -210,7 +213,7 @@ private:
     template <typename TFunc>
     void fill(fullgrid &m, TFunc f) {
 #pragma omp parallel for
-      for (auto i = 0; i < rhocount; i++) {
+        for (auto i = 0; i < rhocount; i++) {
             for (auto j = 0; j < xcount; j++)
                 for (auto k = 0; k < ycount; k++) {
                     m(i, j, k) = f(rhoset[i], xset[j], yset[k]);
@@ -226,6 +229,52 @@ private:
                 for (int k = 0; k < ycount; k++) {
                     m(i, j, k) = f(i, j, k);
                 }
+    }
+    template <typename TFunc1>
+    void fillAlmostExactGA(fullgrid &m, TFunc1 f) {
+        fillbyindex(m, [&](int i, int j, int k) -> double { //adaptive trapezoid rule on actual input function.
+            double xc = xset[j];
+            double yc = yset[k];
+            if (rhoset[i] == 0)
+                return f(i, xc, yc);
+            auto new_f = [&](double x) -> double { return f(rhoset[i], xc + rhoset[i] * std::sin(x), yc - rhoset[i] * std::cos(x)); };
+            double result = TrapezoidIntegrate(0, 2 * pi, new_f) / (2 * pi);
+            return result;
+        });
+    }
+
+    template <typename TFunc1>
+    void fillTruncatedAlmostExactGA(fullgrid &m, TFunc1 f) {
+        fillbyindex(m, [&](int i, int j, int k) -> double {
+            double xc = xset[j];
+            double yc = yset[k];
+            if (rhoset[i] == 0)
+                return f(i, xc, yc);
+            auto new_f = [&](double x) -> double {
+                double ex = xc + rhoset[i] * std::sin(x);
+                double why = yc - rhoset[i] * std::cos(x);
+                if ((ex < xset[0]) || (ex > xset.back()))
+                    return 0;
+                if ((why < yset[0]) || (why > yset.back()))
+                    return 0;
+                return f(rhoset[i], ex, why);
+            };
+            double result = TrapezoidIntegrate(0, 2 * pi, new_f) / (2 * pi);
+            return result;
+        });
+    }
+
+    template <typename TFunc1>
+    void fillTrapezoidInterp(fullgrid &m, TFunc1 f) { //this calls interp2d. gridValues must be filled, but we don't need setupInterpGrid.
+        fillbyindex(m, [&](int i, int j, int k) -> double {
+            double xc = xset[j];
+            double yc = yset[k];
+            if (rhoset[i] == 0)
+                return f(rhoset[i], xc, yc);
+            auto new_f = [&](double x) -> double { return interp2d(i, xc + rhoset[i] * std::sin(x), yc - rhoset[i] * std::cos(x)); };
+            double result = TrapezoidIntegrate(0, 2 * pi, new_f) / (2 * pi);
+            return result;
+        });
     }
 
 public:
@@ -246,6 +295,7 @@ public:
         yn = yc - rho * std::cos(gamma);
     }
     void setupInterpGrid();
+    void setupDerivsGrid(); //make accuracy a variable later
     void assembleFastGACalc(void);
     //void fastGACalc();
     void fastGACalcOffset();
@@ -255,7 +305,18 @@ public:
     void GyroAveragingTestSuite(TFunc1 f,
                                 TFunc2 analytic);
 
+    template <typename TFunc1, typename TFunc2>
+    void GPUTestSuite(TFunc1 f,
+                      TFunc2 analytic);
+    template <typename TFunc1, typename TFunc2>
+    void InterpErrorAnalysis(TFunc1 f,
+                             TFunc2 analytic);
+
     double interp2d(int rhoindex, const double x, const double y);
+};
+
+struct gridDomain {
+    double xmin = 0, xmax = 0, ymin = 0, ymax = 0, rhomin = 0, rhomax = 0;
 };
 
 struct indexedPoint {
@@ -264,3 +325,15 @@ struct indexedPoint {
     double s = 0; // from 0 to 2*Pi only please.
     indexedPoint(double x = 0, double y = 0, double row = 0) : xvalue(x), yvalue(y), s(row) {}
 };
+
+template <typename TFunc1, typename TFunc2>
+void interpAnalysis(const gridDomain &g, TFunc1 f,
+                    TFunc2 analytic);
+
+template <int i, typename TFunc1, typename TFunc2>
+void interpAnalysisInnerLoop(const gridDomain &g, TFunc1 f,
+                             TFunc2 analytic);
+
+template <typename TFunc1, typename TFunc2, typename TFunc3, typename TFunc4>
+void derivTest(const gridDomain &g, TFunc1 f,
+               TFunc2 f_x, TFunc3 f_y, TFunc4 f_xy);
