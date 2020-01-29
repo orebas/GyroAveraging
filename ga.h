@@ -137,6 +137,7 @@ public:
     typedef Array3d<rhocount, xcount, ycount, double> fullgrid;
     typedef Array4d<rhocount, xcount, ycount, 4, double> fullgridInterp;
     typedef Array4d<rhocount, xcount, ycount, 4, double> derivsGrid; //at each rho,x,y calculate [f,f_x,f_y,f_xy]
+    typedef Array4d<rhocount, xcount, ycount, 16, double> bicubicParameterGrid;
 
 private:
     std::vector<double> rhoset;
@@ -312,11 +313,9 @@ public:
     void InterpErrorAnalysis(TFunc1 f,
                              TFunc2 analytic);
 
-template <typename TFunc1, typename TFunc2, typename TFunc3, typename TFunc4>
+    template <typename TFunc1, typename TFunc2, typename TFunc3, typename TFunc4>
     void derivsErrorAnalysis(TFunc1 f,
                              TFunc2 f_x, TFunc3 f_y, TFunc4 f_xy);
-
-
 
     double interp2d(int rhoindex, const double x, const double y);
 };

@@ -117,67 +117,91 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::setupInterpGrid() {
 // we are using finite difference
 template <int rhocount, int xcount, int ycount>
 void GyroAveragingGrid<rhocount, xcount, ycount>::setupDerivsGrid() {
+    double ydenom = yset[1] - yset[0];
+    double xdenom = xset[1] - xset[0];
+    fullgrid &g = gridValues;
     for (int i = 0; i < rhocount; i++) {
         for (int j = 0; j < xcount; j++) {
             for (int k = 0; k < ycount; k++) {
-                derivs(i, j, k, 0) = gridValues(i, j, k);
+                derivs(i, j, k, 0) = g(i, j, k);
             }
         }
-        //
+
         for (int k = 0; k < ycount; k++) {
+
             derivs(i, 0, k, 1) = 0;
             derivs(i, xcount - 1, k, 1) = 0;
-            derivs(i, 1, k, 1) = (-3.0 * gridValues(i, 0, k) +
-                                      -10.0 * gridValues(i, 1, k) +
-                                      18 * gridValues(i, 2, k) +
-                                      -6 * gridValues(i, 3, k) +
-                                      1 * gridValues(i, 4, k)) /
-                                     12.0;
+            derivs(i, 1, k, 1) = (-3.0 * g(i, 0, k) +
+                                  -10.0 * g(i, 1, k) +
+                                  18 * g(i, 2, k) +
+                                  -6 * g(i, 3, k) +
+                                  1 * g(i, 4, k)) /
+                                 (12.0 * xdenom);
 
-            derivs(i, xcount - 2, k, 1) = (3.0 * gridValues(i, xcount - 1, k) +
-                                               10.0 * gridValues(i, xcount - 2, k) +
-                                               -18.0 * gridValues(i, xcount - 3, k) +
-                                               6.0 * gridValues(i, xcount - 4, k) +
-                                               -1.0 * gridValues(i, xcount - 5, k)) /
-                                              12.0;
+            derivs(i, xcount - 2, k, 1) = (3.0 * g(i, xcount - 1, k) +
+                                           10.0 * g(i, xcount - 2, k) +
+                                           -18.0 * g(i, xcount - 3, k) +
+                                           6.0 * g(i, xcount - 4, k) +
+                                           -1.0 * g(i, xcount - 5, k)) /
+                                          (12.0 * xdenom);
             for (int j = 2; j <= xcount - 3; j++)
-                derivs(i, j, k, 1) = (1.0 * gridValues(i, j - 2, k) +
-                                          -8.0 * gridValues(i, j - 1, k) +
-                                          0.0 * gridValues(i, j, k) + //just to show we know it's there
-                                          8.0 * gridValues(i, j + 1, k) +
-                                          -1.0 * gridValues(i, j + 2, k)) /
-                                         12.0;
+                derivs(i, j, k, 1) = (1.0 * g(i, j - 2, k) +
+                                      -8.0 * g(i, j - 1, k) +
+                                      0.0 * g(i, j, k) + //just to show we know it's there
+                                      8.0 * g(i, j + 1, k) +
+                                      -1.0 * g(i, j + 2, k)) /
+                                     (12.0 * xdenom);
         }
         for (int j = 0; j < xcount; j++) {
+
             derivs(i, j, 0, 2) = 0;
             derivs(i, j, ycount - 1, 2) = 0;
-            derivs(i, j, 1, 2) = (-3.0 * gridValues(i, j, 0) +
-                                      -10.0 * gridValues(i, j, 1) +
-                                      18.0 * gridValues(i, j, 2) +
-                                      -6.0 * gridValues(i, j, 3) +
-                                      1.0 * gridValues(i, j, 4)) /
-                                     12.0;
-            derivs(i, j, ycount - 2, 2) = (3.0 * gridValues(i, j, ycount - 1) +
-                                               10.0 * gridValues(i, j, ycount - 2) +
-                                               -18.0 * gridValues(i, j, ycount - 3) +
-                                               6.0 * gridValues(i, j, ycount - 4) +
-                                               -1 * gridValues(i, j, ycount - 5)) /
-                                              12.0;
+            derivs(i, j, 1, 2) = (-3.0 * g(i, j, 0) +
+                                  -10.0 * g(i, j, 1) +
+                                  18.0 * g(i, j, 2) +
+                                  -6.0 * g(i, j, 3) +
+                                  1.0 * g(i, j, 4)) /
+                                 (12.0 * ydenom);
+            derivs(i, j, ycount - 2, 2) = (3.0 * g(i, j, ycount - 1) +
+                                           10.0 * g(i, j, ycount - 2) +
+                                           -18.0 * g(i, j, ycount - 3) +
+                                           6.0 * g(i, j, ycount - 4) +
+                                           -1 * g(i, j, ycount - 5)) /
+                                          (12.0 * ydenom);
             for (int k = 2; k < ycount - 3; k++) {
-                derivs(i, j, k, 2) = (1.0 * gridValues(i, j, k - 2) +
-                                          -8.0 * gridValues(i, j, k - 1) +
-                                          0.0 * gridValues(i, j, k) +
-                                          8.0 * gridValues(i, j, k + 1) +
-                                          -1.0 * gridValues(i, j, k + 2)) /
-                                         12.0;
+                derivs(i, j, k, 2) = (1.0 * g(i, j, k - 2) +
+                                      -8.0 * g(i, j, k - 1) +
+                                      0.0 * g(i, j, k) +
+                                      8.0 * g(i, j, k + 1) +
+                                      -1.0 * g(i, j, k + 2)) /
+                                     (12.0 * ydenom);
+            }
+        };
+        for (int j = 2; j < xcount - 2; ++j) {
+            for (int k = 2; k < ycount - 2; ++k) {
+                derivs(i, j, k, 3) = (8 * (g(i, j + 1, k - 2) + g(i, j + 2, k - 1) + g(i, j - 2, k + 1) + g(i, j - 1, k + 2)) +
+                                      -8 * (g(i, j - 1, k - 2) + g(i, j - 2, k - 1) + g(i, j + 1, k + 2) + g(i, j + 2, k + 1)) +
+                                      -1 * (g(i, j + 2, k - 2) + g(i, j - 2, k + 2) - g(i, j - 2, k - 2) - g(i, j + 2, k + 2)) +
+                                      64 * (g(i, j - 1, k - 1) + g(i, j + 1, k + 1) - g(i, j + 1, k - 1) - g(i, j - 1, k + 1))) /
+                                     (144 * xdenom * ydenom);
             }
         }
+        for (int j = 1; j < xcount - 1; j++) {
+            derivs(i, j, 1, 2) = (g(i, j - 1, 0) + g(i, j + 1, 1 + 1) - g(i, j + 1, 1 - 1) - g(i, j - 1, 1 + 1)) /
+                                 (4 * xdenom * ydenom);
+            derivs(i, j, ycount - 2, 2) = (g(i, j - 1, ycount - 2 - 1) + g(i, j + 1, ycount - 2 + 1) -
+                                           g(i, j + 1, ycount - 2 - 1) - g(i, j - 1, ycount - 2 + 1)) /
+                                          (4 * xdenom * ydenom);
+        }
+        for (int k = 1; k < ycount - 1; k++) {
+            derivs(i, 1, k, 2) = (g(i, 1 - 1, k - 1) + g(i, 1 + 1, k + 1) -
+                                  g(i, 1 + 1, k - 1) - g(i, 1 - 1, k + 1)) /
+                                 (4 * xdenom * ydenom);
 
-        /*double x = xset[j],
-                       a = xset[j + 1],
-                       y = yset[k],
-                       b = yset[k + 1];
-                double denom = (a - x) * (b - y);*/
+            derivs(i, xcount - 2, k, 2) = (g(i, xcount - 2 - 1, k - 1) + g(i, xcount - 2 + 1, k + 1) -
+                                           g(i, xcount - 2 + 1, k - 1) - g(i, xcount - 2 - 1, k + 1)) /
+                                          (4 * xdenom * ydenom);
+        }
     }
 }
 
@@ -673,8 +697,8 @@ int main() {
     g.xmin = g.ymin = -5;
     g.xmax = g.ymax = 5;
     constexpr int xcount = 48, ycount = 48, rhocount = 4; //bump up to 64x64x35 later or 128x128x35
-    constexpr double A = 5;
-    constexpr double B = 5;
+    constexpr double A = 2;
+    constexpr double B = 2;
     constexpr double Normalizer = 50.0;
     std::vector<double> rhoset;
     std::vector<double> xset;
@@ -722,7 +746,7 @@ int main() {
     //GyroAveragingGrid<rhocount, xcount, ycount> g(rhoset, xset, yset);
     //g.GyroAveragingTestSuite(testfunc2, testfunc2_analytic);
     derivTest(g, testfunc2, testfunc2_analytic_dx, testfunc2_analytic_dy, testfunc2_analytic_dx_dy);
-    interpAnalysis(g, testfunc2, testfunc2_analytic);
+    //interpAnalysis(g, testfunc2, testfunc2_analytic);
 }
 
 template <int count, typename TFunc1, typename TFunc2>
@@ -756,8 +780,8 @@ template <typename TFunc1, typename TFunc2, typename TFunc3, typename TFunc4>
 void derivTest(const gridDomain &g, TFunc1 f,
                TFunc2 f_x, TFunc3 f_y, TFunc4 f_xy) {
 
-    constexpr int count = 20;
-    constexpr int rhocount =4;
+    constexpr int count = 36;
+    constexpr int rhocount = 4;
     std::vector<double> rhoset;
     std::vector<double> xset;
     std::vector<double> yset;
@@ -768,22 +792,56 @@ void derivTest(const gridDomain &g, TFunc1 f,
     grid.derivsErrorAnalysis(f, f_x, f_y, f_xy);
 }
 
-
 template <int rhocount, int xcount, int ycount>
 template <typename TFunc1, typename TFunc2, typename TFunc3, typename TFunc4>
-void GyroAveragingGrid<rhocount, xcount, ycount>::derivsErrorAnalysis(TFunc1 f, TFunc2 f_x, TFunc3, f_y, TFunc4, f_xy) {
+void GyroAveragingGrid<rhocount, xcount, ycount>::derivsErrorAnalysis(TFunc1 f, TFunc2 f_x, TFunc3 f_y, TFunc4 f_xy) {
+    std::cout << "Starting derivative accuracy check:\n";
     fill(gridValues, f);
     setupInterpGrid();
     setupDerivsGrid();
-    derivsGrid analytic;
-    for(int i=0; i<rhocount;i++)
-        for(int j=0;j<xcount;j++)
-            for(int k=0;k<ycount;k++) {
+    fullgrid analytic[4];
+    fullgrid numeric[4];
+    for (int i = 0; i < rhocount; i++)
+        for (int j = 0; j < xcount; j++)
+            for (int k = 0; k < ycount; k++) {
+                analytic[0](i, j, k) = f(rhoset[i], xset[j], yset[k]);
+                numeric[0](i, j, k) = derivs(i, j, k, 0);
+                analytic[1](i, j, k) = f_x(rhoset[i], xset[j], yset[k]);
+                numeric[1](i, j, k) = derivs(i, j, k, 1);
+                analytic[2](i, j, k) = f_y(rhoset[i], xset[j], yset[k]);
+                numeric[2](i, j, k) = derivs(i, j, k, 2);
+                analytic[3](i, j, k) = f_xy(rhoset[i], xset[j], yset[k]);
+                numeric[3](i, j, k) = derivs(i, j, k, 3);
+            }
 
+    csvPrinter(analytic[0], 1);
+    std::cout << std::endl;
+    csvPrinter(numeric[0], 1);
+    std::cout << std::endl;
+    csvPrinter(analytic[1], 1);
+    std::cout << std::endl;
+    csvPrinter(numeric[1], 1);
+    std::cout << std::endl;
+    csvPrinter(analytic[2], 1);
+    std::cout << std::endl;
+    csvPrinter(numeric[2], 1);
+    std::cout << std::endl;
+    csvPrinter(analytic[3], 1);
+    std::cout << std::endl;
+    csvPrinter(numeric[3], 1);
+    std::cout << std::endl;
+
+    for (int i = 0; i < rhocount; i++) {
+        std::cout.precision(5);
+        std::cout << std::fixed << rhoset[i] << std::scientific << std::setw(15)
+                  << RMSNormDiff(analytic[0], numeric[0], i) << "\t"
+                  << maxNormDiff(analytic[0], numeric[0], i) << "\t"
+                  << RMSNormDiff(analytic[1], numeric[1], i) << "\t"
+                  << maxNormDiff(analytic[1], numeric[1], i) << "\t"
+                  << RMSNormDiff(analytic[2], numeric[2], i) << "\t"
+                  << maxNormDiff(analytic[2], numeric[2], i) << "\n";
     }
 }
-
-
 
 template <int rhocount, int xcount, int ycount>
 template <typename TFunc1, typename TFunc2>
