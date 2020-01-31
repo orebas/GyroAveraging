@@ -5,6 +5,8 @@
 #define NDEBUG
 #endif
 
+//#undef NDEBUG
+
 #define VIENNACL_WITH_UBLAS 1
 
 #include <boost/numeric/ublas/lu.hpp>
@@ -27,9 +29,12 @@
 #include "viennacl/tools/timer.hpp"
 #include "viennacl/vector.hpp"
 
+#include <eigen3/eigen/Eigen>
+
 #include "ga.h"
 #include <algorithm>
 #include <array>
+//#include <boost/math/differentiaton/finite_difference.hpp>  //this needs a fairly recent version of boost.
 #include <boost/math/quadrature/tanh_sinh.hpp>
 #include <boost/math/quadrature/trapezoidal.hpp>
 #include <boost/math/special_functions/bessel.hpp>
@@ -45,13 +50,13 @@
 #include <vector>
 
 template <typename TFunc>
-double TanhSinhIntegrate(double x, double y, TFunc f) { //used to be trapezoid rule.
+double TanhSinhIntegrate(double x, double y, TFunc f) {
     boost::math::quadrature::tanh_sinh<double> integrator;
     return integrator.integrate(f, x, y);
 }
 
 template <typename TFunc>
-inline double TrapezoidIntegrate(double x, double y, TFunc f) { //used to be trapezoid rule.
+inline double TrapezoidIntegrate(double x, double y, TFunc f) {
     using boost::math::quadrature::trapezoidal;
     return trapezoidal(f, x, y);
 }
@@ -108,6 +113,119 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::setupInterpGrid() {
                 interpParameters(i, j, k, 1) = (-b * Q11 + y * Q12 + b * Q21 - y * Q22) / denom;
                 interpParameters(i, j, k, 2) = (-a * Q11 + a * Q12 + x * Q21 - x * Q22) / denom;
                 interpParameters(i, j, k, 3) = (Q11 - Q12 - Q21 + Q22) / denom;
+            }
+    }
+}
+
+template <int rhocount, int xcount, int ycount>
+void GyroAveragingGrid<rhocount, xcount, ycount>::setupBicubicGrid() {
+    using namespace Eigen;
+    bicubicParameterGrid &b = bicubicParameters;
+    derivsGrid &d = derivs;
+    for (int i = 0; i < rhocount; i++) {
+        //we explicitly rely on parameters being initialized to 0, including the top and right sides.
+        for (int j = 0; j < xcount - 1; j++)
+            for (int k = 0; k < ycount - 1; k++) {
+                Matrix<double, 16, 1> RHS;
+                Matrix<double, 16, 1> par;
+                Matrix<double, 16, 16> A;
+                RHS << d(i, j, k, 0), d(i, j + 1, k, 0), d(i, j, k + 1, 0), d(i, j + 1, k + 1, 0),
+                    d(i, j, k, 1), d(i, j + 1, k, 1), d(i, j, k + 1, 1), d(i, j + 1, k + 1, 1),
+                    d(i, j, k, 2), d(i, j + 1, k, 2), d(i, j, k + 1, 2), d(i, j + 1, k + 1, 2),
+                    d(i, j, k, 3), d(i, j + 1, k, 3), d(i, j, k + 1, 3), d(i, j + 1, k + 1, 3);
+                A << 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    -3, 3, 0, 0, -2, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    2, -2, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, -3, 3, 0, 0, -2, -1, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 2, -2, 0, 0, 1, 1, 0, 0,
+                    -3, 0, 3, 0, 0, 0, 0, 0, -2, 0, -1, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, -3, 0, 3, 0, 0, 0, 0, 0, -2, 0, -1, 0,
+                    9, -9, -9, 9, 6, 3, -6, -3, 6, -6, 3, -3, 4, 2, 2, 1,
+                    -6, 6, 6, -6, -3, -3, 3, 3, -4, 4, -2, 2, -2, -2, -1, -1,
+                    2, 0, -2, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 2, 0, -2, 0, 0, 0, 0, 0, 1, 0, 1, 0,
+                    -6, 6, 6, -6, -4, -2, 4, 2, -3, 3, -3, 3, -2, -1, -2, -1,
+                    4, -4, -4, 4, 2, 2, -2, -2, 2, -2, 2, -2, 1, 1, 1, 1;
+                par = A * RHS;
+                for (int t = 0; t < 16; ++t)
+                    b(i, j, k, t) = par(t); // PLEASE ADD SOME ASSERTS HERE
+                                            /*
+                for (int a = 0; a <= 1; ++a)
+                    for (int b = 0; b <= 1; ++b) {
+                        double x = xset[j + a];
+                        double y = yset[k + b];
+                    }
+*/
+                /*  double Q11 = gridValues(i, j, k),
+                       Q12 = gridValues(i, j + 1, k),
+                       Q21 = gridValues(i, j, k + 1),
+                       Q22 = gridValues(i, j + 1, k + 1);
+
+                double x = xset[j],
+                       a = xset[j + 1],
+                       y = yset[k],
+                       b = yset[k + 1];
+                double denom = (a - x) * (b - y);
+                interpParameters(i, j, k, 0) = (a * b * Q11 - a * y * Q12 - b * x * Q21 + x * y * Q22) / denom;
+                interpParameters(i, j, k, 1) = (-b * Q11 + y * Q12 + b * Q21 - y * Q22) / denom;
+                interpParameters(i, j, k, 2) = (-a * Q11 + a * Q12 + x * Q21 - x * Q22) / denom;
+                interpParameters(i, j, k, 3) = (Q11 - Q12 - Q21 + Q22) / denom;*/
+            }
+    }
+}
+
+template <int rhocount, int xcount, int ycount>
+void GyroAveragingGrid<rhocount, xcount, ycount>::setupBicubicGrid2() {
+    using namespace Eigen;
+    bicubicParameterGrid &b = bicubicParameters2;
+    derivsGrid &d = derivs;
+    for (int i = 0; i < rhocount; i++) {
+        //we explicitly rely on parameters being initialized to 0, including the top and right sides.
+        for (int j = 0; j < xcount - 1; j++)
+            for (int k = 0; k < ycount - 1; k++) {
+                double x0 = xset[j], x1 = xset[j + 1];
+                double y0 = yset[k], y1 = yset[k + 1];
+                Matrix<double, 4, 4> X, Y, RHS, A;
+                RHS << d(i, j, k, 0), d(i, j, k + 1, 0), d(i, j, k, 2), d(i, j, k + 1, 2),
+                    d(i, j + 1, k, 0), d(i, j + 1, k + 1, 0), d(i, j + 1, k, 2), d(i, j + 1, k + 1, 2),
+                    d(i, j, k, 1), d(i, j, k + 1, 1), d(i, j, k, 3), d(i, j, k + 1, 3),
+                    d(i, j + 1, k, 1), d(i, j + 1, k + 1, 1), d(i, j + 1, k, 3), d(i, j + 1, k + 1, 3);
+                X << 1, x0, x0 * x0, x0 * x0 * x0,
+                    1, x1, x1 * x1, x1 * x1 * x1,
+                    0, 1, 2 * x0, 3 * x0 * x0,
+                    0, 1, 2 * x1, 3 * x1 * x1;
+                Y << 1, 1, 0, 0,
+                    y0, y1, 1, 1,
+                    y0 * y0, y1 * y1, 2 * y0, 2 * y1,
+                    y0 * y0 * y0, y1 * y1 * y1, 3 * y0 * y0, 3 * y1 * y1;
+
+                A = X.inverse() * RHS * Y.inverse();
+                for (int t = 0; t < 16; ++t)
+                    b(i, j, k, t) = A(t % 4, t / 4); // PLEASE ADD SOME ASSERTS HERE
+                                                     /*
+                for (int a = 0; a <= 1; ++a)
+                    for (int b = 0; b <= 1; ++b) {
+                        double x = xset[j + a];
+                        double y = yset[k + b];
+                    }
+*/
+                /*  double Q11 = gridValues(i, j, k),
+                       Q12 = gridValues(i, j + 1, k),
+                       Q21 = gridValues(i, j, k + 1),
+                       Q22 = gridValues(i, j + 1, k + 1);
+
+                double x = xset[j],
+                       a = xset[j + 1],
+                       y = yset[k],
+                       b = yset[k + 1];
+                double denom = (a - x) * (b - y);
+                interpParameters(i, j, k, 0) = (a * b * Q11 - a * y * Q12 - b * x * Q21 + x * y * Q22) / denom;
+                interpParameters(i, j, k, 1) = (-b * Q11 + y * Q12 + b * Q21 - y * Q22) / denom;
+                interpParameters(i, j, k, 2) = (-a * Q11 + a * Q12 + x * Q21 - x * Q22) / denom;
+                interpParameters(i, j, k, 3) = (Q11 - Q12 - Q21 + Q22) / denom;*/
             }
     }
 }
@@ -187,18 +305,18 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::setupDerivsGrid() {
             }
         }
         for (int j = 1; j < xcount - 1; j++) {
-            derivs(i, j, 1, 2) = (g(i, j - 1, 0) + g(i, j + 1, 1 + 1) - g(i, j + 1, 1 - 1) - g(i, j - 1, 1 + 1)) /
+            derivs(i, j, 1, 3) = (g(i, j - 1, 0) + g(i, j + 1, 1 + 1) - g(i, j + 1, 1 - 1) - g(i, j - 1, 1 + 1)) /
                                  (4 * xdenom * ydenom);
-            derivs(i, j, ycount - 2, 2) = (g(i, j - 1, ycount - 2 - 1) + g(i, j + 1, ycount - 2 + 1) -
+            derivs(i, j, ycount - 2, 3) = (g(i, j - 1, ycount - 2 - 1) + g(i, j + 1, ycount - 2 + 1) -
                                            g(i, j + 1, ycount - 2 - 1) - g(i, j - 1, ycount - 2 + 1)) /
                                           (4 * xdenom * ydenom);
         }
         for (int k = 1; k < ycount - 1; k++) {
-            derivs(i, 1, k, 2) = (g(i, 1 - 1, k - 1) + g(i, 1 + 1, k + 1) -
+            derivs(i, 1, k, 3) = (g(i, 1 - 1, k - 1) + g(i, 1 + 1, k + 1) -
                                   g(i, 1 + 1, k - 1) - g(i, 1 - 1, k + 1)) /
                                  (4 * xdenom * ydenom);
 
-            derivs(i, xcount - 2, k, 2) = (g(i, xcount - 2 - 1, k - 1) + g(i, xcount - 2 + 1, k + 1) -
+            derivs(i, xcount - 2, k, 3) = (g(i, xcount - 2 - 1, k - 1) + g(i, xcount - 2 + 1, k + 1) -
                                            g(i, xcount - 2 + 1, k - 1) - g(i, xcount - 2 - 1, k + 1)) /
                                           (4 * xdenom * ydenom);
         }
@@ -288,7 +406,7 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::assembleFastGACalc(void) {
                                                                        //this will probably happen for s=0 and s=pi/2, but doesn't cost us anything.
                     integrand(rho, xc, yc, (s0 + s1) / 2, xmid, ymid); //this just calculates into (xmid,ymid) the point half through the arc.
                     coeffs = arcIntegral(rho, xc, yc, s0, s1);
-                    interpIndexSearch(i, xmid, ymid, xInterpIndex, yInterpIndex);
+                    interpIndexSearch(xmid, ymid, xInterpIndex, yInterpIndex);
                     /*sparseOffset so; //fill this in
                     so.target = &(fastGACalcResultOffset(i, j, k)) - &(fastGACalcResultOffset(0, 0, 0));
                     so.source = &(interpParameters(i, xInterpIndex, yInterpIndex, 0)) - &(interpParameters(0, 0, 0, 0));
@@ -604,7 +722,10 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
     std::cout << "The was the time require to run LT gyroaverage calc " << times << " times. \n " << std::endl;
 
     GPUTestSuite(f, analytic);
-
+    setupDerivsGrid();
+    setupBicubicGrid2();
+    fullgrid bicubicResults;
+    fillBicubicInterp(bicubicResults);
     std::cout
         << "Below are some summary statistics for various grid.  Under each header is a pair of values.  The first is the RMS of a matrix, the second is the max absolute entry in a matrix.\n";
 
@@ -624,7 +745,9 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
                   << RMSNorm(trapezoidInterp, i) << "\t"
                   << maxNorm(trapezoidInterp, i) << "\t"
                   << RMSNorm(fastGALTResult, i) << "\t"
-                  << maxNorm(fastGALTResult, i) << "\n";
+                  << maxNorm(fastGALTResult, i) << "\t"
+                  << RMSNorm(bicubicResults, i) << "\t"
+                  << maxNorm(bicubicResults, i) << "\n";
     }
     std::cout << "Diffs:\n";
     std::cout << "rho        Analytic vs Quadrature       Error due to truncation         Error due to interp             Analytic vs interp              interp vs dot-product GA          GPU vs CPU\n";
@@ -640,7 +763,9 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
                   << RMSNormDiff(analytic_averages, trapezoidInterp, i) << "\t"
                   << maxNormDiff(analytic_averages, trapezoidInterp, i) << "\t"
                   << RMSNormDiff(trapezoidInterp, fastGALTResult, i) << "\t"
-                  << maxNormDiff(trapezoidInterp, fastGALTResult, i) << "\n";
+                  << maxNormDiff(trapezoidInterp, fastGALTResult, i) << "\t"
+                  << RMSNormDiff(bicubicResults, truncatedAlmostExactGA, i) << "\t"
+                  << maxNormDiff(bicubicResults, truncatedAlmostExactGA, i) << "\n";
         //     << RMSNormDiff(fastGALTResult, cpu_results[0], i) << "\t"
         //    << maxNormDiff(fastGALTResult, cpu_results[0], i) << "\n";
 
@@ -651,9 +776,8 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
 
 //below function returns the indices referring to lower left point of the grid box containing (x,y)
 template <int rhocount, int xcount, int ycount>
-void GyroAveragingGrid<rhocount, xcount, ycount>::interpIndexSearch(const int rhoindex, const double x, const double y, int &xindex, int &yindex) {
+void GyroAveragingGrid<rhocount, xcount, ycount>::interpIndexSearch(const double x, const double y, int &xindex, int &yindex) {
 
-    assert((rhoindex >= 0) && (rhoindex < rhocount));
     if ((x < xset[0]) || (y < yset[0]) || (x > xset.back()) || (y > yset.back())) {
         xindex = xcount - 1; // the top right corner should have zeros.
         yindex = ycount - 1;
@@ -673,12 +797,49 @@ double GyroAveragingGrid<rhocount, xcount, ycount>::interp2d(int rhoindex, const
     if ((x <= xset[0]) || (y <= yset[0]) || (x >= xset.back()) || (y >= yset.back()))
         return 0;
     int xindex = 0, yindex = 0;
-    interpIndexSearch(rhoindex, x, y, xindex, yindex);
+    interpIndexSearch(x, y, xindex, yindex);
     double result = BilinearInterpolation(gridValues(rhoindex, xindex, yindex), gridValues(rhoindex, xindex + 1, yindex),
                                           gridValues(rhoindex, xindex, yindex + 1), gridValues(rhoindex, xindex + 1, yindex + 1),
                                           xset[xindex], xset[xindex + 1], yset[yindex], yset[yindex + 1],
                                           x, y);
 
+    return result;
+}
+
+/*template <int rhocount, int xcount, int ycount>
+double GyroAveragingGrid<rhocount, xcount, ycount>::interpNaiveBicubicDeprecated(int rhoindex, const double x, const double y) {
+    assert((rhoindex >= 0) && (rhoindex < rhocount));
+    if ((x <= xset[0]) || (y <= yset[0]) || (x >= xset.back()) || (y >= yset.back()))
+        return 0;
+    int xindex = 0, yindex = 0;
+    double result = 0;
+    interpIndexSearch(x, y, xindex, yindex);
+    double xnorm = (x - xset[xindex]) / (xset[xindex + 1] - xset[xindex]);
+    double ynorm = (y - yset[yindex]) / (yset[yindex + 1] - yset[yindex]);
+    double xns[4] = {1, xnorm, xnorm * xnorm, xnorm * xnorm * xnorm};
+    double yns[4] = {1, ynorm, ynorm * ynorm, ynorm * ynorm * ynorm};
+    for (int i = 0; i <= 3; ++i)
+        for (int j = 0; j <= 3; ++j) {
+            result += bicubicParameters(rhoindex, xindex, yindex, j * 4 + i) * xns[i] * yns[j];
+        }
+
+    return result;
+}*/
+
+template <int rhocount, int xcount, int ycount>
+double GyroAveragingGrid<rhocount, xcount, ycount>::interpNaiveBicubic2(int rhoindex, const double x, const double y) {
+    assert((rhoindex >= 0) && (rhoindex < rhocount));
+    if ((x <= xset[0]) || (y <= yset[0]) || (x >= xset.back()) || (y >= yset.back()))
+        return 0;
+    int xindex = 0, yindex = 0;
+    double result = 0;
+    interpIndexSearch(x, y, xindex, yindex);
+    double xns[4] = {1, x, x * x, x * x * x};
+    double yns[4] = {1, y, y * y, y * y * y};
+    for (int i = 0; i <= 3; ++i)
+        for (int j = 0; j <= 3; ++j) {
+            result += bicubicParameters2(rhoindex, xindex, yindex, j * 4 + i) * xns[i] * yns[j];
+        }
     return result;
 }
 
@@ -692,11 +853,11 @@ int main() {
 	double B = 2.0;*/
 
     gridDomain g;
-    g.rhomax = 0;
-    g.rhomin = 0.9;
+    g.rhomax = 1.2;
+    g.rhomin = 0;
     g.xmin = g.ymin = -5;
     g.xmax = g.ymax = 5;
-    constexpr int xcount = 48, ycount = 48, rhocount = 4; //bump up to 64x64x35 later or 128x128x35
+    constexpr int xcount = 128, ycount = 128, rhocount = 5; //bump up to 64x64x35 later or 128x128x35
     constexpr double A = 2;
     constexpr double B = 2;
     constexpr double Normalizer = 50.0;
@@ -743,10 +904,11 @@ int main() {
     xset = LinearSpacedArray(g.xmin, g.xmax, xcount);
     yset = LinearSpacedArray(g.ymin, g.ymax, ycount);
 
-    //GyroAveragingGrid<rhocount, xcount, ycount> g(rhoset, xset, yset);
-    //g.GyroAveragingTestSuite(testfunc2, testfunc2_analytic);
-    derivTest(g, testfunc2, testfunc2_analytic_dx, testfunc2_analytic_dy, testfunc2_analytic_dx_dy);
+    GyroAveragingGrid<rhocount, xcount, ycount> grid(rhoset, xset, yset);
+    grid.GyroAveragingTestSuite(testfunc2, testfunc2_analytic);
+    //derivTest(g, testfunc2, testfunc2_analytic_dx, testfunc2_analytic_dy, testfunc2_analytic_dx_dy);
     //interpAnalysis(g, testfunc2, testfunc2_analytic);
+    //testInterpImprovement();
 }
 
 template <int count, typename TFunc1, typename TFunc2>
@@ -849,10 +1011,26 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::InterpErrorAnalysis(TFunc1 f, 
     //boost::timer::auto_cpu_timer t;
     fill(gridValues, f);               //This is the base grid of values we will interpolate.
     fill(analytic_averages, analytic); //analytic formula for gyroaverages
+    fullgrid bicubictest;
+
     //t.report();
     //t.start();
     //std::cout << "That was the time required to calculate analytic gyroaverages.\n";
     setupInterpGrid();
+    setupDerivsGrid();
+    setupBicubicGrid2();
+    for (auto i = 0; i < rhocount; i++)
+        for (auto j = 0; j < xcount; j++)
+            for (auto k = 0; k < ycount; k++) {
+                bicubictest(i, j, k) = interpNaiveBicubic2(i, xset[j], yset[k]);
+            }
+    /* for (int i = 0; i < rhocount; i++) {
+        std::cout.precision(5);
+        std::cout << std::fixed << rhoset[i] << std::scientific << std::setw(15)
+                  << RMSNormDiff(gridValues, bicubictest, i) << "\t"
+                  << maxNormDiff(gridValues, bicubictest, i) << "\n";
+    }*/
+
     fillAlmostExactGA(almostExactGA, f);
     //t.report();
     //t.start();
@@ -865,6 +1043,7 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::InterpErrorAnalysis(TFunc1 f, 
     //t.report();
     //t.start();
     //std::cout << "That was the time required to calc gyroaverages by def, replacing f() by its bilinear interpolant." << std::endl;
+    fillBicubicInterp(bicubicInterp, f);
     std::cout << "There were " << trapezoidInterp.data.size() << " entries. \n";
     std::cout << "Diffs:\n";
     std::cout << "rho        Analytic vs Quadrature       Error due to truncation         Error due to interp             Analytic vs interp              interp vs dot-product GA          GPU vs CPU\n";
@@ -879,6 +1058,87 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::InterpErrorAnalysis(TFunc1 f, 
                   << RMSNormDiff(truncatedAlmostExactGA, trapezoidInterp, i) << "\t"
                   << maxNormDiff(truncatedAlmostExactGA, trapezoidInterp, i) << "\t"
                   << RMSNormDiff(analytic_averages, trapezoidInterp, i) << "\t"
-                  << maxNormDiff(analytic_averages, trapezoidInterp, i) << "\n";
+                  << maxNormDiff(analytic_averages, trapezoidInterp, i) << "\t"
+                  << RMSNormDiff(truncatedAlmostExactGA, bicubicInterp, i) << "\t"
+                  << maxNormDiff(truncatedAlmostExactGA, bicubicInterp, i) << "\n";
     }
+}
+
+void testInterpImprovement() {
+
+    gridDomain g;
+    g.rhomax = 0.9;
+    g.rhomin = 0;
+    g.xmin = g.ymin = -3;
+    g.xmax = g.ymax = 3;
+    constexpr int xcount = 30, ycount = 30;
+    constexpr int xcountb = xcount * 2;
+    constexpr int ycountb = xcount * 2;
+    constexpr double A = 2;
+    constexpr double B = 2;
+    constexpr double Normalizer = 50.0;
+
+    constexpr int rhocount = 4; //TODO MAGIC NUMBER SHOULD BE PASSED IN
+    std::vector<double> rhoset;
+    std::vector<double> xset, xsetb;
+    std::vector<double> yset, ysetb;
+    rhoset = LinearSpacedArray(g.rhomin, g.rhomax, rhocount);
+    xset = LinearSpacedArray(g.xmin, g.xmax, xcount);
+    yset = LinearSpacedArray(g.ymin, g.ymax, ycount);
+
+    xsetb = LinearSpacedArray(g.xmin, g.xmax, xcountb);
+    ysetb = LinearSpacedArray(g.ymin, g.ymax, ycountb);
+
+    GyroAveragingGrid<rhocount, xcount, ycount> smallgrid(rhoset, xset, yset);
+    GyroAveragingGrid<rhocount, xcountb, ycountb> biggrid(rhoset, xsetb, ysetb);
+    //auto testfunc2 = [Normalizer, A, B](double row, double ex, double why) -> double { return (1) * row; };
+
+    auto testfunc2 = [Normalizer, A, B](double row, double ex, double why) -> double { return Normalizer * exp(-A * (ex * ex + why * why)) * exp(-B * row * row); };
+    auto testfunc2_analytic = [Normalizer, A, B](double row, double ex, double why) -> double { return Normalizer * exp(-B * row * row) * exp(-A * (ex * ex + why * why + row * row)) * boost::math::cyl_bessel_i(0, 2 * A * row * std::sqrt(ex * ex + why * why)); };
+    auto testfunc2_analytic_dx = [Normalizer, A, B](double row, double ex, double why) -> double { return -2 * A * ex * Normalizer * exp(-A * (ex * ex + why * why)) * exp(-B * row * row); };
+    auto testfunc2_analytic_dy = [Normalizer, A, B](double row, double ex, double why) -> double { return -2 * A * why * Normalizer * exp(-A * (ex * ex + why * why)) * exp(-B * row * row); };
+    auto testfunc2_analytic_dx_dy = [Normalizer, A, B](double row, double ex, double why) -> double { return 4 * A * A * ex * why * Normalizer * exp(-A * (ex * ex + why * why)) * exp(-B * row * row); };
+
+    smallgrid.fill(smallgrid.gridValues, testfunc2); //This is the base grid of values we will interpolate.
+    //smallgrid.fill(smallgrid.analytic_averages, testfunc2_analytic); //analytic formula for gyroaverages
+    smallgrid.setupInterpGrid();
+    smallgrid.setupDerivsGrid();
+    smallgrid.setupBicubicGrid();
+
+    smallgrid.setupBicubicGrid2();
+
+    GyroAveragingGrid<rhocount, xcountb, ycountb>::fullgrid exact, lin, bic, bic2;
+    for (int i = 0; i < rhocount; ++i)
+        std::cout << rhoset;
+    for (int i = 0; i < rhocount; ++i)
+        for (int j = 0; j < xcountb; ++j)
+            for (int k = 0; k < ycountb; ++k) {
+                exact(i, j, k) = testfunc2(rhoset[i], xsetb[j], ysetb[k]);
+                lin(i, j, k) = smallgrid.interp2d(i, xsetb[j], ysetb[k]);
+                //bic(i, j, k) = smallgrid.interpNaiveBicubic(i, xsetb[j], ysetb[k]);
+                bic2(i, j, k) = smallgrid.interpNaiveBicubic2(i, xsetb[j], ysetb[k]);
+            }
+
+    for (int i = 1; i < rhocount; ++i) {
+
+        //smallgrid.csvPrinter(smallgrid.gridValues, i);
+        //std::cout << "\n";
+
+        biggrid.csvPrinter(exact, i);
+        std::cout << "\n";
+        biggrid.csvPrinter(lin, i);
+        std::cout << "\n";
+        biggrid.csvPrinter(bic, i);
+        std::cout << "\n";
+        biggrid.csvPrinter(bic2, i);
+        std::cout << "\n";
+
+        biggrid.csvPrinterDiff(lin, exact, i);
+        std::cout << "\n";
+        biggrid.csvPrinterDiff(bic, exact, i);
+        std::cout << "\n";
+        biggrid.csvPrinterDiff(bic2, exact, i);
+        std::cout << "\n";
+    }
+    return;
 }

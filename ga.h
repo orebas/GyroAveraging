@@ -11,6 +11,9 @@
 #include <iostream>
 #include <iterator>
 #include <vector>
+
+void testInterpImprovement();
+
 template <typename T>
 std::ostream &operator<<(std::ostream &out, const std::vector<T> &v) {
     if (!v.empty()) {
@@ -147,12 +150,15 @@ private:
     fullgrid almostExactGA;          //stores value of GA calculated as trapezoid rule on input f
     fullgrid truncatedAlmostExactGA; //above, except f hard truncated to 0 outside grid
     fullgrid trapezoidInterp;        //GA calculated as trapezoid rule on interpolated, truncated f
+    fullgrid bicubicInterp;
     //fullgrid fastGACalcResult;
     //fullgrid fastGACalcResultOffset;
     fullgrid fastGALTResult;
     fullgrid analytic_averages; // stores value of expected GA computed analytically
     //fullgrid exactF;
     fullgridInterp interpParameters; //will store the bilinear interp parameters.
+    bicubicParameterGrid bicubicParameters;
+    bicubicParameterGrid bicubicParameters2;
     //std::vector<sparseEntry> GATensor;
     //std::vector<sparseOffset> GAOffsetTensor;
     std::vector<LTOffset> LTOffsetTensor;
@@ -163,6 +169,15 @@ private:
         for (int j = 0; j < xcount; j++) {
             for (int k = 0; k < ycount; k++) {
                 std::cout << m(rho, j, k) << ",";
+            }
+            std::cout << std::endl;
+        }
+    }
+
+    void csvPrinterDiff(const fullgrid &m, const fullgrid &n, int rho) {
+        for (int j = 0; j < xcount; j++) {
+            for (int k = 0; k < ycount; k++) {
+                std::cout << m(rho, j, k) - n(rho, j, k) << ",";
             }
             std::cout << std::endl;
         }
@@ -278,6 +293,19 @@ private:
         });
     }
 
+    void fillBicubicInterp(fullgrid &m) {
+        fillbyindex(m, [&](int i, int j, int k) -> double {
+            double xc = xset[j];
+            double yc = yset[k];
+            if (rhoset[i] == 0)
+                return gridValues(i, j, k);
+
+            auto new_f = [&](double x) -> double { return interpNaiveBicubic2(i, xc + rhoset[i] * std::sin(x), yc - rhoset[i] * std::cos(x)); };
+            double result = TrapezoidIntegrate(0, 2 * pi, new_f) / (2 * pi);
+            return result;
+        });
+    }
+
 public:
     GyroAveragingGrid(const std::vector<double> &rhos,
                       const std::vector<double> &xes,
@@ -290,13 +318,15 @@ public:
         std::sort(yset.begin(), yset.end());
         std::sort(rhoset.begin(), rhoset.end());
     }
-    void interpIndexSearch(const int rhoindex, const double x, const double y, int &xindex, int &yindex);
+    void interpIndexSearch(const double x, const double y, int &xindex, int &yindex);
     inline void integrand(const double rho, const double xc, const double yc, const double gamma, double &xn, double &yn) {
         xn = xc + rho * std::sin(gamma);
         yn = yc - rho * std::cos(gamma);
     }
     void setupInterpGrid();
     void setupDerivsGrid(); //make accuracy a variable later
+    void setupBicubicGrid();
+    void setupBicubicGrid2();
     void assembleFastGACalc(void);
     //void fastGACalc();
     void fastGACalcOffset();
@@ -318,6 +348,10 @@ public:
                              TFunc2 f_x, TFunc3 f_y, TFunc4 f_xy);
 
     double interp2d(int rhoindex, const double x, const double y);
+    double interpNaiveBicubic(int rhoindex, const double x, const double y);
+    double interpNaiveBicubic2(int rhoindex, const double x, const double y);
+
+    friend void testInterpImprovement();
 };
 
 struct gridDomain {
