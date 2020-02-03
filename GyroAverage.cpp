@@ -44,6 +44,7 @@
 #include <iomanip>
 #include <iostream>
 #include <iterator>
+#include <limits>
 #include <map>
 #include <math.h>
 #include <omp.h>
@@ -117,70 +118,12 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::setupInterpGrid() {
     }
 }
 
+// Using an existing derivs grid, the below computes bicubic interpolation parameters.
+//16 parameters per patch, and the bicubic is of the form a_{ij} x^i y^j for 0 \leq x,y \leq 3
 template <int rhocount, int xcount, int ycount>
 void GyroAveragingGrid<rhocount, xcount, ycount>::setupBicubicGrid() {
     using namespace Eigen;
     bicubicParameterGrid &b = bicubicParameters;
-    derivsGrid &d = derivs;
-    for (int i = 0; i < rhocount; i++) {
-        //we explicitly rely on parameters being initialized to 0, including the top and right sides.
-        for (int j = 0; j < xcount - 1; j++)
-            for (int k = 0; k < ycount - 1; k++) {
-                Matrix<double, 16, 1> RHS;
-                Matrix<double, 16, 1> par;
-                Matrix<double, 16, 16> A;
-                RHS << d(i, j, k, 0), d(i, j + 1, k, 0), d(i, j, k + 1, 0), d(i, j + 1, k + 1, 0),
-                    d(i, j, k, 1), d(i, j + 1, k, 1), d(i, j, k + 1, 1), d(i, j + 1, k + 1, 1),
-                    d(i, j, k, 2), d(i, j + 1, k, 2), d(i, j, k + 1, 2), d(i, j + 1, k + 1, 2),
-                    d(i, j, k, 3), d(i, j + 1, k, 3), d(i, j, k + 1, 3), d(i, j + 1, k + 1, 3);
-                A << 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    -3, 3, 0, 0, -2, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    2, -2, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0, -3, 3, 0, 0, -2, -1, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0, 2, -2, 0, 0, 1, 1, 0, 0,
-                    -3, 0, 3, 0, 0, 0, 0, 0, -2, 0, -1, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, -3, 0, 3, 0, 0, 0, 0, 0, -2, 0, -1, 0,
-                    9, -9, -9, 9, 6, 3, -6, -3, 6, -6, 3, -3, 4, 2, 2, 1,
-                    -6, 6, 6, -6, -3, -3, 3, 3, -4, 4, -2, 2, -2, -2, -1, -1,
-                    2, 0, -2, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 2, 0, -2, 0, 0, 0, 0, 0, 1, 0, 1, 0,
-                    -6, 6, 6, -6, -4, -2, 4, 2, -3, 3, -3, 3, -2, -1, -2, -1,
-                    4, -4, -4, 4, 2, 2, -2, -2, 2, -2, 2, -2, 1, 1, 1, 1;
-                par = A * RHS;
-                for (int t = 0; t < 16; ++t)
-                    b(i, j, k, t) = par(t); // PLEASE ADD SOME ASSERTS HERE
-                                            /*
-                for (int a = 0; a <= 1; ++a)
-                    for (int b = 0; b <= 1; ++b) {
-                        double x = xset[j + a];
-                        double y = yset[k + b];
-                    }
-*/
-                /*  double Q11 = gridValues(i, j, k),
-                       Q12 = gridValues(i, j + 1, k),
-                       Q21 = gridValues(i, j, k + 1),
-                       Q22 = gridValues(i, j + 1, k + 1);
-
-                double x = xset[j],
-                       a = xset[j + 1],
-                       y = yset[k],
-                       b = yset[k + 1];
-                double denom = (a - x) * (b - y);
-                interpParameters(i, j, k, 0) = (a * b * Q11 - a * y * Q12 - b * x * Q21 + x * y * Q22) / denom;
-                interpParameters(i, j, k, 1) = (-b * Q11 + y * Q12 + b * Q21 - y * Q22) / denom;
-                interpParameters(i, j, k, 2) = (-a * Q11 + a * Q12 + x * Q21 - x * Q22) / denom;
-                interpParameters(i, j, k, 3) = (Q11 - Q12 - Q21 + Q22) / denom;*/
-            }
-    }
-}
-
-template <int rhocount, int xcount, int ycount>
-void GyroAveragingGrid<rhocount, xcount, ycount>::setupBicubicGrid2() {
-    using namespace Eigen;
-    bicubicParameterGrid &b = bicubicParameters2;
     derivsGrid &d = derivs;
     for (int i = 0; i < rhocount; i++) {
         //we explicitly rely on parameters being initialized to 0, including the top and right sides.
@@ -205,27 +148,6 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::setupBicubicGrid2() {
                 A = X.inverse() * RHS * Y.inverse();
                 for (int t = 0; t < 16; ++t)
                     b(i, j, k, t) = A(t % 4, t / 4); // PLEASE ADD SOME ASSERTS HERE
-                                                     /*
-                for (int a = 0; a <= 1; ++a)
-                    for (int b = 0; b <= 1; ++b) {
-                        double x = xset[j + a];
-                        double y = yset[k + b];
-                    }
-*/
-                /*  double Q11 = gridValues(i, j, k),
-                       Q12 = gridValues(i, j + 1, k),
-                       Q21 = gridValues(i, j, k + 1),
-                       Q22 = gridValues(i, j + 1, k + 1);
-
-                double x = xset[j],
-                       a = xset[j + 1],
-                       y = yset[k],
-                       b = yset[k + 1];
-                double denom = (a - x) * (b - y);
-                interpParameters(i, j, k, 0) = (a * b * Q11 - a * y * Q12 - b * x * Q21 + x * y * Q22) / denom;
-                interpParameters(i, j, k, 1) = (-b * Q11 + y * Q12 + b * Q21 - y * Q22) / denom;
-                interpParameters(i, j, k, 2) = (-a * Q11 + a * Q12 + x * Q21 - x * Q22) / denom;
-                interpParameters(i, j, k, 3) = (Q11 - Q12 - Q21 + Q22) / denom;*/
             }
     }
 }
@@ -233,6 +155,11 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::setupBicubicGrid2() {
 // setupDerivsGrid assumes the values of f are already in gridValues
 // then populates derivs with vectors of the form [f,f_x,f_y, f_xy]
 // we are using finite difference
+//the below is a linear transform, and we will hopefully get it into a (sparse) matrix soon
+//the below uses 5-point stencils (including at edges) for f_x and f_y
+//16-point stencils for f_xy where are derivatives are available
+// 4-point stencils for f_xy one row or column from edges
+// f_xy at edges is hardcoded to 0.
 template <int rhocount, int xcount, int ycount>
 void GyroAveragingGrid<rhocount, xcount, ycount>::setupDerivsGrid() {
     double ydenom = yset[1] - yset[0];
@@ -244,7 +171,6 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::setupDerivsGrid() {
                 derivs(i, j, k, 0) = g(i, j, k);
             }
         }
-
         for (int k = 0; k < ycount; k++) {
 
             derivs(i, 0, k, 1) = 0;
@@ -265,7 +191,7 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::setupDerivsGrid() {
             for (int j = 2; j <= xcount - 3; j++)
                 derivs(i, j, k, 1) = (1.0 * g(i, j - 2, k) +
                                       -8.0 * g(i, j - 1, k) +
-                                      0.0 * g(i, j, k) + //just to show we know it's there
+                                      0.0 * g(i, j, k) +
                                       8.0 * g(i, j + 1, k) +
                                       -1.0 * g(i, j + 2, k)) /
                                      (12.0 * xdenom);
@@ -339,6 +265,138 @@ std::array<double, 4> GyroAveragingGrid<rhocount, xcount, ycount>::arcIntegral(
                 (s0 * xc * yc - rho * yc * coss0 - rho * xc * sins0 + rho * rho * coss0 * coss0 / 2.0);
     return coeffs;
 }
+/* This comment is to help recall precisely how to index the a_ij coefficients, can be deleted later.
+for (int i = 0; i <= 3; ++i)
+    for (int j = 0; j <= 3; ++j) {
+        result += bicubicParameters(rhoindex, xindex, yindex, j * 4 + i) * xns[i] * yns[j];
+    }
+return result;
+*/
+std::array<double, 16> arcIntegralBicubic(
+    double rho, double xc, double yc, double s0, double s1) {
+    //we are going to write down indefinite integrals of (xc + rho*sin(x))^i (xc-rho*cos(x))^j
+    // it seems like in c++, we can't make a 2d-array of lambdas that bind (rho, xc, yc)
+    //without paying a performance penalty.
+    //The below is not meant to be so human readable.  It was generated partly by mathematica.
+
+    //crazy late-night thought - can this whole thing be constexpr?
+    const double c = xc;
+    const double d = yc;
+    const double r = rho;
+    using std::cos;
+    using std::sin;
+    auto f00 = [](double x) -> double { return x; };
+    auto f10 = [r, c, d](double x) -> double { return c * x - r * cos(x); };
+    auto f20 = [r, c, d](double x) -> double { return c * c * x - 2 * c * r * cos(x) + r * r * x / 2 - r * r * sin(2 * x) / 4; };
+    auto f30 = [r, c, d](double x) -> double { return (1.0 / 12.0) *
+                                                      (3 * c * (4 * c * c * x + 6 * r * r * x - 3 * r * r * sin(2 * x)) -
+                                                       9 * r * (4 * c * c + r * r) * cos(x) + r * r * r * cos(3 * x)); };
+    auto f01 = [r, c, d](double x) -> double { return d * x - r * sin(x); };
+    auto f11 = [r, c, d](double x) -> double { return c * d * x - c * r * sin(x) - d * r * cos(x) + r * r * cos(x) * cos(x) / 2.0; };
+    auto f21 = [r, c, d](double x) -> double { return (1.0 / 12.0) * (12.0 * c * c * d * x - 12 * c * c * r * sin(x) -
+                                                                      24 * c * d * r * cos(x) + 6 * c * r * r * cos(2 * x) + 6 * d * r * r * x -
+                                                                      3 * d * r * r * sin(2 * x) - 3 * r * r * r * sin(x) + r * r * r * sin(3 * x)); };
+    auto f31 = [r, c, d](double x) -> double { return (1.0 / 96.0) * (48 * c * d * x * (2 * c * c + 3 * r * r) - 72 * d * r * (4 * c * c + r * r) * cos(x) -
+                                                                      24 * c * r * (4 * c * c + 3 * r * r) * sin(x) + 12 * r * r * (6 * c * c + r * r) * cos(2 * x) -
+                                                                      72 * c * d * r * r * sin(2 * x) + 24 * c * r * r * r * sin(3 * x) + 8 * d * r * r * r * cos(3 * x) -
+                                                                      3 * r * r * r * r * cos(4 * x)); };
+
+    auto f02 = [r, c, d](double x) -> double { return (1.0 / 2.0) * (x * (2 * d * d + r * r) + r * sin(x) * (r * cos(x) - 4 * d)); };
+    auto f12 = [r, c, d](double x) -> double { return (1.0 / 12.0) * (6 * c * x * (2 * d * d + r * r) - 24 * c * d * r * sin(x) +
+                                                                      3 * c * r * r * sin(2 * x) - 3 * r * (4 * d * d + r * r) * cos(x) + 6 * d * r * r * cos(2 * x) +
+                                                                      r * r * r * (-1.0 * cos(3 * x))); };
+    auto f22 = [r, c, d](double x) -> double { return (1.0 / 96.0) *
+                                                      (24 * r * r * (c * c - d * d) * sin(2 * x) + 12 * x * (4 * c * c * (2 * d * d + r * r) + 4 * d * d * r * r + r * r * r * r) -
+                                                       48 * d * r * (4 * c * c + r * r) * sin(x) - 48 * c * r * (4 * d * d + r * r) * cos(x) + 96 * c * d * r * r * cos(2 * x) -
+                                                       16 * c * r * r * r * cos(3 * x) + 16 * d * r * r * r * sin(3 * x) - 3 * r * r * r * r * sin(4 * x)); };
+    auto f32 = [r, c, d](double x) -> double { return (1.0 / 480.0) *
+                                                      (120 * c * r * r * (c * c - 3 * d * d) * sin(2 * x) +
+                                                       60 * c * x * (4 * c * c * (2 * d * d + r * r) + 3 * (4 * d * d * r * r + r * r * r * r)) -
+                                                       60 * r * cos(x) * (6 * c * c * (4 * d * d + r * r) + 6 * d * d * r * r + r * r * r * r) -
+                                                       10 * r * r * r * cos(3 * x) * (12 * c * c - 4 * d * d + r * r) -
+                                                       240 * c * d * r * (4 * c * c + 3 * r * r) * sin(x) +
+                                                       120 * d * r * r * (6 * c * c + r * r) * cos(2 * x) +
+                                                       240 * c * d * r * r * r * sin(3 * x) - 45 * c * r * r * r * r * sin(4 * x) -
+                                                       30 * d * r * r * r * r * cos(4 * x) + 6 * r * r * r * r * r * cos(5 * x)); };
+
+    auto f03 = [r, c, d](double x) -> double { return (1.0 / 12.0) * (12 * d * d * d * x - 9 * r * (4 * d * d + r * r) * sin(x) +
+                                                                      18 * d * r * r * x + 9 * d * r * r * sin(2 * x) - r * r * r * sin(3 * x)); };
+
+    auto f13 = [r, c, d](double x) -> double { return (1.0 / 96.0) * (48 * c * d * x * (2 * d * d + 3 * r * r) -
+                                                                      72 * c * r * (4 * d * d + r * r) * sin(x) +
+                                                                      72 * c * d * r * r * sin(2 * x) -
+                                                                      8 * c * r * r * r * sin(3 * x) +
+                                                                      12 * r * r * (6 * d * d + r * r) * cos(2 * x) -
+                                                                      24 * d * r * (4 * d * d + 3 * r * r) * cos(x) -
+                                                                      24 * d * r * r * r * cos(3 * x) +
+                                                                      3 * r * r * r * r * cos(4 * x)); };
+    auto f23 = [r, c, d](double x) -> double { return (1.0 / 480.0) * (480 * c * c * d * d * d * x -
+                                                                       1440 * c * c * d * d * r * sin(x) +
+                                                                       720 * c * c * d * r * r * x +
+                                                                       360 * c * c * d * r * r * sin(2 * x) -
+                                                                       360 * c * c * r * r * r * sin(x) -
+                                                                       40 * c * c * r * r * r * sin(3 * x) +
+                                                                       120 * c * r * r * (6 * d * d + r * r) * cos(2 * x) -
+                                                                       240 * c * d * r * (4 * d * d + 3 * r * r) * cos(x) -
+                                                                       240 * c * d * r * r * r * cos(3 * x) +
+                                                                       30 * c * r * r * r * r * cos(4 * x) +
+                                                                       240 * d * d * d * r * r * x -
+                                                                       120 * d * d * d * r * r * sin(2 * x) -
+                                                                       360 * d * d * r * r * r * sin(x) +
+                                                                       120 * d * d * r * r * r * sin(3 * x) +
+                                                                       180 * d * r * r * r * r * x -
+                                                                       45 * d * r * r * r * r * sin(4 * x) -
+                                                                       60 * r * r * r * r * r * sin(x) +
+                                                                       10 * r * r * r * r * r * sin(3 * x) +
+                                                                       6 * r * r * r * r * r * sin(5 * x)); };
+    auto f33 = [r, c, d](double x) -> double { return (1.0 / 960.0) * (960 * c * c * c * d * d * d * x -
+                                                                       2880 * c * c * c * d * d * r * sin(x) +
+                                                                       1440 * c * c * c * d * r * r * x +
+                                                                       720 * c * c * c * d * r * r * sin(2 * x) -
+                                                                       720 * c * c * c * r * r * r * sin(x) -
+                                                                       80 * c * c * c * r * r * r * sin(3 * x) +
+                                                                       45 * r * r * cos(2 * x) * (8 * c * c * (6 * d * d + r * r) + 8 * d * d * r * r + r * r * r * r) -
+                                                                       360 * d * r * cos(x) * (c * c * (8 * d * d + 6 * r * r) + 2 * d * d * r * r + r * r * r * r) -
+                                                                       720 * c * c * d * r * r * r * cos(3 * x) +
+                                                                       90 * c * c * r * r * r * r * cos(4 * x) +
+                                                                       1440 * c * d * d * d * r * r * x -
+                                                                       720 * c * d * d * d * r * r * sin(2 * x) -
+                                                                       2160 * c * d * d * r * r * r * sin(x) +
+                                                                       720 * c * d * d * r * r * r * sin(3 * x) +
+                                                                       1080 * c * d * r * r * r * r * x -
+                                                                       270 * c * d * r * r * r * r * sin(4 * x) -
+                                                                       360 * c * r * r * r * r * r * sin(x) +
+                                                                       60 * c * r * r * r * r * r * sin(3 * x) +
+                                                                       36 * c * r * r * r * r * r * sin(5 * x) +
+                                                                       80 * d * d * d * r * r * r * cos(3 * x) -
+                                                                       90 * d * d * r * r * r * r * cos(4 * x) -
+                                                                       60 * d * r * r * r * r * r * cos(3 * x) +
+                                                                       36 * d * r * r * r * r * r * cos(5 * x) -
+                                                                       5 * r * r * r * r * r * r * cos(6 * x)); };
+
+    std::array<double, 16> coeffs;
+    double coss1 = std::cos(s1), coss0 = std::cos(s0), sins0 = std::sin(s0), sins1 = std::sin(s1);
+
+    //result += bicubicParameters(rhoindex, xindex, yindex, j * 4 + i) * xns[i] * yns[j];
+    coeffs[0 * 4 + 0] = f00(s1) - f00(s0);
+    coeffs[0 * 4 + 1] = f10(s1) - f10(s0);
+    coeffs[0 * 4 + 2] = f20(s1) - f20(s0);
+    coeffs[0 * 4 + 3] = f30(s1) - f30(s0);
+    coeffs[1 * 4 + 0] = f01(s1) - f01(s0);
+    coeffs[1 * 4 + 1] = f11(s1) - f11(s0);
+    coeffs[1 * 4 + 2] = f21(s1) - f21(s0);
+    coeffs[1 * 4 + 3] = f31(s1) - f31(s0);
+    coeffs[2 * 4 + 0] = f02(s1) - f02(s0);
+    coeffs[2 * 4 + 1] = f12(s1) - f12(s0);
+    coeffs[2 * 4 + 2] = f22(s1) - f22(s0);
+    coeffs[2 * 4 + 3] = f32(s1) - f32(s0);
+    coeffs[3 * 4 + 0] = f03(s1) - f03(s0);
+    coeffs[3 * 4 + 1] = f13(s1) - f13(s0);
+    coeffs[3 * 4 + 2] = f23(s1) - f23(s0);
+    coeffs[3 * 4 + 3] = f33(s1) - f33(s0);
+
+    return coeffs;
+}
 
 //add handling for rho =0.
 template <int rhocount, int xcount, int ycount>
@@ -407,15 +465,7 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::assembleFastGACalc(void) {
                     integrand(rho, xc, yc, (s0 + s1) / 2, xmid, ymid); //this just calculates into (xmid,ymid) the point half through the arc.
                     coeffs = arcIntegral(rho, xc, yc, s0, s1);
                     interpIndexSearch(xmid, ymid, xInterpIndex, yInterpIndex);
-                    /*sparseOffset so; //fill this in
-                    so.target = &(fastGACalcResultOffset(i, j, k)) - &(fastGACalcResultOffset(0, 0, 0));
-                    so.source = &(interpParameters(i, xInterpIndex, yInterpIndex, 0)) - &(interpParameters(0, 0, 0, 0));
-                    so.coeffs[0] = coeffs[0] / (2 * pi);
-                    so.coeffs[1] = coeffs[1] / (2 * pi);
-                    so.coeffs[2] = coeffs[2] / (2 * pi);
-                    so.coeffs[3] = coeffs[3] / (2 * pi);
-                    GAOffsetMap[std::pair<int, int>(so.source, so.target)] = GAOffsetMap[std::pair<int, int>(so.source, so.target)] + std::array<double, 4>({so.coeffs[0], so.coeffs[1], so.coeffs[2], so.coeffs[3]});
-*/
+
                     //begin look-thru code
                     if (!((xInterpIndex == (xcount - 1)) && (yInterpIndex == (ycount - 1)))) {
                         double x = xset[xInterpIndex], a = xset[xInterpIndex + 1];
@@ -448,17 +498,7 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::assembleFastGACalc(void) {
                 }
             }
     }
-    //std::cout << "Size: " << GAOffsetTensor.size() << " and sizeof is " << sizeof(sparseOffset) << std::endl;
-    /*for (auto iter = GAOffsetMap.begin(); iter != GAOffsetMap.end(); ++iter) {
-        sparseOffset so;
-        so.source = (iter->first).first;
-        so.target = (iter->first).second;
-        so.coeffs[0] = (iter->second)[0];
-        so.coeffs[1] = (iter->second)[1];
-        so.coeffs[2] = (iter->second)[2];
-        so.coeffs[3] = (iter->second)[3];
-        GAOffsetTensor.push_back(so);
-    }*/
+
     for (int i = 0; i < rhocount; i++) {
         auto &GALookThruOffsetMap = GALookThruOffsetMapArray[i];
         for (auto iter = GALookThruOffsetMap.begin(); iter != GALookThruOffsetMap.end(); ++iter) {
@@ -469,40 +509,121 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::assembleFastGACalc(void) {
             LTOffsetTensor.push_back(lto);
         }
     }
-    /*std::sort(GAOffsetTensor.begin(), GAOffsetTensor.end(), [](sparseOffset a, sparseOffset b) -> bool { 
-				if(a.source == b.source)
-                    return a.target < b.target;
-                else
-					return a.source < b.source; });*/
     std::sort(LTOffsetTensor.begin(), LTOffsetTensor.end(), [](LTOffset a, LTOffset b) -> bool { 
 				if(a.source == b.source)
                     return a.target < b.target;
                 else
 					return a.source < b.source; });
-
-    /*int dupCounter = 0;
-    for (int c = 0; c < GAOffsetTensor.size() - 1; c++) {
-        if (GAOffsetTensor[c].source == GAOffsetTensor[c + 1].source)
-            if (GAOffsetTensor[c].target == GAOffsetTensor[c + 1].target)
-                dupCounter++;
-    }*/
-    //std::cout << "Number of 4-vector dot-products needed for GA calc: " << GAOffsetTensor.size() << " and rough memory usage is " << GAOffsetTensor.size() * sizeof(sparseOffset) << std::endl;
     std::cout << "Number of double  products needed for LT calc: " << LTOffsetTensor.size() << " and rough memory usage is " << LTOffsetTensor.size() * sizeof(LTOffset) << std::endl;
 }
 
-/*template <int rhocount, int xcount, int ycount>
-void GyroAveragingGrid<rhocount, xcount, ycount>::fastGACalcOffset() {
-    clearGrid(fastGACalcResultOffset);
-    int size = GAOffsetTensor.size();
+template <int rhocount, int xcount, int ycount>
+void GyroAveragingGrid<rhocount, xcount, ycount>::assembleFastBCCalc(void) { //bicubic version of the above.
+    //std::map<std::pair<int, int>, std::array<double, 4>> GAOffsetMap;
+
+    std::vector<std::map<std::pair<int, int>, double>> GALookThruOffsetMapArray(rhocount);
+
 #pragma omp parallel for
-    for (int i = 0; i < size; ++i) {
-        auto interpPlace = interpParameters.data.begin() + GAOffsetTensor[i].source;
-        fastGACalcResultOffset.data[GAOffsetTensor[i].target] += GAOffsetTensor[i].coeffs[0] * interpPlace[0];
-        fastGACalcResultOffset.data[GAOffsetTensor[i].target] += GAOffsetTensor[i].coeffs[1] * interpPlace[1];
-        fastGACalcResultOffset.data[GAOffsetTensor[i].target] += GAOffsetTensor[i].coeffs[2] * interpPlace[2];
-        fastGACalcResultOffset.data[GAOffsetTensor[i].target] += GAOffsetTensor[i].coeffs[3] * interpPlace[3];
+    for (auto i = 0; i < rhocount; i++) {
+        std::map<std::pair<int, int>, double> &GALookThruOffsetMap = GALookThruOffsetMapArray[i];
+        for (auto j = 0; j < xcount; j++)
+            for (auto k = 0; k < ycount; k++) {
+                std::vector<indexedPoint> intersections;
+                double rho = rhoset[i];
+                double xc = xset[j];
+                double yc = yset[k];
+                double xmin = xset[0], xmax = xset.back();
+                double ymin = yset[0], ymax = yset.back();
+                std::vector<double> xIntersections, yIntersections;
+                //these two loops calculate all potential intersection points
+                //between GA circle and the grid.
+                for (auto v : xset)
+                    if (std::abs(v - xc) <= rho) {
+                        double deltax = v - xc;
+                        double deltay = std::sqrt(rho * rho - deltax * deltax);
+                        if ((yc + deltay >= ymin) && (yc + deltay <= ymax))
+                            intersections.push_back(indexedPoint(v, yc + deltay, 0));
+                        if ((yc - deltay >= ymin) && (yc - deltay <= ymax))
+                            intersections.push_back(indexedPoint(v, yc - deltay, 0));
+                    }
+                for (auto v : yset)
+                    if (std::abs(v - yc) <= rho) {
+                        double deltay = v - yc;
+                        double deltax = std::sqrt(rho * rho - deltay * deltay);
+                        if ((xc + deltax >= xmin) && (xc + deltax <= xmax))
+                            intersections.push_back(indexedPoint(xc + deltax, v, 0));
+                        if ((xc - deltax >= xmin) && (xc - deltax <= xmax))
+                            intersections.push_back(indexedPoint(xc - deltax, v, 0));
+                    }
+                for (auto &v : intersections) {
+                    v.s = std::atan2(v.xvalue - xc, yc - v.yvalue);
+                    if (v.s < 0)
+                        v.s += 2 * pi;
+                    assert((0 <= v.s) && (v.s < 2 * pi));
+                    assert((xc + std::sin(v.s) * rho) - v.xvalue < 1e-10);
+                    assert((yc - std::cos(v.s) * rho) - v.yvalue < 1e-10);
+                }
+                indexedPoint temp;
+                temp.s = 0;
+                intersections.push_back(temp);
+                temp.s = 2 * pi;
+                intersections.push_back(temp);
+                std::sort(intersections.begin(), intersections.end(), [](indexedPoint a, indexedPoint b) { return a.s < b.s; });
+                assert(intersections.size() > 0);
+                assert(intersections[0].s == 0);
+                assert(intersections.back().s == (2 * pi));
+                for (size_t p = 0; p < intersections.size() - 1; p++) {
+                    double s0 = intersections[p].s, s1 = intersections[p + 1].s;
+                    double xmid, ymid;
+                    std::array<double, 16> coeffs;
+                    int xInterpIndex = 0, yInterpIndex = 0;
+                    if (s1 - s0 < 1e-12)                               //TODO MAGIC NUMBER (here and another place )
+                        continue;                                      //if two of our points are equal or very close to one another, we make the arc larger.
+                                                                       //this will probably happen for s=0 and s=pi/2, but doesn't cost us anything.
+                    integrand(rho, xc, yc, (s0 + s1) / 2, xmid, ymid); //this just calculates into (xmid,ymid) the point half through the arc.
+                    coeffs = arcIntegralBicubic(rho, xc, yc, s0, s1);
+                    interpIndexSearch(xmid, ymid, xInterpIndex, yInterpIndex);
+
+                    //begin look-thru code
+                    if (!((xInterpIndex == (xcount - 1)) && (yInterpIndex == (ycount - 1)))) {
+                        double x = xset[xInterpIndex], a = xset[xInterpIndex + 1];
+                        double y = yset[yInterpIndex], b = yset[yInterpIndex + 1];
+
+                        std::array<int, 16> LTSources, LTTargets;
+                        std::array<double, 16> LTCoeffs;
+                        LTSources.fill(0);
+                        LTTargets.fill(0);
+                        LTCoeffs.fill(0);
+                        for (int l = 0; l < 16; l++) {
+                            LTSources[l] = &(bicubicParameters(i, xInterpIndex, yInterpIndex, l)) - &(bicubicParameters(0, 0, 0, 0));
+                            LTTargets[l] = &(BCResult(i, j, k)) - &(BCResult(0, 0, 0));
+                            LTCoeffs[l] = coeffs[l] / (2.0 * pi);
+
+                            GALookThruOffsetMap[std::pair<int, int>(LTSources[l], LTTargets[l])] =
+                                GALookThruOffsetMap[std::pair<int, int>(LTSources[l], LTTargets[l])] + LTCoeffs[l];
+                        }
+                    }
+                }
+            }
     }
-}*/
+
+    for (int i = 0; i < rhocount; i++) {
+        auto &GALookThruOffsetMap = GALookThruOffsetMapArray[i];
+        for (auto iter = GALookThruOffsetMap.begin(); iter != GALookThruOffsetMap.end(); ++iter) {
+            LTOffset lto;
+            lto.source = (iter->first).first;
+            lto.target = (iter->first).second;
+            lto.coeff = (iter->second);
+            BCOffsetTensor.push_back(lto);
+        }
+    }
+    std::sort(BCOffsetTensor.begin(), BCOffsetTensor.end(), [](LTOffset a, LTOffset b) -> bool { 
+				if(a.source == b.source)
+                    return a.target < b.target;
+                else
+					return a.source < b.source; });
+    std::cout << "Number of double  products needed for BC calc: " << BCOffsetTensor.size() << " and rough memory usage is " << BCOffsetTensor.size() * sizeof(LTOffset) << std::endl;
+}
 
 template <int rhocount, int xcount, int ycount>
 void GyroAveragingGrid<rhocount, xcount, ycount>::fastLTCalcOffset() {
@@ -511,6 +632,16 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::fastLTCalcOffset() {
     //#pragma omp parallel for
     for (int i = 0; i < size; ++i) {
         fastGALTResult.data[LTOffsetTensor[i].target] += gridValues.data[LTOffsetTensor[i].source] * LTOffsetTensor[i].coeff;
+    }
+}
+
+template <int rhocount, int xcount, int ycount>
+void GyroAveragingGrid<rhocount, xcount, ycount>::fastBCCalcOffset() {
+    clearGrid(BCResult);
+    long int size = BCOffsetTensor.size();
+    //#pragma omp parallel for
+    for (long int i = 0; i < size; ++i) {
+        BCResult.data[BCOffsetTensor[i].target] += bicubicParameters.data[BCOffsetTensor[i].source] * BCOffsetTensor[i].coeff;
     }
 }
 
@@ -713,7 +844,14 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
     t.report();
     std::cout << "That was the time required to assemble the sparse matrix in the fast-GA dot product calculation." << std::endl;
     t.start();
-    int times = 3;
+    setupDerivsGrid();
+    setupBicubicGrid();
+    assembleFastBCCalc();
+    t.report();
+    std::cout << "That was the time required to assemble the sparse matrix in the fast-BC dot product calculation." << std::endl;
+
+    t.start();
+    int times = 10;
     for (int counter = 0; counter < times; counter++) {
         fastLTCalcOffset();
     }
@@ -721,9 +859,19 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
     t.report();
     std::cout << "The was the time require to run LT gyroaverage calc " << times << " times. \n " << std::endl;
 
+    t.start();
+    for (int counter = 0; counter < times; counter++) {
+        setupDerivsGrid();
+        setupBicubicGrid();
+        fastBCCalcOffset();
+    }
+
+    t.report();
+    std::cout << "The was the time require to run BC gyroaverage calc " << times << " times. \n " << std::endl;
+
     GPUTestSuite(f, analytic);
     setupDerivsGrid();
-    setupBicubicGrid2();
+    setupBicubicGrid();
     fullgrid bicubicResults;
     fillBicubicInterp(bicubicResults);
     std::cout
@@ -747,7 +895,9 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
                   << RMSNorm(fastGALTResult, i) << "\t"
                   << maxNorm(fastGALTResult, i) << "\t"
                   << RMSNorm(bicubicResults, i) << "\t"
-                  << maxNorm(bicubicResults, i) << "\n";
+                  << maxNorm(bicubicResults, i) << "\t"
+                  << RMSNorm(BCResult, i) << "\t"
+                  << maxNorm(BCResult, i) << "\n";
     }
     std::cout << "Diffs:\n";
     std::cout << "rho        Analytic vs Quadrature       Error due to truncation         Error due to interp             Analytic vs interp              interp vs dot-product GA          GPU vs CPU\n";
@@ -765,7 +915,9 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
                   << RMSNormDiff(trapezoidInterp, fastGALTResult, i) << "\t"
                   << maxNormDiff(trapezoidInterp, fastGALTResult, i) << "\t"
                   << RMSNormDiff(bicubicResults, truncatedAlmostExactGA, i) << "\t"
-                  << maxNormDiff(bicubicResults, truncatedAlmostExactGA, i) << "\n";
+                  << maxNormDiff(bicubicResults, truncatedAlmostExactGA, i) << "\t"
+                  << RMSNormDiff(BCResult, truncatedAlmostExactGA, i) << "\t"
+                  << maxNormDiff(BCResult, truncatedAlmostExactGA, i) << "\n";
         //     << RMSNormDiff(fastGALTResult, cpu_results[0], i) << "\t"
         //    << maxNormDiff(fastGALTResult, cpu_results[0], i) << "\n";
 
@@ -775,6 +927,7 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
 }
 
 //below function returns the indices referring to lower left point of the grid box containing (x,y)
+//it is not (yet) efficient.  In particular, we should probably explicitly assume equispaced grids and use that fact.
 template <int rhocount, int xcount, int ycount>
 void GyroAveragingGrid<rhocount, xcount, ycount>::interpIndexSearch(const double x, const double y, int &xindex, int &yindex) {
 
@@ -806,28 +959,9 @@ double GyroAveragingGrid<rhocount, xcount, ycount>::interp2d(int rhoindex, const
     return result;
 }
 
-/*template <int rhocount, int xcount, int ycount>
-double GyroAveragingGrid<rhocount, xcount, ycount>::interpNaiveBicubicDeprecated(int rhoindex, const double x, const double y) {
-    assert((rhoindex >= 0) && (rhoindex < rhocount));
-    if ((x <= xset[0]) || (y <= yset[0]) || (x >= xset.back()) || (y >= yset.back()))
-        return 0;
-    int xindex = 0, yindex = 0;
-    double result = 0;
-    interpIndexSearch(x, y, xindex, yindex);
-    double xnorm = (x - xset[xindex]) / (xset[xindex + 1] - xset[xindex]);
-    double ynorm = (y - yset[yindex]) / (yset[yindex + 1] - yset[yindex]);
-    double xns[4] = {1, xnorm, xnorm * xnorm, xnorm * xnorm * xnorm};
-    double yns[4] = {1, ynorm, ynorm * ynorm, ynorm * ynorm * ynorm};
-    for (int i = 0; i <= 3; ++i)
-        for (int j = 0; j <= 3; ++j) {
-            result += bicubicParameters(rhoindex, xindex, yindex, j * 4 + i) * xns[i] * yns[j];
-        }
-
-    return result;
-}*/
-
+//Below returns bicubic interp f(x,y), in the dumb way.  We should do multivariate horners method soon.
 template <int rhocount, int xcount, int ycount>
-double GyroAveragingGrid<rhocount, xcount, ycount>::interpNaiveBicubic2(int rhoindex, const double x, const double y) {
+double GyroAveragingGrid<rhocount, xcount, ycount>::interpNaiveBicubic(int rhoindex, const double x, const double y) {
     assert((rhoindex >= 0) && (rhoindex < rhocount));
     if ((x <= xset[0]) || (y <= yset[0]) || (x >= xset.back()) || (y >= yset.back()))
         return 0;
@@ -838,7 +972,7 @@ double GyroAveragingGrid<rhocount, xcount, ycount>::interpNaiveBicubic2(int rhoi
     double yns[4] = {1, y, y * y, y * y * y};
     for (int i = 0; i <= 3; ++i)
         for (int j = 0; j <= 3; ++j) {
-            result += bicubicParameters2(rhoindex, xindex, yindex, j * 4 + i) * xns[i] * yns[j];
+            result += bicubicParameters(rhoindex, xindex, yindex, j * 4 + i) * xns[i] * yns[j];
         }
     return result;
 }
@@ -853,11 +987,11 @@ int main() {
 	double B = 2.0;*/
 
     gridDomain g;
-    g.rhomax = 1.2;
+    g.rhomax = 2.5;
     g.rhomin = 0;
     g.xmin = g.ymin = -5;
     g.xmax = g.ymax = 5;
-    constexpr int xcount = 128, ycount = 128, rhocount = 5; //bump up to 64x64x35 later or 128x128x35
+    constexpr int xcount = 96, ycount = 96, rhocount = 24; //bump up to 64x64x35 later or 128x128x35
     constexpr double A = 2;
     constexpr double B = 2;
     constexpr double Normalizer = 50.0;
@@ -895,11 +1029,6 @@ int main() {
     auto testfunc2_analytic_dy = [Normalizer, A, B](double row, double ex, double why) -> double { return -2 * A * why * Normalizer * exp(-A * (ex * ex + why * why)) * exp(-B * row * row); };
     auto testfunc2_analytic_dx_dy = [Normalizer, A, B](double row, double ex, double why) -> double { return 4 * A * A * ex * why * Normalizer * exp(-A * (ex * ex + why * why)) * exp(-B * row * row); };
 
-    /*auto testfunc2_analytic = [A, B](double row, double ex, double why) -> double {
-        double rsquared = ex * ex + why * why;  //THIS SEEMS WRONG.
-        double alpha = (A * B) / (A + B);
-        return (exp(-alpha * rsquared) / (2 * (A + B)));
-    };*/
     rhoset = LinearSpacedArray(g.rhomin, g.rhomax, rhocount);
     xset = LinearSpacedArray(g.xmin, g.xmax, xcount);
     yset = LinearSpacedArray(g.ymin, g.ymax, ycount);
@@ -909,6 +1038,18 @@ int main() {
     //derivTest(g, testfunc2, testfunc2_analytic_dx, testfunc2_analytic_dy, testfunc2_analytic_dx_dy);
     //interpAnalysis(g, testfunc2, testfunc2_analytic);
     //testInterpImprovement();
+    //testArcIntegralBicubic();
+}
+
+void testArcIntegralBicubic() {
+    constexpr double r = 0.3, s0 = 0.6, s1 = 2.2, xc = -0.2, yc = -1.4;
+    auto coeffs = arcIntegralBicubic(r, xc, yc, s0, s1);
+    for (int i = 0; i <= 3; ++i)
+        for (int j = 0; j <= 3; ++j) {
+            auto f = [i, j](double x) -> double { return std::pow(xc + r * std::sin(x), i) * std::pow(yc - r * std::cos(x), j); };
+            double res = TanhSinhIntegrate(s0, s1, f);
+            std::cout << i << "\t" << j << "\t" << res << "\t" << coeffs[j * 4 + i] << "\t" << res - coeffs[j * 4 + i] << "\n";
+        }
 }
 
 template <int count, typename TFunc1, typename TFunc2>
@@ -1008,41 +1149,22 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::derivsErrorAnalysis(TFunc1 f, 
 template <int rhocount, int xcount, int ycount>
 template <typename TFunc1, typename TFunc2>
 void GyroAveragingGrid<rhocount, xcount, ycount>::InterpErrorAnalysis(TFunc1 f, TFunc2 analytic) {
-    //boost::timer::auto_cpu_timer t;
+
     fill(gridValues, f);               //This is the base grid of values we will interpolate.
     fill(analytic_averages, analytic); //analytic formula for gyroaverages
     fullgrid bicubictest;
 
-    //t.report();
-    //t.start();
-    //std::cout << "That was the time required to calculate analytic gyroaverages.\n";
     setupInterpGrid();
     setupDerivsGrid();
-    setupBicubicGrid2();
+    setupBicubicGrid();
     for (auto i = 0; i < rhocount; i++)
         for (auto j = 0; j < xcount; j++)
             for (auto k = 0; k < ycount; k++) {
-                bicubictest(i, j, k) = interpNaiveBicubic2(i, xset[j], yset[k]);
+                bicubictest(i, j, k) = interpNaiveBicubic(i, xset[j], yset[k]);
             }
-    /* for (int i = 0; i < rhocount; i++) {
-        std::cout.precision(5);
-        std::cout << std::fixed << rhoset[i] << std::scientific << std::setw(15)
-                  << RMSNormDiff(gridValues, bicubictest, i) << "\t"
-                  << maxNormDiff(gridValues, bicubictest, i) << "\n";
-    }*/
-
     fillAlmostExactGA(almostExactGA, f);
-    //t.report();
-    //t.start();
-    //std::cout << "That was the time required to calculate gyroaverages from the definition, with the trapezoid rule.\n";
     fillTruncatedAlmostExactGA(truncatedAlmostExactGA, f);
-    //t.report();
-    //t.start();
-    //std::cout << "That was the time required to calculate gryoaverages by def (as above), except we hard truncated f() to 0 off-grid.\n";
     fillTrapezoidInterp(trapezoidInterp, f);
-    //t.report();
-    //t.start();
-    //std::cout << "That was the time required to calc gyroaverages by def, replacing f() by its bilinear interpolant." << std::endl;
     fillBicubicInterp(bicubicInterp, f);
     std::cout << "There were " << trapezoidInterp.data.size() << " entries. \n";
     std::cout << "Diffs:\n";
@@ -1063,7 +1185,7 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::InterpErrorAnalysis(TFunc1 f, 
                   << maxNormDiff(truncatedAlmostExactGA, bicubicInterp, i) << "\n";
     }
 }
-
+//below function is for testing and will be refactored later.
 void testInterpImprovement() {
 
     gridDomain g;
@@ -1105,9 +1227,9 @@ void testInterpImprovement() {
     smallgrid.setupDerivsGrid();
     smallgrid.setupBicubicGrid();
 
-    smallgrid.setupBicubicGrid2();
+    smallgrid.setupBicubicGrid();
 
-    GyroAveragingGrid<rhocount, xcountb, ycountb>::fullgrid exact, lin, bic, bic2;
+    GyroAveragingGrid<rhocount, xcountb, ycountb>::fullgrid exact, lin, bic;
     for (int i = 0; i < rhocount; ++i)
         std::cout << rhoset;
     for (int i = 0; i < rhocount; ++i)
@@ -1116,7 +1238,7 @@ void testInterpImprovement() {
                 exact(i, j, k) = testfunc2(rhoset[i], xsetb[j], ysetb[k]);
                 lin(i, j, k) = smallgrid.interp2d(i, xsetb[j], ysetb[k]);
                 //bic(i, j, k) = smallgrid.interpNaiveBicubic(i, xsetb[j], ysetb[k]);
-                bic2(i, j, k) = smallgrid.interpNaiveBicubic2(i, xsetb[j], ysetb[k]);
+                bic(i, j, k) = smallgrid.interpNaiveBicubic(i, xsetb[j], ysetb[k]);
             }
 
     for (int i = 1; i < rhocount; ++i) {
@@ -1130,14 +1252,14 @@ void testInterpImprovement() {
         std::cout << "\n";
         biggrid.csvPrinter(bic, i);
         std::cout << "\n";
-        biggrid.csvPrinter(bic2, i);
+        biggrid.csvPrinter(bic, i);
         std::cout << "\n";
 
         biggrid.csvPrinterDiff(lin, exact, i);
         std::cout << "\n";
         biggrid.csvPrinterDiff(bic, exact, i);
         std::cout << "\n";
-        biggrid.csvPrinterDiff(bic2, exact, i);
+        biggrid.csvPrinterDiff(bic, exact, i);
         std::cout << "\n";
     }
     return;

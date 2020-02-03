@@ -12,8 +12,6 @@
 #include <iterator>
 #include <vector>
 
-void testInterpImprovement();
-
 template <typename T>
 std::ostream &operator<<(std::ostream &out, const std::vector<T> &v) {
     if (!v.empty()) {
@@ -90,7 +88,6 @@ constexpr double pi = 3.1415926535897932384626433832795028841971;
 
 template <typename TFunc>
 inline double FixedNTrapezoidIntegrate(double x, double y, TFunc f, int n) { //used to be trapezoid rule.
-
     double h = (y - x) / (n - 1);
     double sum = 0;
     double fx1 = f(x);
@@ -106,13 +103,6 @@ inline double FixedNTrapezoidIntegrate(double x, double y, TFunc f, int n) { //u
 inline double
 BilinearInterpolation(double q11, double q12, double q21, double q22, double x1, double x2, double y1, double y2, double x, double y);
 std::vector<double> LinearSpacedArray(double a, double b, int N);
-
-/*struct sparseEntry {
-    std::array<int, 3> target; //target entry i,j,k
-    std::array<double, 4> coeffs;
-    std::array<int, 3> source;
-    sparseEntry(std::array<int, 3> t, std::array<double, 4> c, std::array<int, 3> s) : target(t), coeffs(c), source(s) {}
-};*/
 
 struct sparseOffset { //no constructor.
     int target, source;
@@ -134,6 +124,8 @@ operator+(const std::array<double, 4> &l, const std::array<double, 4> &r) {
     return ret;
 }
 
+void testInterpImprovement();
+
 template <int rhocount, int xcount, int ycount>
 class GyroAveragingGrid {
 public:
@@ -151,17 +143,13 @@ private:
     fullgrid truncatedAlmostExactGA; //above, except f hard truncated to 0 outside grid
     fullgrid trapezoidInterp;        //GA calculated as trapezoid rule on interpolated, truncated f
     fullgrid bicubicInterp;
-    //fullgrid fastGACalcResult;
-    //fullgrid fastGACalcResultOffset;
     fullgrid fastGALTResult;
-    fullgrid analytic_averages; // stores value of expected GA computed analytically
-    //fullgrid exactF;
+    fullgrid BCResult;
+    fullgrid analytic_averages;      // stores value of expected GA computed analytically
     fullgridInterp interpParameters; //will store the bilinear interp parameters.
     bicubicParameterGrid bicubicParameters;
-    bicubicParameterGrid bicubicParameters2;
-    //std::vector<sparseEntry> GATensor;
-    //std::vector<sparseOffset> GAOffsetTensor;
     std::vector<LTOffset> LTOffsetTensor;
+    std::vector<LTOffset> BCOffsetTensor;
     std::vector<LTOffset> FDTensor; //finite difference tensor, used to populate derivs from gridValues
     derivsGrid derivs;
 
@@ -292,7 +280,7 @@ private:
             return result;
         });
     }
-
+    //below requires the bicubic parameter grid to be populated.
     void fillBicubicInterp(fullgrid &m) {
         fillbyindex(m, [&](int i, int j, int k) -> double {
             double xc = xset[j];
@@ -300,7 +288,7 @@ private:
             if (rhoset[i] == 0)
                 return gridValues(i, j, k);
 
-            auto new_f = [&](double x) -> double { return interpNaiveBicubic2(i, xc + rhoset[i] * std::sin(x), yc - rhoset[i] * std::cos(x)); };
+            auto new_f = [&](double x) -> double { return interpNaiveBicubic(i, xc + rhoset[i] * std::sin(x), yc - rhoset[i] * std::cos(x)); };
             double result = TrapezoidIntegrate(0, 2 * pi, new_f) / (2 * pi);
             return result;
         });
@@ -326,12 +314,14 @@ public:
     void setupInterpGrid();
     void setupDerivsGrid(); //make accuracy a variable later
     void setupBicubicGrid();
-    void setupBicubicGrid2();
+    //void setupBicubicGrid2();
     void assembleFastGACalc(void);
-    //void fastGACalc();
-    void fastGACalcOffset();
+
+    void assembleFastBCCalc(void);
     void fastLTCalcOffset();
+    void fastBCCalcOffset();
     std::array<double, 4> arcIntegral(double rho, double xc, double yc, double s0, double s1);
+    //std::array<double, 16> arcIntegralBicubic(double rho, double xc, double yc, double s0, double s1);
     template <typename TFunc1, typename TFunc2>
     void GyroAveragingTestSuite(TFunc1 f,
                                 TFunc2 analytic);
@@ -376,3 +366,7 @@ void interpAnalysisInnerLoop(const gridDomain &g, TFunc1 f,
 template <typename TFunc1, typename TFunc2, typename TFunc3, typename TFunc4>
 void derivTest(const gridDomain &g, TFunc1 f,
                TFunc2 f_x, TFunc3 f_y, TFunc4 f_xy);
+
+std::array<double, 16> arcIntegralBicubic(
+    double rho, double xc, double yc, double s0, double s1);
+void testArcIntegralBicubic();
