@@ -1,11 +1,11 @@
 // GyroDebugging.cpp : This file contains the 'main' function. Program execution begins and ends there.
 ////#include "pch.h"
 
-#ifndef NDEBUG
-#define NDEBUG
-#endif
+//#ifndef NDEBUG
+//#define NDEBUG
+//#endif
 
-//#undef NDEBUG
+#undef NDEBUG
 
 #define VIENNACL_WITH_UBLAS 1
 
@@ -131,7 +131,8 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::setupBicubicGrid() {
             for (int k = 0; k < ycount - 1; k++) {
                 double x0 = xset[j], x1 = xset[j + 1];
                 double y0 = yset[k], y1 = yset[k + 1];
-                Matrix<double, 4, 4> X, Y, RHS, A;
+                Matrix<double, 4, 4> X, Y, RHS, A, temp1, temp2;
+
                 RHS << d(i, j, k, 0), d(i, j, k + 1, 0), d(i, j, k, 2), d(i, j, k + 1, 2),
                     d(i, j + 1, k, 0), d(i, j + 1, k + 1, 0), d(i, j + 1, k, 2), d(i, j + 1, k + 1, 2),
                     d(i, j, k, 1), d(i, j, k + 1, 1), d(i, j, k, 3), d(i, j, k + 1, 3),
@@ -144,8 +145,11 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::setupBicubicGrid() {
                     y0, y1, 1, 1,
                     y0 * y0, y1 * y1, 2 * y0, 2 * y1,
                     y0 * y0 * y0, y1 * y1 * y1, 3 * y0 * y0, 3 * y1 * y1;
+                //std::cout << X << std::endl;
+                temp1 = X.fullPivLu().inverse(); //this line crashes on my home machine without optimization turned on.
+                temp2 = Y.fullPivLu().inverse(); // we should take out the Eigen dependency methinks.  TODO
 
-                A = X.inverse() * RHS * Y.inverse();
+                A = temp1 * RHS * temp2;
                 for (int t = 0; t < 16; ++t)
                     b(i, j, k, t) = A(t % 4, t / 4); // PLEASE ADD SOME ASSERTS HERE
             }
@@ -762,6 +766,13 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuiteBC(TFunc1 f, TFunc
     viennacl::compressed_matrix<double> vcl_sparse_matrix(xcount * ycount * rhocount, xcount * ycount * rhocount * 16);
     boost::numeric::ublas::compressed_matrix<double> ublas_matrix(xcount * ycount * rhocount, xcount * ycount * rhocount * 16);
     t.start();
+    int max1 = 0, max2 = 0, max3 = 0;
+    for (long m = 0; m < BCOffsetTensor.size(); ++m) {
+        max1 = std::max(max1, BCOffsetTensor[m].target);
+        max2 = std::max(max2, BCOffsetTensor[m].source);
+        max3 = BCOffsetTensor.size();
+    }
+    std::cout << "Max target: " << max1 << " Max source: " << max2 << " max m:" << max3 << std::endl;
 
     for (long m = 0; m < BCOffsetTensor.size(); ++m) {
         cpu_sparse_matrix[BCOffsetTensor[m].target][BCOffsetTensor[m].source] = BCOffsetTensor[m].coeff;
@@ -784,18 +795,21 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuiteBC(TFunc1 f, TFunc
     viennacl::ell_matrix<double, 1> vcl_ell_matrix_1();
     viennacl::hyb_matrix<double, 1> vcl_hyb_matrix_1();
     viennacl::sliced_ell_matrix<double> vcl_sliced_ell_matrix_1(xcount * ycount * rhocount, xcount * ycount * rhocount * 16);
-
+    std::cout << "DEBUG1" << std::endl;
     viennacl::vector<double> gpu_source(bicubicParameters.data.size());
     viennacl::vector<double> gpu_target(BCResult.data.size());
     copy(cpu_sparse_matrix, vcl_sparse_matrix); //default alignment, benchmark different options.
+
     copy(bicubicParameters.data.begin(), bicubicParameters.data.end(), gpu_source.begin());
     copy(bicubicParameters.data.begin(), bicubicParameters.data.end(), gpu_target.begin());
     //we are going to compute each product once and then sync, to compile all kernels.
     //this will feel like a ~1 second delay in user space.
-
+    std::cout << "DEBUG1" << std::endl;
     viennacl::copy(ublas_matrix, vcl_compressed_matrix_1);
     viennacl::copy(ublas_matrix, vcl_compressed_matrix_4);
+    std::cout << "DEBUG1" << std::endl;
     viennacl::copy(ublas_matrix, vcl_compressed_matrix_8);
+    std::cout << "DEBUG1" << std::endl;
     viennacl::copy(ublas_matrix, vcl_coordinate_matrix_128);
     //    viennacl::copy(cpu_sparse_matrix,vcl_ell_matrix_1);
     //viennacl::copy(ublas_matrix,vcl_hyb_matrix_1);
@@ -809,17 +823,17 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuiteBC(TFunc1 f, TFunc
 
     gpu_target = viennacl::linalg::prod(vcl_sparse_matrix, gpu_source);
     viennacl::backend::finish();
-
+    std::cout << "DEBUG1" << std::endl;
     gpu_target = viennacl::linalg::prod(vcl_compressed_matrix_1, gpu_source);
     viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[0].data.begin());
-
+    std::cout << "DEBUG1" << std::endl;
     gpu_target = viennacl::linalg::prod(vcl_compressed_matrix_4, gpu_source);
     gpu_target = viennacl::linalg::prod(vcl_compressed_matrix_8, gpu_source);
     gpu_target = viennacl::linalg::prod(vcl_coordinate_matrix_128, gpu_source);
     //gpu_target = viennacl::linalg::prod(vcl_ell_matrix_1,gpu_source);
     //gpu_target = viennacl::linalg::prod(vcl_hyb_matrix_1,gpu_source);
     gpu_target = viennacl::linalg::prod(vcl_sliced_ell_matrix_1, gpu_source);
-
+    std::cout << "DEBUG1" << std::endl;
     viennacl::backend::finish();
     viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[0].data.begin());
     viennacl::backend::finish();
@@ -1094,11 +1108,11 @@ int main() {
 	double B = 2.0;*/
 
     gridDomain g;
-    g.rhomax = 2.5;
-    g.rhomin = 0;
+    g.rhomax = 0.9;
+    g.rhomin = 0.3;
     g.xmin = g.ymin = -5;
     g.xmax = g.ymax = 5;
-    constexpr int xcount = 10, ycount = 10, rhocount = 5; //bump up to 64x64x35 later or 128x128x35
+    constexpr int xcount = 20, ycount = 20, rhocount = 5; //bump up to 64x64x35 later or 128x128x35
     constexpr double A = 2;
     constexpr double B = 2;
     constexpr double Normalizer = 50.0;
