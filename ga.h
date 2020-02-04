@@ -367,6 +367,6 @@ template <typename TFunc1, typename TFunc2, typename TFunc3, typename TFunc4>
 void derivTest(const gridDomain &g, TFunc1 f,
                TFunc2 f_x, TFunc3 f_y, TFunc4 f_xy);
 
-std::array<double, 16> arcIntegralBicubic(
-    double rho, double xc, double yc, double s0, double s1);
+void inline arcIntegralBicubic(std::array<double, 16> &coeffs,
+                                          double rho, double xc, double yc, double s0, double s1);
 void testArcIntegralBicubic();

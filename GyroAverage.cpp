@@ -272,8 +272,8 @@ for (int i = 0; i <= 3; ++i)
     }
 return result;
 */
-std::array<double, 16> arcIntegralBicubic(
-    double rho, double xc, double yc, double s0, double s1) {
+void inline arcIntegralBicubic(std::array<double, 16> &coeffs,
+                               double rho, double xc, double yc, double s0, double s1) {
     //we are going to write down indefinite integrals of (xc + rho*sin(x))^i (xc-rho*cos(x))^j
     // it seems like in c++, we can't make a 2d-array of lambdas that bind (rho, xc, yc)
     //without paying a performance penalty.
@@ -283,101 +283,52 @@ std::array<double, 16> arcIntegralBicubic(
     const double c = xc;
     const double d = yc;
     const double r = rho;
+    const double r2 = rho * rho;
+    const double r3 = r2 * rho;
+    const double r4 = r2 * r2;
+    const double r5 = r3 * r2;
+
+    const double c2 = c * c;
+    const double c3 = c2 * c;
+
+    const double d2 = d * d;
+    const double d3 = d2 * d;
+
     using std::cos;
     using std::sin;
-    auto f00 = [](double x) -> double { return x; };
-    auto f10 = [r, c, d](double x) -> double { return c * x - r * cos(x); };
-    auto f20 = [r, c, d](double x) -> double { return c * c * x - 2 * c * r * cos(x) + r * r * x / 2 - r * r * sin(2 * x) / 4; };
-    auto f30 = [r, c, d](double x) -> double { return (1.0 / 12.0) *
-                                                      (3 * c * (4 * c * c * x + 6 * r * r * x - 3 * r * r * sin(2 * x)) -
-                                                       9 * r * (4 * c * c + r * r) * cos(x) + r * r * r * cos(3 * x)); };
-    auto f01 = [r, c, d](double x) -> double { return d * x - r * sin(x); };
-    auto f11 = [r, c, d](double x) -> double { return c * d * x - c * r * sin(x) - d * r * cos(x) + r * r * cos(x) * cos(x) / 2.0; };
-    auto f21 = [r, c, d](double x) -> double { return (1.0 / 12.0) * (12.0 * c * c * d * x - 12 * c * c * r * sin(x) -
-                                                                      24 * c * d * r * cos(x) + 6 * c * r * r * cos(2 * x) + 6 * d * r * r * x -
-                                                                      3 * d * r * r * sin(2 * x) - 3 * r * r * r * sin(x) + r * r * r * sin(3 * x)); };
-    auto f31 = [r, c, d](double x) -> double { return (1.0 / 96.0) * (48 * c * d * x * (2 * c * c + 3 * r * r) - 72 * d * r * (4 * c * c + r * r) * cos(x) -
-                                                                      24 * c * r * (4 * c * c + 3 * r * r) * sin(x) + 12 * r * r * (6 * c * c + r * r) * cos(2 * x) -
-                                                                      72 * c * d * r * r * sin(2 * x) + 24 * c * r * r * r * sin(3 * x) + 8 * d * r * r * r * cos(3 * x) -
-                                                                      3 * r * r * r * r * cos(4 * x)); };
 
-    auto f02 = [r, c, d](double x) -> double { return (1.0 / 2.0) * (x * (2 * d * d + r * r) + r * sin(x) * (r * cos(x) - 4 * d)); };
-    auto f12 = [r, c, d](double x) -> double { return (1.0 / 12.0) * (6 * c * x * (2 * d * d + r * r) - 24 * c * d * r * sin(x) +
-                                                                      3 * c * r * r * sin(2 * x) - 3 * r * (4 * d * d + r * r) * cos(x) + 6 * d * r * r * cos(2 * x) +
-                                                                      r * r * r * (-1.0 * cos(3 * x))); };
-    auto f22 = [r, c, d](double x) -> double { return (1.0 / 96.0) *
-                                                      (24 * r * r * (c * c - d * d) * sin(2 * x) + 12 * x * (4 * c * c * (2 * d * d + r * r) + 4 * d * d * r * r + r * r * r * r) -
-                                                       48 * d * r * (4 * c * c + r * r) * sin(x) - 48 * c * r * (4 * d * d + r * r) * cos(x) + 96 * c * d * r * r * cos(2 * x) -
-                                                       16 * c * r * r * r * cos(3 * x) + 16 * d * r * r * r * sin(3 * x) - 3 * r * r * r * r * sin(4 * x)); };
-    auto f32 = [r, c, d](double x) -> double { return (1.0 / 480.0) *
-                                                      (120 * c * r * r * (c * c - 3 * d * d) * sin(2 * x) +
-                                                       60 * c * x * (4 * c * c * (2 * d * d + r * r) + 3 * (4 * d * d * r * r + r * r * r * r)) -
-                                                       60 * r * cos(x) * (6 * c * c * (4 * d * d + r * r) + 6 * d * d * r * r + r * r * r * r) -
-                                                       10 * r * r * r * cos(3 * x) * (12 * c * c - 4 * d * d + r * r) -
-                                                       240 * c * d * r * (4 * c * c + 3 * r * r) * sin(x) +
-                                                       120 * d * r * r * (6 * c * c + r * r) * cos(2 * x) +
-                                                       240 * c * d * r * r * r * sin(3 * x) - 45 * c * r * r * r * r * sin(4 * x) -
-                                                       30 * d * r * r * r * r * cos(4 * x) + 6 * r * r * r * r * r * cos(5 * x)); };
+#define f00(x) (x)
 
-    auto f03 = [r, c, d](double x) -> double { return (1.0 / 12.0) * (12 * d * d * d * x - 9 * r * (4 * d * d + r * r) * sin(x) +
-                                                                      18 * d * r * r * x + 9 * d * r * r * sin(2 * x) - r * r * r * sin(3 * x)); };
+#define f10(x) (c * x - r * cos(x))
 
-    auto f13 = [r, c, d](double x) -> double { return (1.0 / 96.0) * (48 * c * d * x * (2 * d * d + 3 * r * r) -
-                                                                      72 * c * r * (4 * d * d + r * r) * sin(x) +
-                                                                      72 * c * d * r * r * sin(2 * x) -
-                                                                      8 * c * r * r * r * sin(3 * x) +
-                                                                      12 * r * r * (6 * d * d + r * r) * cos(2 * x) -
-                                                                      24 * d * r * (4 * d * d + 3 * r * r) * cos(x) -
-                                                                      24 * d * r * r * r * cos(3 * x) +
-                                                                      3 * r * r * r * r * cos(4 * x)); };
-    auto f23 = [r, c, d](double x) -> double { return (1.0 / 480.0) * (480 * c * c * d * d * d * x -
-                                                                       1440 * c * c * d * d * r * sin(x) +
-                                                                       720 * c * c * d * r * r * x +
-                                                                       360 * c * c * d * r * r * sin(2 * x) -
-                                                                       360 * c * c * r * r * r * sin(x) -
-                                                                       40 * c * c * r * r * r * sin(3 * x) +
-                                                                       120 * c * r * r * (6 * d * d + r * r) * cos(2 * x) -
-                                                                       240 * c * d * r * (4 * d * d + 3 * r * r) * cos(x) -
-                                                                       240 * c * d * r * r * r * cos(3 * x) +
-                                                                       30 * c * r * r * r * r * cos(4 * x) +
-                                                                       240 * d * d * d * r * r * x -
-                                                                       120 * d * d * d * r * r * sin(2 * x) -
-                                                                       360 * d * d * r * r * r * sin(x) +
-                                                                       120 * d * d * r * r * r * sin(3 * x) +
-                                                                       180 * d * r * r * r * r * x -
-                                                                       45 * d * r * r * r * r * sin(4 * x) -
-                                                                       60 * r * r * r * r * r * sin(x) +
-                                                                       10 * r * r * r * r * r * sin(3 * x) +
-                                                                       6 * r * r * r * r * r * sin(5 * x)); };
-    auto f33 = [r, c, d](double x) -> double { return (1.0 / 960.0) * (960 * c * c * c * d * d * d * x -
-                                                                       2880 * c * c * c * d * d * r * sin(x) +
-                                                                       1440 * c * c * c * d * r * r * x +
-                                                                       720 * c * c * c * d * r * r * sin(2 * x) -
-                                                                       720 * c * c * c * r * r * r * sin(x) -
-                                                                       80 * c * c * c * r * r * r * sin(3 * x) +
-                                                                       45 * r * r * cos(2 * x) * (8 * c * c * (6 * d * d + r * r) + 8 * d * d * r * r + r * r * r * r) -
-                                                                       360 * d * r * cos(x) * (c * c * (8 * d * d + 6 * r * r) + 2 * d * d * r * r + r * r * r * r) -
-                                                                       720 * c * c * d * r * r * r * cos(3 * x) +
-                                                                       90 * c * c * r * r * r * r * cos(4 * x) +
-                                                                       1440 * c * d * d * d * r * r * x -
-                                                                       720 * c * d * d * d * r * r * sin(2 * x) -
-                                                                       2160 * c * d * d * r * r * r * sin(x) +
-                                                                       720 * c * d * d * r * r * r * sin(3 * x) +
-                                                                       1080 * c * d * r * r * r * r * x -
-                                                                       270 * c * d * r * r * r * r * sin(4 * x) -
-                                                                       360 * c * r * r * r * r * r * sin(x) +
-                                                                       60 * c * r * r * r * r * r * sin(3 * x) +
-                                                                       36 * c * r * r * r * r * r * sin(5 * x) +
-                                                                       80 * d * d * d * r * r * r * cos(3 * x) -
-                                                                       90 * d * d * r * r * r * r * cos(4 * x) -
-                                                                       60 * d * r * r * r * r * r * cos(3 * x) +
-                                                                       36 * d * r * r * r * r * r * cos(5 * x) -
-                                                                       5 * r * r * r * r * r * r * cos(6 * x)); };
+#define f20(x) (c2 * x - 2 * c * r * cos(x) + r2 * x / 2 - r2 * sin(2 * x) / 4)
 
-    std::array<double, 16> coeffs;
-    double coss1 = std::cos(s1), coss0 = std::cos(s0), sins0 = std::sin(s0), sins1 = std::sin(s1);
+#define f30(x) ((1.0 / 12.0) * (3 * c * (4 * c2 * x + 6 * r2 * x - 3 * r2 * sin(2 * x)) - 9 * r * (4 * c2 + r2) * cos(x) + r3 * cos(3 * x)))
 
-    //result += bicubicParameters(rhoindex, xindex, yindex, j * 4 + i) * xns[i] * yns[j];
+#define f01(x) (d * x - r * sin(x))
+
+#define f11(x) (c * d * x - c * r * sin(x) - d * r * cos(x) + r2 * cos(x) * cos(x) / 2.0)
+
+#define f21(x) ((1.0 / 12.0) * (12.0 * c2 * d * x - 12 * c2 * r * sin(x) - 24 * c * d * r * cos(x) + 6 * c * r2 * cos(2 * x) + 6 * d * r2 * x - 3 * d * r2 * sin(2 * x) - 3 * r3 * sin(x) + r3 * sin(3 * x)))
+
+#define f31(x) ((1.0 / 96.0) * (48 * c * d * x * (2 * c2 + 3 * r2) - 72 * d * r * (4 * c2 + r2) * cos(x) - 24 * c * r * (4 * c2 + 3 * r2) * sin(x) + 12 * r2 * (6 * c2 + r2) * cos(2 * x) - 72 * c * d * r2 * sin(2 * x) + 24 * c * r3 * sin(3 * x) + 8 * d * r3 * cos(3 * x) - 3 * r4 * cos(4 * x)))
+
+#define f02(x) ((1.0 / 2.0) * (x * (2 * d2 + r2) + r * sin(x) * (r * cos(x) - 4 * d)))
+
+#define f12(x) ((1.0 / 12.0) * (6 * c * x * (2 * d2 + r2) - 24 * c * d * r * sin(x) + 3 * c * r2 * sin(2 * x) - 3 * r * (4 * d2 + r2) * cos(x) + 6 * d * r2 * cos(2 * x) + r3 * (-1.0 * cos(3 * x))))
+
+#define f22(x) ((1.0 / 96.0) * (24 * r2 * (c2 - d2) * sin(2 * x) + 12 * x * (4 * c2 * (2 * d2 + r2) + 4 * d2 * r2 + r4) - 48 * d * r * (4 * c2 + r2) * sin(x) - 48 * c * r * (4 * d2 + r2) * cos(x) + 96 * c * d * r2 * cos(2 * x) - 16 * c * r3 * cos(3 * x) + 16 * d * r3 * sin(3 * x) - 3 * r4 * sin(4 * x)))
+
+#define f32(x) ((1.0 / 480.0) * (120 * c * r2 * (c2 - 3 * d2) * sin(2 * x) + 60 * c * x * (4 * c2 * (2 * d2 + r2) + 3 * (4 * d2 * r2 + r4)) - 60 * r * cos(x) * (6 * c2 * (4 * d2 + r2) + 6 * d2 * r2 + r4) - 10 * r3 * cos(3 * x) * (12 * c2 - 4 * d2 + r2) - 240 * c * d * r * (4 * c2 + 3 * r2) * sin(x) + 120 * d * r2 * (6 * c2 + r2) * cos(2 * x) + 240 * c * d * r3 * sin(3 * x) - 45 * c * r4 * sin(4 * x) - 30 * d * r4 * cos(4 * x) + 6 * r5 * cos(5 * x)))
+
+#define f03(x) ((1.0 / 12.0) * (12 * d3 * x - 9 * r * (4 * d2 + r2) * sin(x) + 18 * d * r2 * x + 9 * d * r2 * sin(2 * x) - r3 * sin(3 * x)))
+
+#define f13(x) ((1.0 / 96.0) * (48 * c * d * x * (2 * d2 + 3 * r2) - 72 * c * r * (4 * d2 + r2) * sin(x) + 72 * c * d * r2 * sin(2 * x) - 8 * c * r3 * sin(3 * x) + 12 * r2 * (6 * d2 + r2) * cos(2 * x) - 24 * d * r * (4 * d2 + 3 * r2) * cos(x) - 24 * d * r3 * cos(3 * x) + 3 * r4 * cos(4 * x)))
+
+#define f23(x) ((1.0 / 480.0) * (480 * c2 * d3 * x - 1440 * c2 * d2 * r * sin(x) + 720 * c2 * d * r2 * x + 360 * c2 * d * r2 * sin(2 * x) - 360 * c2 * r3 * sin(x) - 40 * c2 * r3 * sin(3 * x) + 120 * c * r2 * (6 * d2 + r2) * cos(2 * x) - 240 * c * d * r * (4 * d2 + 3 * r2) * cos(x) - 240 * c * d * r3 * cos(3 * x) + 30 * c * r4 * cos(4 * x) + 240 * d3 * r2 * x - 120 * d3 * r2 * sin(2 * x) - 360 * d2 * r3 * sin(x) + 120 * d2 * r3 * sin(3 * x) + 180 * d * r4 * x - 45 * d * r4 * sin(4 * x) - 60 * r5 * sin(x) + 10 * r5 * sin(3 * x) + 6 * r5 * sin(5 * x)))
+
+#define f33(x) ((1.0 / 960.0) * (960 * c3 * d3 * x - 2880 * c3 * d2 * r * sin(x) + 1440 * c3 * d * r2 * x + 720 * c3 * d * r2 * sin(2 * x) - 720 * c3 * r3 * sin(x) - 80 * c3 * r3 * sin(3 * x) + 45 * r2 * cos(2 * x) * (8 * c2 * (6 * d2 + r2) + 8 * d2 * r2 + r4) - 360 * d * r * cos(x) * (c2 * (8 * d2 + 6 * r2) + 2 * d2 * r2 + r4) - 720 * c2 * d * r3 * cos(3 * x) + 90 * c2 * r4 * cos(4 * x) + 1440 * c * d3 * r2 * x - 720 * c * d3 * r2 * sin(2 * x) - 2160 * c * d2 * r3 * sin(x) + 720 * c * d2 * r3 * sin(3 * x) + 1080 * c * d * r4 * x - 270 * c * d * r4 * sin(4 * x) - 360 * c * r5 * sin(x) + 60 * c * r5 * sin(3 * x) + 36 * c * r5 * sin(5 * x) + 80 * d3 * r3 * cos(3 * x) - 90 * d2 * r4 * cos(4 * x) - 60 * d * r5 * cos(3 * x) + 36 * d * r5 * cos(5 * x) - 5 * r5 * r * cos(6 * x)))
+
     coeffs[0 * 4 + 0] = f00(s1) - f00(s0);
     coeffs[0 * 4 + 1] = f10(s1) - f10(s0);
     coeffs[0 * 4 + 2] = f20(s1) - f20(s0);
@@ -394,8 +345,6 @@ std::array<double, 16> arcIntegralBicubic(
     coeffs[3 * 4 + 1] = f13(s1) - f13(s0);
     coeffs[3 * 4 + 2] = f23(s1) - f23(s0);
     coeffs[3 * 4 + 3] = f33(s1) - f33(s0);
-
-    return coeffs;
 }
 
 //add handling for rho =0.
@@ -509,11 +458,11 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::assembleFastGACalc(void) {
             LTOffsetTensor.push_back(lto);
         }
     }
-    std::sort(LTOffsetTensor.begin(), LTOffsetTensor.end(), [](LTOffset a, LTOffset b) -> bool { 
+    /*std::sort(LTOffsetTensor.begin(), LTOffsetTensor.end(), [](LTOffset a, LTOffset b) -> bool { 
 				if(a.source == b.source)
                     return a.target < b.target;
                 else
-					return a.source < b.source; });
+					return a.source < b.source; });*/
     std::cout << "Number of double  products needed for LT calc: " << LTOffsetTensor.size() << " and rough memory usage is " << LTOffsetTensor.size() * sizeof(LTOffset) << std::endl;
 }
 
@@ -581,13 +530,11 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::assembleFastBCCalc(void) { //b
                         continue;                                      //if two of our points are equal or very close to one another, we make the arc larger.
                                                                        //this will probably happen for s=0 and s=pi/2, but doesn't cost us anything.
                     integrand(rho, xc, yc, (s0 + s1) / 2, xmid, ymid); //this just calculates into (xmid,ymid) the point half through the arc.
-                    coeffs = arcIntegralBicubic(rho, xc, yc, s0, s1);
+                    arcIntegralBicubic(coeffs, rho, xc, yc, s0, s1);
                     interpIndexSearch(xmid, ymid, xInterpIndex, yInterpIndex);
 
                     //begin look-thru code
                     if (!((xInterpIndex == (xcount - 1)) && (yInterpIndex == (ycount - 1)))) {
-                        double x = xset[xInterpIndex], a = xset[xInterpIndex + 1];
-                        double y = yset[yInterpIndex], b = yset[yInterpIndex + 1];
 
                         std::array<int, 16> LTSources, LTTargets;
                         std::array<double, 16> LTCoeffs;
@@ -617,11 +564,11 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::assembleFastBCCalc(void) { //b
             BCOffsetTensor.push_back(lto);
         }
     }
-    std::sort(BCOffsetTensor.begin(), BCOffsetTensor.end(), [](LTOffset a, LTOffset b) -> bool { 
+    /*std::sort(BCOffsetTensor.begin(), BCOffsetTensor.end(), [](LTOffset a, LTOffset b) -> bool { 
 				if(a.source == b.source)
                     return a.target < b.target;
                 else
-					return a.source < b.source; });
+					return a.source < b.source; });*/
     std::cout << "Number of double  products needed for BC calc: " << BCOffsetTensor.size() << " and rough memory usage is " << BCOffsetTensor.size() * sizeof(LTOffset) << std::endl;
 }
 
@@ -845,7 +792,11 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
     std::cout << "That was the time required to assemble the sparse matrix in the fast-GA dot product calculation." << std::endl;
     t.start();
     setupDerivsGrid();
+    t.report();
+    t.start();
     setupBicubicGrid();
+    t.report();
+    t.start();
     assembleFastBCCalc();
     t.report();
     std::cout << "That was the time required to assemble the sparse matrix in the fast-BC dot product calculation." << std::endl;
@@ -1043,7 +994,8 @@ int main() {
 
 void testArcIntegralBicubic() {
     constexpr double r = 0.3, s0 = 0.6, s1 = 2.2, xc = -0.2, yc = -1.4;
-    auto coeffs = arcIntegralBicubic(r, xc, yc, s0, s1);
+    std::array<double, 16> coeffs;
+    arcIntegralBicubic(coeffs, r, xc, yc, s0, s1);
     for (int i = 0; i <= 3; ++i)
         for (int j = 0; j <= 3; ++j) {
             auto f = [i, j](double x) -> double { return std::pow(xc + r * std::sin(x), i) * std::pow(yc - r * std::cos(x), j); };
