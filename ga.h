@@ -329,6 +329,10 @@ public:
     template <typename TFunc1, typename TFunc2>
     void GPUTestSuite(TFunc1 f,
                       TFunc2 analytic);
+
+    template <typename TFunc1, typename TFunc2>
+    void GPUTestSuiteBC(TFunc1 f,
+                        TFunc2 analytic);
     template <typename TFunc1, typename TFunc2>
     void InterpErrorAnalysis(TFunc1 f,
                              TFunc2 analytic);
@@ -368,5 +372,5 @@ void derivTest(const gridDomain &g, TFunc1 f,
                TFunc2 f_x, TFunc3 f_y, TFunc4 f_xy);
 
 void inline arcIntegralBicubic(std::array<double, 16> &coeffs,
-                                          double rho, double xc, double yc, double s0, double s1);
+                               double rho, double xc, double yc, double s0, double s1);
 void testArcIntegralBicubic();
