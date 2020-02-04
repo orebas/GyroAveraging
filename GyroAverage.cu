@@ -29,7 +29,7 @@
 #include "viennacl/tools/timer.hpp"
 #include "viennacl/vector.hpp"
 
-#include <eigen3/eigen/Eigen>
+#include <eigen3/Eigen/Eigen>
 
 #include "ga.h"
 #include <algorithm>
@@ -458,11 +458,11 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::assembleFastGACalc(void) {
             LTOffsetTensor.push_back(lto);
         }
     }
-    /*std::sort(LTOffsetTensor.begin(), LTOffsetTensor.end(), [](LTOffset a, LTOffset b) -> bool { 
+    std::sort(LTOffsetTensor.begin(), LTOffsetTensor.end(), [](LTOffset a, LTOffset b) -> bool { 
 				if(a.source == b.source)
                     return a.target < b.target;
                 else
-					return a.source < b.source; });*/
+					return a.source < b.source; });
     std::cout << "Number of double  products needed for LT calc: " << LTOffsetTensor.size() << " and rough memory usage is " << LTOffsetTensor.size() * sizeof(LTOffset) << std::endl;
 }
 
@@ -564,11 +564,11 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::assembleFastBCCalc(void) { //b
             BCOffsetTensor.push_back(lto);
         }
     }
-    /*std::sort(BCOffsetTensor.begin(), BCOffsetTensor.end(), [](LTOffset a, LTOffset b) -> bool { 
+    std::sort(BCOffsetTensor.begin(), BCOffsetTensor.end(), [](LTOffset a, LTOffset b) -> bool { 
 				if(a.source == b.source)
                     return a.target < b.target;
                 else
-					return a.source < b.source; });*/
+					return a.source < b.source; });
     std::cout << "Number of double  products needed for BC calc: " << BCOffsetTensor.size() << " and rough memory usage is " << BCOffsetTensor.size() * sizeof(LTOffset) << std::endl;
 }
 
@@ -942,7 +942,7 @@ int main() {
     g.rhomin = 0;
     g.xmin = g.ymin = -5;
     g.xmax = g.ymax = 5;
-    constexpr int xcount = 96, ycount = 96, rhocount = 24; //bump up to 64x64x35 later or 128x128x35
+    constexpr int xcount = 36, ycount = 36, rhocount = 18; //bump up to 64x64x35 later or 128x128x35
     constexpr double A = 2;
     constexpr double B = 2;
     constexpr double Normalizer = 50.0;
