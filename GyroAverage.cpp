@@ -8,6 +8,10 @@
 #undef NDEBUG
 
 #define VIENNACL_WITH_UBLAS 1
+#define VIENNACL_HAVE_EIGEN 1
+
+
+#include <eigen3/Eigen/Eigen>
 
 #include <boost/numeric/ublas/lu.hpp>
 #include <boost/numeric/ublas/matrix_sparse.hpp>
@@ -29,7 +33,6 @@
 #include "viennacl/tools/timer.hpp"
 #include "viennacl/vector.hpp"
 
-#include <eigen3/Eigen/Eigen>
 
 #include "ga.h"
 #include <algorithm>
@@ -761,10 +764,11 @@ template <typename TFunc1, typename TFunc2>
 void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuiteBC(TFunc1 f, TFunc2 analytic) {
     std::cout << "Beginning GPU test of BC calc.\n";
     boost::timer::auto_cpu_timer t;
-    std::vector<std::map<int, double>>
-        cpu_sparse_matrix(xcount * ycount * rhocount * 16); //do I really need to mutiply by 16 here?  check.  TODO
-    viennacl::compressed_matrix<double> vcl_sparse_matrix(xcount * ycount * rhocount, xcount * ycount * rhocount * 16);
-    boost::numeric::ublas::compressed_matrix<double> ublas_matrix(xcount * ycount * rhocount, xcount * ycount * rhocount * 16);
+    //std::vector<std::map<int, double>>
+    //  cpu_sparse_matrix(xcount * ycount * rhocount); //do I really need to mutiply by 16 here?  check.  TODO
+    viennacl::compressed_matrix<double> vcl_sparse_matrix(xcount * ycount * rhocount, xcount * ycount * rhocount *16);
+    boost::numeric::ublas::compressed_matrix<double> ublas_matrix(xcount * ycount * rhocount, xcount * ycount * rhocount * 16 );
+    Eigen::SparseMatrix<double,Eigen::RowMajor> cpu_sparse_matrix(xcount * ycount * rhocount, xcount * ycount * rhocount * 16 );
     t.start();
     int max1 = 0, max2 = 0, max3 = 0;
     for (long m = 0; m < BCOffsetTensor.size(); ++m) {
@@ -774,46 +778,59 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuiteBC(TFunc1 f, TFunc
     }
     std::cout << "Max target: " << max1 << " Max source: " << max2 << " max m:" << max3 << std::endl;
 
+    typedef Eigen::Triplet<double> T;
+    std::vector<T> eigenco;
+    eigenco.reserve(BCOffsetTensor.size());
     for (long m = 0; m < BCOffsetTensor.size(); ++m) {
-        cpu_sparse_matrix[BCOffsetTensor[m].target][BCOffsetTensor[m].source] = BCOffsetTensor[m].coeff;
+      //cpu_sparse_matrix( BCOffsetTensor[m].target,BCOffsetTensor[m].source) = BCOffsetTensor[m].coeff;
+      eigenco.push_back(T(BCOffsetTensor[m].target,BCOffsetTensor[m].source, BCOffsetTensor[m].coeff));
     }
+    cpu_sparse_matrix.setFromTriplets(eigenco.begin(),eigenco.end());
+    std::cout << " DBUG " << std::endl;;
+    //std::cout << cpu_sparse_matrix.size1() << " " << vcl_sparse_matrix.size1() << " " << vcl_sparse_matrix.size2() << std::endl ;
     viennacl::copy(cpu_sparse_matrix, vcl_sparse_matrix);
+    std::cout << " DBUG2 " << std::endl;
     viennacl::backend::finish();
     t.report();
     std::cout << "That was the time to create the CPU matrix and copy it once to GPU." << std::endl;
     t.start();
     viennacl::copy(vcl_sparse_matrix, ublas_matrix);
+    std::cout<< " DBUG1 ";
     viennacl::backend::finish();
     t.report();
     t.start();
     std::cout << "That was the time just to setup the ublas matrix." << std::endl;
 
-    viennacl::compressed_matrix<double, 1> vcl_compressed_matrix_1(xcount * ycount * rhocount, xcount * ycount * rhocount * 16);
-    viennacl::compressed_matrix<double, 4> vcl_compressed_matrix_4(xcount * ycount * rhocount, xcount * ycount * rhocount * 16);
-    viennacl::compressed_matrix<double, 8> vcl_compressed_matrix_8(xcount * ycount * rhocount, xcount * ycount * rhocount * 16);
-    viennacl::coordinate_matrix<double> vcl_coordinate_matrix_128(xcount * ycount * rhocount, xcount * ycount * rhocount * 16);
+    viennacl::compressed_matrix<double, 1> vcl_compressed_matrix_1(xcount * ycount * rhocount, xcount * ycount * rhocount *16);
+    viennacl::compressed_matrix<double, 4> vcl_compressed_matrix_4(xcount * ycount * rhocount, xcount * ycount * rhocount *16 );
+    viennacl::compressed_matrix<double, 8> vcl_compressed_matrix_8(xcount * ycount * rhocount, xcount * ycount * rhocount *16 );
+    viennacl::coordinate_matrix<double> vcl_coordinate_matrix_128(xcount * ycount * rhocount, xcount * ycount * rhocount *16 );
     viennacl::ell_matrix<double, 1> vcl_ell_matrix_1();
     viennacl::hyb_matrix<double, 1> vcl_hyb_matrix_1();
-    viennacl::sliced_ell_matrix<double> vcl_sliced_ell_matrix_1(xcount * ycount * rhocount, xcount * ycount * rhocount * 16);
-    std::cout << "DEBUG1" << std::endl;
+    //viennacl::sliced_ell_matrix<double> vcl_sliced_ell_matrix_1(xcount * ycount * rhocount, xcount * ycount * rhocount *16);
+    std::cout << "DEBUGA" << std::endl;
     viennacl::vector<double> gpu_source(bicubicParameters.data.size());
+    std::cout << "DEBUGB" << std::endl;
     viennacl::vector<double> gpu_target(BCResult.data.size());
+    std::cout << "DEBUGC" << std::endl;
     copy(cpu_sparse_matrix, vcl_sparse_matrix); //default alignment, benchmark different options.
-
+std::cout << "DEBUGD" << std::endl;
     copy(bicubicParameters.data.begin(), bicubicParameters.data.end(), gpu_source.begin());
-    copy(bicubicParameters.data.begin(), bicubicParameters.data.end(), gpu_target.begin());
+    viennacl::backend::finish();
+    std::cout << "DEBUGE" << std::endl;
+    copy(gridValues.data.begin(), gridValues.data.end(), gpu_target.begin());
     //we are going to compute each product once and then sync, to compile all kernels.
     //this will feel like a ~1 second delay in user space.
-    std::cout << "DEBUG1" << std::endl;
+     std::cout << "DEBUGF" << std::endl;
     viennacl::copy(ublas_matrix, vcl_compressed_matrix_1);
     viennacl::copy(ublas_matrix, vcl_compressed_matrix_4);
-    std::cout << "DEBUG1" << std::endl;
+    std::cout << "DEBUGG" << std::endl;
     viennacl::copy(ublas_matrix, vcl_compressed_matrix_8);
-    std::cout << "DEBUG1" << std::endl;
+    std::cout << "DEBUGH" << std::endl;
     viennacl::copy(ublas_matrix, vcl_coordinate_matrix_128);
     //    viennacl::copy(cpu_sparse_matrix,vcl_ell_matrix_1);
     //viennacl::copy(ublas_matrix,vcl_hyb_matrix_1);
-    viennacl::copy(cpu_sparse_matrix, vcl_sliced_ell_matrix_1);
+    //viennacl::copy(cpu_sparse_matrix, vcl_sliced_ell_matrix_1);
     viennacl::backend::finish();
     t.report();
     t.start();
@@ -832,7 +849,7 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuiteBC(TFunc1 f, TFunc
     gpu_target = viennacl::linalg::prod(vcl_coordinate_matrix_128, gpu_source);
     //gpu_target = viennacl::linalg::prod(vcl_ell_matrix_1,gpu_source);
     //gpu_target = viennacl::linalg::prod(vcl_hyb_matrix_1,gpu_source);
-    gpu_target = viennacl::linalg::prod(vcl_sliced_ell_matrix_1, gpu_source);
+    //gpu_target = viennacl::linalg::prod(vcl_sliced_ell_matrix_1, gpu_source);
     std::cout << "DEBUG1" << std::endl;
     viennacl::backend::finish();
     viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[0].data.begin());
@@ -905,14 +922,14 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuiteBC(TFunc1 f, TFunc
     std::cout << "That was the full cycle time to do " << gputimes * 0 << "  products using coordinate_matrix_128 matrix." << std::endl;
 
     t.start();
-    for (int count = 0; count < gputimes; ++count) {
+    /*for (int count = 0; count < gputimes; ++count) {
         copy(bicubicParameters.data.begin(), bicubicParameters.data.end(), gpu_source.begin());
         viennacl::backend::finish();
         gpu_target = viennacl::linalg::prod(vcl_sliced_ell_matrix_1, gpu_source);
         viennacl::backend::finish();
         viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[4].data.begin());
         viennacl::backend::finish();
-    }
+	}*/
     t.report();
     std::cout << "That was the full cycle time to do " << gputimes << "  products using sliced_ell_matrix_1 matrix." << std::endl;
 
@@ -1108,11 +1125,11 @@ int main() {
 	double B = 2.0;*/
 
     gridDomain g;
-    g.rhomax = 0.9;
-    g.rhomin = 0.3;
+    g.rhomax = 2.0;
+    g.rhomin = 0.0;
     g.xmin = g.ymin = -5;
     g.xmax = g.ymax = 5;
-    constexpr int xcount = 20, ycount = 20, rhocount = 5; //bump up to 64x64x35 later or 128x128x35
+    constexpr int xcount = 30, ycount = 30, rhocount = 8; //bump up to 64x64x35 later or 128x128x35
     constexpr double A = 2;
     constexpr double B = 2;
     constexpr double Normalizer = 50.0;
