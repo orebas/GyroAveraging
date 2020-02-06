@@ -133,6 +133,8 @@ public:
     typedef Array4d<rhocount, xcount, ycount, 4, double> fullgridInterp;
     typedef Array4d<rhocount, xcount, ycount, 4, double> derivsGrid; //at each rho,x,y calculate [f,f_x,f_y,f_xy]
     typedef Array4d<rhocount, xcount, ycount, 16, double> bicubicParameterGrid;
+    typedef Eigen::SparseMatrix<double, Eigen::RowMajor> SpM;
+    typedef Eigen::Triplet<double> SpT;
 
 private:
     std::vector<double> rhoset;
@@ -148,9 +150,9 @@ private:
     fullgrid analytic_averages;      // stores value of expected GA computed analytically
     fullgridInterp interpParameters; //will store the bilinear interp parameters.
     bicubicParameterGrid bicubicParameters;
-    std::vector<LTOffset> LTOffsetTensor;
-    std::vector<LTOffset> BCOffsetTensor;
-    std::vector<LTOffset> FDTensor; //finite difference tensor, used to populate derivs from gridValues
+    SpM LTOffsetTensor;
+    SpM BCOffsetTensor;
+    SpM FDTensor; //finite difference tensor, used to populate derivs from gridValues
     derivsGrid derivs;
 
     void csvPrinter(const fullgrid &m, int rho) {
