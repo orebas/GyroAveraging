@@ -329,6 +329,10 @@ public:
                                 TFunc2 analytic);
 
     template <typename TFunc1, typename TFunc2>
+    void compactErrorAnalysis(TFunc1 f,
+                              TFunc2 analytic);
+
+    template <typename TFunc1, typename TFunc2>
     void GPUTestSuite(TFunc1 f,
                       TFunc2 analytic);
 
@@ -338,6 +342,9 @@ public:
     template <typename TFunc1, typename TFunc2>
     void InterpErrorAnalysis(TFunc1 f,
                              TFunc2 analytic);
+    template <typename TFunc1, typename TFunc2>
+    void errorAnalysis(TFunc1 f,
+                       TFunc2 analytic);
 
     template <typename TFunc1, typename TFunc2, typename TFunc3, typename TFunc4>
     void derivsErrorAnalysis(TFunc1 f,
@@ -365,9 +372,17 @@ template <typename TFunc1, typename TFunc2>
 void interpAnalysis(const gridDomain &g, TFunc1 f,
                     TFunc2 analytic);
 
+template <typename TFunc1, typename TFunc2>
+void errorAnalysis(const gridDomain &g, TFunc1 f,
+                   TFunc2 analytic);
+
 template <int i, typename TFunc1, typename TFunc2>
 void interpAnalysisInnerLoop(const gridDomain &g, TFunc1 f,
                              TFunc2 analytic);
+
+template <int i, typename TFunc1, typename TFunc2>
+void errorAnalysisInnerLoop(const gridDomain &g, TFunc1 f,
+                            TFunc2 analytic);
 
 template <typename TFunc1, typename TFunc2, typename TFunc3, typename TFunc4>
 void derivTest(const gridDomain &g, TFunc1 f,
