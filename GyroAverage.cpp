@@ -1209,7 +1209,6 @@ void errorAnalysis(const gridDomain &g, TFunc1 f,
     errorAnalysisInnerLoop<counts[4]>(g, f, analytic);
     errorAnalysisInnerLoop<counts[5]>(g, f, analytic);
     errorAnalysisInnerLoop<counts[6]>(g, f, analytic);
-    errorAnalysisInnerLoop<counts[7]>(g, f, analytic);
 }
 
 template <typename TFunc1, typename TFunc2, typename TFunc3, typename TFunc4>
