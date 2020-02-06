@@ -1057,11 +1057,11 @@ int main() {
 	double B = 2.0;*/
 
     gridDomain g;
-    g.rhomax = 0.9;
-    g.rhomin = 0.3;
+    g.rhomax = 3;
+    g.rhomin = 0;
     g.xmin = g.ymin = -5;
     g.xmax = g.ymax = 5;
-    constexpr int xcount = 96, ycount = 96, rhocount = 3; //bump up to 64x64x35 later or 128x128x35
+    constexpr int xcount = 64, ycount = 64, rhocount = 35; //bump up to 64x64x35 later or 128x128x35
     constexpr double A = 2;
     constexpr double B = 2;
     constexpr double Normalizer = 50.0;
