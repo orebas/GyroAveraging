@@ -147,10 +147,10 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::setupBicubicGrid() {
                     y0 * y0, y1 * y1, 2 * y0, 2 * y1,
                     y0 * y0 * y0, y1 * y1 * y1, 3 * y0 * y0, 3 * y1 * y1;
 
-                temp1 = X.fullPivLu().inverse(); //this line crashes on my home machine without optimization turned on.
-                temp2 = Y.fullPivLu().inverse(); // we should take out the Eigen dependency methinks.  TODO
+		// temp1 = X.fullPivLu().inverse(); //this line crashes on my home machine without optimization turned on.
+		// temp2 = Y.fullPivLu().inverse(); // we should take out the Eigen dependency methinks.  TODO
 
-                A = temp1 * RHS * temp2;
+                A = X.inverse() * RHS * Y.inverse();
                 for (int t = 0; t < 16; ++t)
                     b(i, j, k, t) = A(t % 4, t / 4);
             }
@@ -774,7 +774,7 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuiteBC(TFunc1 f, TFunc
     t.report();
     std::cout << "That was the time to do all of the products, and copy the result back." << std::endl;
 
-    constexpr int gputimes = 100;
+    constexpr int gputimes = 1000;
     //At this point everything has been done once.  We start benchmarking.  We are going to include cost of vectors transfers back and forth.
 
     t.start();
@@ -848,6 +848,22 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuiteBC(TFunc1 f, TFunc
 	}*/
     // t.report();
     //std::cout << "That was the full cycle time to do " << gputimes << "  products using sliced_ell_matrix_1 matrix." << std::endl;
+
+    t.start();
+    for (int count = 0; count < gputimes; ++count) {
+        setupDerivsGrid();
+    setupBicubicGrid();
+        copy(bicubicParameters.data.begin(), bicubicParameters.data.end(), gpu_source.begin());
+        viennacl::backend::finish();
+        gpu_target = viennacl::linalg::prod(vcl_sparse_matrix, gpu_source);
+        viennacl::backend::finish();
+        viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[0].data.begin());
+        viennacl::backend::finish();
+    }
+    t.report();
+    std::cout << "That was the full cycle time to do " << gputimes << "  products using default sparse matrix, and recalculated derivatives and BC parameters." << std::endl;
+
+
 
     std::cout << "Next we report errors for each GPU calc (in above order) vs CPU dot-product calc.  Here we only report maxabs norm" << std::endl;
     for (int i = 0; i < rhocount; i++) {
@@ -954,7 +970,7 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
                   << maxNorm(BCResult, i) << "\n";
     }
     std::cout << "Diffs:\n";
-    std::cout << "rho        Analytic vs Quadrature       Error due to truncation         Error due to interp             Analytic vs interp              interp vs dot-product GA          GPU vs CPU\n";
+    std::cout << "rho        Analytic vs Quadrature       Error due to truncation         Error due to interp             Analytic vs interp              interp vs DP        bicub trap vs analytic          bicubic DP vs analytic \n";
     for (int i = 0; i < rhocount; i++) {
         std::cout.precision(5);
         std::cout << std::fixed << rhoset[i] << std::scientific << std::setw(15)
@@ -968,10 +984,10 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
                   << maxNormDiff(analytic_averages, trapezoidInterp, i) << "\t"
                   << RMSNormDiff(trapezoidInterp, fastGALTResult, i) << "\t"
                   << maxNormDiff(trapezoidInterp, fastGALTResult, i) << "\t"
-                  << RMSNormDiff(bicubicResults, truncatedAlmostExactGA, i) << "\t"
-                  << maxNormDiff(bicubicResults, truncatedAlmostExactGA, i) << "\t"
-                  << RMSNormDiff(BCResult, truncatedAlmostExactGA, i) << "\t"
-                  << maxNormDiff(BCResult, truncatedAlmostExactGA, i) << "\n";
+                  << RMSNormDiff(bicubicResults, analytic_averages, i) << "\t"
+                  << maxNormDiff(bicubicResults, analytic_averages, i) << "\t"
+                  << RMSNormDiff(BCResult, analytic_averages, i) << "\t"
+                  << maxNormDiff(BCResult, analytic_averages, i) << "\n";
         //     << RMSNormDiff(fastGALTResult, cpu_results[0], i) << "\t"
         //    << maxNormDiff(fastGALTResult, cpu_results[0], i) << "\n";
 

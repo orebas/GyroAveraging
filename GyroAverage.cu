@@ -8,6 +8,9 @@
 //#undef NDEBUG
 
 #define VIENNACL_WITH_UBLAS 1
+#define VIENNACL_HAVE_EIGEN 1
+
+#include <eigen3/Eigen/Eigen>
 
 #include <boost/numeric/ublas/lu.hpp>
 #include <boost/numeric/ublas/matrix_sparse.hpp>
@@ -29,12 +32,10 @@
 #include "viennacl/tools/timer.hpp"
 #include "viennacl/vector.hpp"
 
-#include <eigen3/Eigen/Eigen>
-
 #include "ga.h"
 #include <algorithm>
 #include <array>
-//#include <boost/math/differentiaton/finite_difference.hpp>  //this needs a fairly recent version of boost.
+//#include <boost/math/differentiaton/finite_difference.hpp>  //this needs a fairly recent version of boost.  boo.
 #include <boost/math/quadrature/tanh_sinh.hpp>
 #include <boost/math/quadrature/trapezoidal.hpp>
 #include <boost/math/special_functions/bessel.hpp>
@@ -131,7 +132,8 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::setupBicubicGrid() {
             for (int k = 0; k < ycount - 1; k++) {
                 double x0 = xset[j], x1 = xset[j + 1];
                 double y0 = yset[k], y1 = yset[k + 1];
-                Matrix<double, 4, 4> X, Y, RHS, A;
+                Matrix<double, 4, 4> X, Y, RHS, A, temp1, temp2;
+
                 RHS << d(i, j, k, 0), d(i, j, k + 1, 0), d(i, j, k, 2), d(i, j, k + 1, 2),
                     d(i, j + 1, k, 0), d(i, j + 1, k + 1, 0), d(i, j + 1, k, 2), d(i, j + 1, k + 1, 2),
                     d(i, j, k, 1), d(i, j, k + 1, 1), d(i, j, k, 3), d(i, j, k + 1, 3),
@@ -145,9 +147,12 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::setupBicubicGrid() {
                     y0 * y0, y1 * y1, 2 * y0, 2 * y1,
                     y0 * y0 * y0, y1 * y1 * y1, 3 * y0 * y0, 3 * y1 * y1;
 
-                A = X.inverse() * RHS * Y.inverse();
+                temp1 = X.fullPivLu().inverse(); //this line crashes on my home machine without optimization turned on.
+                temp2 = Y.fullPivLu().inverse(); // we should take out the Eigen dependency methinks.  TODO
+
+                A = temp1 * RHS * temp2;
                 for (int t = 0; t < 16; ++t)
-                    b(i, j, k, t) = A(t % 4, t / 4); // PLEASE ADD SOME ASSERTS HERE
+                    b(i, j, k, t) = A(t % 4, t / 4);
             }
     }
 }
@@ -197,7 +202,6 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::setupDerivsGrid() {
                                      (12.0 * xdenom);
         }
         for (int j = 0; j < xcount; j++) {
-
             derivs(i, j, 0, 2) = 0;
             derivs(i, j, ycount - 1, 2) = 0;
             derivs(i, j, 1, 2) = (-3.0 * g(i, j, 0) +
@@ -265,13 +269,7 @@ std::array<double, 4> GyroAveragingGrid<rhocount, xcount, ycount>::arcIntegral(
                 (s0 * xc * yc - rho * yc * coss0 - rho * xc * sins0 + rho * rho * coss0 * coss0 / 2.0);
     return coeffs;
 }
-/* This comment is to help recall precisely how to index the a_ij coefficients, can be deleted later.
-for (int i = 0; i <= 3; ++i)
-    for (int j = 0; j <= 3; ++j) {
-        result += bicubicParameters(rhoindex, xindex, yindex, j * 4 + i) * xns[i] * yns[j];
-    }
-return result;
-*/
+
 void inline arcIntegralBicubic(std::array<double, 16> &coeffs,
                                double rho, double xc, double yc, double s0, double s1) {
     //we are going to write down indefinite integrals of (xc + rho*sin(x))^i (xc-rho*cos(x))^j
@@ -350,13 +348,10 @@ void inline arcIntegralBicubic(std::array<double, 16> &coeffs,
 //add handling for rho =0.
 template <int rhocount, int xcount, int ycount>
 void GyroAveragingGrid<rhocount, xcount, ycount>::assembleFastGACalc(void) {
-    //std::map<std::pair<int, int>, std::array<double, 4>> GAOffsetMap;
 
-    std::vector<std::map<std::pair<int, int>, double>> GALookThruOffsetMapArray(rhocount);
-
+    std::vector<std::vector<SpT>> TripletVecVec(rhocount);
 #pragma omp parallel for
     for (auto i = 0; i < rhocount; i++) {
-        std::map<std::pair<int, int>, double> &GALookThruOffsetMap = GALookThruOffsetMapArray[i];
         for (auto j = 0; j < xcount; j++)
             for (auto k = 0; k < ycount; k++) {
                 std::vector<indexedPoint> intersections;
@@ -440,41 +435,32 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::assembleFastGACalc(void) {
                         LTCoeffs[1] = (-c4 - c1 * a * y + a * c3 + y * c2) / denom; //etc
                         LTCoeffs[2] = (b * c2 - c1 * b * x + x * c3 - c4) / denom;
                         LTCoeffs[3] = (c1 * x * y - y * c2 - x * c3 + c4) / denom;
-                        for (int l = 0; l < 4; l++)
-                            GALookThruOffsetMap[std::pair<int, int>(LTSources[l], LTTargets[l])] =
-                                GALookThruOffsetMap[std::pair<int, int>(LTSources[l], LTTargets[l])] + LTCoeffs[l];
+                        for (int l = 0; l < 4; l++) {
+                            TripletVecVec[i].emplace_back(SpT(LTTargets[l], LTSources[l], LTCoeffs[l]));
+                        }
                     }
                 }
             }
     }
+    std::vector<SpT> Triplets;
 
     for (int i = 0; i < rhocount; i++) {
-        auto &GALookThruOffsetMap = GALookThruOffsetMapArray[i];
-        for (auto iter = GALookThruOffsetMap.begin(); iter != GALookThruOffsetMap.end(); ++iter) {
-            LTOffset lto;
-            lto.source = (iter->first).first;
-            lto.target = (iter->first).second;
-            lto.coeff = (iter->second);
-            LTOffsetTensor.push_back(lto);
+        for (auto iter = TripletVecVec[i].begin(); iter != TripletVecVec[i].end(); ++iter) {
+            Triplets.emplace_back(*iter);
         }
     }
-    std::sort(LTOffsetTensor.begin(), LTOffsetTensor.end(), [](LTOffset a, LTOffset b) -> bool { 
-				if(a.source == b.source)
-                    return a.target < b.target;
-                else
-					return a.source < b.source; });
-    std::cout << "Number of double  products needed for LT calc: " << LTOffsetTensor.size() << " and rough memory usage is " << LTOffsetTensor.size() * sizeof(LTOffset) << std::endl;
+
+    LTOffsetTensor.resize(rhocount * xcount * ycount, rhocount * xcount * ycount);
+    LTOffsetTensor.setFromTriplets(Triplets.begin(), Triplets.end());
+
+    std::cout << "Number of double  products needed for LT calc: " << LTOffsetTensor.nonZeros() << " and rough memory usage is " << LTOffsetTensor.nonZeros() * (sizeof(double) + sizeof(long)) << std::endl;
 }
 
 template <int rhocount, int xcount, int ycount>
 void GyroAveragingGrid<rhocount, xcount, ycount>::assembleFastBCCalc(void) { //bicubic version of the above.
-    //std::map<std::pair<int, int>, std::array<double, 4>> GAOffsetMap;
-
-    std::vector<std::map<std::pair<int, int>, double>> GALookThruOffsetMapArray(rhocount);
-
+    std::vector<std::vector<SpT>> TripletVecVec(rhocount);
 #pragma omp parallel for
     for (auto i = 0; i < rhocount; i++) {
-        std::map<std::pair<int, int>, double> &GALookThruOffsetMap = GALookThruOffsetMapArray[i];
         for (auto j = 0; j < xcount; j++)
             for (auto k = 0; k < ycount; k++) {
                 std::vector<indexedPoint> intersections;
@@ -532,64 +518,48 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::assembleFastBCCalc(void) { //b
                     integrand(rho, xc, yc, (s0 + s1) / 2, xmid, ymid); //this just calculates into (xmid,ymid) the point half through the arc.
                     arcIntegralBicubic(coeffs, rho, xc, yc, s0, s1);
                     interpIndexSearch(xmid, ymid, xInterpIndex, yInterpIndex);
-
                     //begin look-thru code
                     if (!((xInterpIndex == (xcount - 1)) && (yInterpIndex == (ycount - 1)))) {
 
                         std::array<int, 16> LTSources, LTTargets;
                         std::array<double, 16> LTCoeffs;
-                        LTSources.fill(0);
-                        LTTargets.fill(0);
-                        LTCoeffs.fill(0);
                         for (int l = 0; l < 16; l++) {
                             LTSources[l] = &(bicubicParameters(i, xInterpIndex, yInterpIndex, l)) - &(bicubicParameters(0, 0, 0, 0));
                             LTTargets[l] = &(BCResult(i, j, k)) - &(BCResult(0, 0, 0));
                             LTCoeffs[l] = coeffs[l] / (2.0 * pi);
 
-                            GALookThruOffsetMap[std::pair<int, int>(LTSources[l], LTTargets[l])] =
-                                GALookThruOffsetMap[std::pair<int, int>(LTSources[l], LTTargets[l])] + LTCoeffs[l];
+                            TripletVecVec[i].emplace_back(SpT(LTTargets[l], LTSources[l], LTCoeffs[l]));
                         }
                     }
                 }
             }
     }
-
+    std::vector<SpT> Triplets;
     for (int i = 0; i < rhocount; i++) {
-        auto &GALookThruOffsetMap = GALookThruOffsetMapArray[i];
-        for (auto iter = GALookThruOffsetMap.begin(); iter != GALookThruOffsetMap.end(); ++iter) {
-            LTOffset lto;
-            lto.source = (iter->first).first;
-            lto.target = (iter->first).second;
-            lto.coeff = (iter->second);
-            BCOffsetTensor.push_back(lto);
+        for (auto iter = TripletVecVec[i].begin(); iter != TripletVecVec[i].end(); ++iter) {
+            SpT lto(*iter);
+            Triplets.emplace_back(*iter);
         }
     }
-    std::sort(BCOffsetTensor.begin(), BCOffsetTensor.end(), [](LTOffset a, LTOffset b) -> bool { 
-				if(a.source == b.source)
-                    return a.target < b.target;
-                else
-					return a.source < b.source; });
-    std::cout << "Number of double  products needed for BC calc: " << BCOffsetTensor.size() << " and rough memory usage is " << BCOffsetTensor.size() * sizeof(LTOffset) << std::endl;
+    BCOffsetTensor.resize(rhocount * xcount * ycount, rhocount * xcount * ycount * 16);
+    BCOffsetTensor.setFromTriplets(Triplets.begin(), Triplets.end());
+    std::cout << "Number of double  products needed for BC calc: " << BCOffsetTensor.nonZeros() << " and rough memory usage is " << BCOffsetTensor.nonZeros() * (sizeof(double) + sizeof(long)) << std::endl;
 }
 
 template <int rhocount, int xcount, int ycount>
 void GyroAveragingGrid<rhocount, xcount, ycount>::fastLTCalcOffset() {
     clearGrid(fastGALTResult);
-    int size = LTOffsetTensor.size();
-    //#pragma omp parallel for
-    for (int i = 0; i < size; ++i) {
-        fastGALTResult.data[LTOffsetTensor[i].target] += gridValues.data[LTOffsetTensor[i].source] * LTOffsetTensor[i].coeff;
-    }
+    Eigen::Map<Eigen::Matrix<double, rhocount * xcount * ycount, 1>> source(gridValues.data.data());
+    Eigen::Map<Eigen::Matrix<double, rhocount * xcount * ycount, 1>> target(fastGALTResult.data.data());
+    target = LTOffsetTensor * source;
 }
 
 template <int rhocount, int xcount, int ycount>
 void GyroAveragingGrid<rhocount, xcount, ycount>::fastBCCalcOffset() {
     clearGrid(BCResult);
-    long int size = BCOffsetTensor.size();
-    //#pragma omp parallel for
-    for (long int i = 0; i < size; ++i) {
-        BCResult.data[BCOffsetTensor[i].target] += bicubicParameters.data[BCOffsetTensor[i].source] * BCOffsetTensor[i].coeff;
-    }
+    Eigen::Map<Eigen::Matrix<double, rhocount * xcount * ycount * 16, 1>> source(bicubicParameters.data.data());
+    Eigen::Map<Eigen::Matrix<double, rhocount * xcount * ycount, 1>> target(BCResult.data.data());
+    target = BCOffsetTensor * source;
 }
 
 template <int rhocount, int xcount, int ycount>
@@ -597,53 +567,39 @@ template <typename TFunc1, typename TFunc2>
 void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuite(TFunc1 f, TFunc2 analytic) {
 
     boost::timer::auto_cpu_timer t;
-
-    //begin ViennaCL calc
-
-    std::vector<std::map<int, double>>
-        cpu_sparse_matrix(xcount * ycount * rhocount);
+    SpM &cpu_sparse_matrix = LTOffsetTensor;
     viennacl::compressed_matrix<double> vcl_sparse_matrix(xcount * ycount * rhocount, xcount * ycount * rhocount);
-    boost::numeric::ublas::compressed_matrix<double> ublas_matrix(xcount * ycount * rhocount, xcount * ycount * rhocount);
     t.start();
 
-    for (int m = 0; m < LTOffsetTensor.size(); ++m) {
-        cpu_sparse_matrix[LTOffsetTensor[m].target][LTOffsetTensor[m].source] = LTOffsetTensor[m].coeff;
-    }
     viennacl::copy(cpu_sparse_matrix, vcl_sparse_matrix);
 
     viennacl::backend::finish();
     t.report();
     std::cout << "That was the time to create the CPU matrix and copy it once to GPU." << std::endl;
     t.start();
-    viennacl::copy(vcl_sparse_matrix, ublas_matrix);
-    viennacl::backend::finish();
-    t.report();
-    t.start();
-    std::cout << "That was the time just to setup the ublas matrix." << std::endl;
 
     viennacl::compressed_matrix<double, 1> vcl_compressed_matrix_1(xcount * ycount * rhocount, xcount * ycount * rhocount);
     viennacl::compressed_matrix<double, 4> vcl_compressed_matrix_4(xcount * ycount * rhocount, xcount * ycount * rhocount);
     viennacl::compressed_matrix<double, 8> vcl_compressed_matrix_8(xcount * ycount * rhocount, xcount * ycount * rhocount);
-    viennacl::coordinate_matrix<double> vcl_coordinate_matrix_128(xcount * ycount * rhocount, xcount * ycount * rhocount);
-    viennacl::ell_matrix<double, 1> vcl_ell_matrix_1();
-    viennacl::hyb_matrix<double, 1> vcl_hyb_matrix_1();
-    viennacl::sliced_ell_matrix<double> vcl_sliced_ell_matrix_1(xcount * ycount * rhocount, xcount * ycount * rhocount);
+    //viennacl::coordinate_matrix<double> vcl_coordinate_matrix_128(xcount * ycount * rhocount, xcount * ycount * rhocount);
+    //viennacl::ell_matrix<double, 1> vcl_ell_matrix_1();
+    //viennacl::hyb_matrix<double, 1> vcl_hyb_matrix_1();
+    //viennacl::sliced_ell_matrix<double> vcl_sliced_ell_matrix_1(xcount * ycount * rhocount, xcount * ycount * rhocount);
 
     viennacl::vector<double> gpu_source(gridValues.data.size());
     viennacl::vector<double> gpu_target(gridValues.data.size());
-    copy(cpu_sparse_matrix, vcl_sparse_matrix); //default alignment, benchmark different options.
     copy(gridValues.data.begin(), gridValues.data.end(), gpu_source.begin());
     copy(gridValues.data.begin(), gridValues.data.end(), gpu_target.begin());
     //we are going to compute each product once and then sync, to compile all kernels.
     //this will feel like a ~1 second delay in user space.
 
-    viennacl::copy(ublas_matrix, vcl_compressed_matrix_1);
-    viennacl::copy(ublas_matrix, vcl_compressed_matrix_4);
-    viennacl::copy(ublas_matrix, vcl_compressed_matrix_8);
-    viennacl::copy(ublas_matrix, vcl_coordinate_matrix_128);
+    viennacl::copy(cpu_sparse_matrix, vcl_compressed_matrix_1);
+    viennacl::copy(cpu_sparse_matrix, vcl_compressed_matrix_4);
+    viennacl::copy(cpu_sparse_matrix, vcl_compressed_matrix_8);
+    //viennacl::copy(cpu_sparse_matrix, vcl_coordinate_matrix_128);
     //    viennacl::copy(cpu_sparse_matrix,vcl_ell_matrix_1);
     //viennacl::copy(ublas_matrix,vcl_hyb_matrix_1);
-    viennacl::copy(cpu_sparse_matrix, vcl_sliced_ell_matrix_1);
+    //viennacl::copy(cpu_sparse_matrix, vcl_sliced_ell_matrix_1);
     viennacl::backend::finish();
     t.report();
     t.start();
@@ -659,19 +615,19 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuite(TFunc1 f, TFunc2 
 
     gpu_target = viennacl::linalg::prod(vcl_compressed_matrix_4, gpu_source);
     gpu_target = viennacl::linalg::prod(vcl_compressed_matrix_8, gpu_source);
-    gpu_target = viennacl::linalg::prod(vcl_coordinate_matrix_128, gpu_source);
+    //gpu_target = viennacl::linalg::prod(vcl_coordinate_matrix_128, gpu_source);
     //gpu_target = viennacl::linalg::prod(vcl_ell_matrix_1,gpu_source);
     //gpu_target = viennacl::linalg::prod(vcl_hyb_matrix_1,gpu_source);
-    gpu_target = viennacl::linalg::prod(vcl_sliced_ell_matrix_1, gpu_source);
+    //gpu_target = viennacl::linalg::prod(vcl_sliced_ell_matrix_1, gpu_source);
 
     viennacl::backend::finish();
     viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[0].data.begin());
     viennacl::backend::finish();
 
     t.report();
-    std::cout << "That was the time to do all of the products, and copy the result back only once." << std::endl;
+    std::cout << "That was the time to do all of the products, and copy the result back twice." << std::endl;
 
-    constexpr int gputimes = 3;
+    constexpr int gputimes = 1000;
     //At this point everything has been done once.  We start benchmarking.  We are going to include cost of vectors transfers back and forth.
 
     t.start();
@@ -722,19 +678,20 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuite(TFunc1 f, TFunc2 
     t.report();
     std::cout << "That was the full cycle time to do " << gputimes << "  products using compressed_matrix_8 matrix." << std::endl;
 
-    t.start();
-    /*    for(int count =0; count<gputimes;++count){
-      copy(gridValues.data.begin(),gridValues.data.end(),gpu_source.begin());
-      viennacl::backend::finish();
-      gpu_target = viennacl::linalg::prod(vcl_coordinate_matrix_128,gpu_source);
-      viennacl::backend::finish();
-      viennacl::copy(gpu_target.begin(),gpu_target.end(),cpu_results[4].data.begin());
-      viennacl::backend::finish();
+    /* t.start();
+    for (int count = 0; count < gputimes; ++count) {
+        copy(gridValues.data.begin(), gridValues.data.end(), gpu_source.begin());
+        viennacl::backend::finish();
+        gpu_target = viennacl::linalg::prod(vcl_coordinate_matrix_128, gpu_source);
+        viennacl::backend::finish();
+        viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[4].data.begin());
+        viennacl::backend::finish();
     }
-    t.report();*/
-    std::cout << "That was the full cycle time to do " << gputimes * 0 << "  products using coordinate_matrix_128 matrix." << std::endl;
+    t.report();
+*/
+    //std::cout << "That was the full cycle time to do " << gputimes * 0 << "  products using coordinate_matrix_128 matrix." << std::endl;
 
-    t.start();
+    /*t.start();
     for (int count = 0; count < gputimes; ++count) {
         copy(gridValues.data.begin(), gridValues.data.end(), gpu_source.begin());
         viennacl::backend::finish();
@@ -745,14 +702,158 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuite(TFunc1 f, TFunc2 
     }
     t.report();
     std::cout << "That was the full cycle time to do " << gputimes << "  products using sliced_ell_matrix_1 matrix." << std::endl;
+*/
+    std::cout << "Next we report errors for each GPU calc (in above order) vs CPU dot-product calc.  Here we only report maxabs norm" << std::endl;
+    for (int i = 0; i < rhocount; i++) {
+        std::cout.precision(5);
+        std::cout << std::fixed << rhoset[i] << std::scientific << std::setw(15) << maxNormDiff(fastGALTResult, cpu_results[0], i) << "\t" << maxNormDiff(fastGALTResult, cpu_results[1], i) << "\t"
+                  << maxNormDiff(fastGALTResult, cpu_results[2], i) << "\t" << maxNormDiff(fastGALTResult, cpu_results[3], i) << std::endl;
+    }
+
+    //end ViennaCL calc
+}
+
+template <int rhocount, int xcount, int ycount>
+template <typename TFunc1, typename TFunc2>
+void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuiteBC(TFunc1 f, TFunc2 analytic) {
+    //TODO the below cheats and doesn't yet recompute derivs/params.  Need to add that and benchmark.
+    std::cout << "Beginning GPU test of BC calc.\n";
+    boost::timer::auto_cpu_timer t;
+    viennacl::compressed_matrix<double> vcl_sparse_matrix(xcount * ycount * rhocount, xcount * ycount * rhocount * 16);
+    t.start();
+    SpM &cpu_sparse_matrix = BCOffsetTensor;
+    viennacl::copy(cpu_sparse_matrix, vcl_sparse_matrix);
+    viennacl::backend::finish();
+    t.report();
+    std::cout << "That was the time to create the CPU matrix and copy it once to GPU." << std::endl;
+    t.start();
+    viennacl::backend::finish();
+
+    viennacl::compressed_matrix<double, 1> vcl_compressed_matrix_1(xcount * ycount * rhocount, xcount * ycount * rhocount * 16);
+    viennacl::compressed_matrix<double, 4> vcl_compressed_matrix_4(xcount * ycount * rhocount, xcount * ycount * rhocount * 16);
+    viennacl::compressed_matrix<double, 8> vcl_compressed_matrix_8(xcount * ycount * rhocount, xcount * ycount * rhocount * 16);
+    // viennacl::coordinate_matrix<double> vcl_coordinate_matrix_128(xcount * ycount * rhocount, xcount * ycount * rhocount * 16);
+    //viennacl::ell_matrix<double, 1> vcl_ell_matrix_1();
+    //viennacl::hyb_matrix<double, 1> vcl_hyb_matrix_1();
+    //viennacl::sliced_ell_matrix<double> vcl_sliced_ell_matrix_1(xcount * ycount * rhocount, xcount * ycount * rhocount *16);
+    viennacl::vector<double> gpu_source(bicubicParameters.data.size());
+    viennacl::vector<double> gpu_target(BCResult.data.size());
+    copy(cpu_sparse_matrix, vcl_sparse_matrix); //default alignment, benchmark different options.
+    copy(bicubicParameters.data.begin(), bicubicParameters.data.end(), gpu_source.begin());
+    viennacl::backend::finish();
+    copy(gridValues.data.begin(), gridValues.data.end(), gpu_target.begin()); //this is garbage data, I just want to make sure it's allocated.
+    //we are going to compute each product once and then sync, to compile all kernels.
+    //this will feel like a ~1 second delay in user space.
+    viennacl::copy(cpu_sparse_matrix, vcl_compressed_matrix_1);
+    viennacl::copy(cpu_sparse_matrix, vcl_compressed_matrix_4);
+    viennacl::copy(cpu_sparse_matrix, vcl_compressed_matrix_8);
+    //viennacl::copy(cpu_sparse_matrix, vcl_coordinate_matrix_128);
+    //    viennacl::copy(cpu_sparse_matrix,vcl_ell_matrix_1);
+    //viennacl::copy(ublas_matrix,vcl_hyb_matrix_1);
+    //viennacl::copy(cpu_sparse_matrix, vcl_sliced_ell_matrix_1);
+    viennacl::backend::finish();
+    t.report();
+    t.start();
+    std::cout << "That was the time to copy everything onto the GPU." << std::endl;
+
+    fullgrid cpu_results[8];
+
+    gpu_target = viennacl::linalg::prod(vcl_sparse_matrix, gpu_source);
+    viennacl::backend::finish();
+    gpu_target = viennacl::linalg::prod(vcl_compressed_matrix_1, gpu_source);
+    viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[0].data.begin());
+    gpu_target = viennacl::linalg::prod(vcl_compressed_matrix_4, gpu_source);
+    gpu_target = viennacl::linalg::prod(vcl_compressed_matrix_8, gpu_source);
+    //gpu_target = viennacl::linalg::prod(vcl_coordinate_matrix_128, gpu_source);
+    //gpu_target = viennacl::linalg::prod(vcl_ell_matrix_1,gpu_source);
+    //gpu_target = viennacl::linalg::prod(vcl_hyb_matrix_1,gpu_source);
+    //gpu_target = viennacl::linalg::prod(vcl_sliced_ell_matrix_1, gpu_source);
+    viennacl::backend::finish();
+    viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[0].data.begin());
+    viennacl::backend::finish();
+    t.report();
+    std::cout << "That was the time to do all of the products, and copy the result back." << std::endl;
+
+    constexpr int gputimes = 100;
+    //At this point everything has been done once.  We start benchmarking.  We are going to include cost of vectors transfers back and forth.
+
+    t.start();
+    for (int count = 0; count < gputimes; ++count) {
+        copy(bicubicParameters.data.begin(), bicubicParameters.data.end(), gpu_source.begin());
+        viennacl::backend::finish();
+        gpu_target = viennacl::linalg::prod(vcl_sparse_matrix, gpu_source);
+        viennacl::backend::finish();
+        viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[0].data.begin());
+        viennacl::backend::finish();
+    }
+    t.report();
+    std::cout << "That was the full cycle time to do " << gputimes << "  products using default sparse matrix." << std::endl;
+
+    t.start();
+    for (int count = 0; count < gputimes; ++count) {
+        copy(bicubicParameters.data.begin(), bicubicParameters.data.end(), gpu_source.begin());
+        viennacl::backend::finish();
+        gpu_target = viennacl::linalg::prod(vcl_compressed_matrix_1, gpu_source);
+        viennacl::backend::finish();
+        viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[1].data.begin());
+        viennacl::backend::finish();
+    }
+    t.report();
+    std::cout << "That was the full cycle time to do " << gputimes << "  products using compressed_matrix_1 matrix." << std::endl;
+
+    t.start();
+    for (int count = 0; count < gputimes; ++count) {
+        copy(bicubicParameters.data.begin(), bicubicParameters.data.end(), gpu_source.begin());
+        viennacl::backend::finish();
+        gpu_target = viennacl::linalg::prod(vcl_compressed_matrix_4, gpu_source);
+        viennacl::backend::finish();
+        viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[2].data.begin());
+        viennacl::backend::finish();
+    }
+    t.report();
+    std::cout << "That was the full cycle time to do " << gputimes << "  products using compressed_matrix_4 matrix." << std::endl;
+
+    t.start();
+    for (int count = 0; count < gputimes; ++count) {
+        copy(bicubicParameters.data.begin(), bicubicParameters.data.end(), gpu_source.begin());
+        viennacl::backend::finish();
+        gpu_target = viennacl::linalg::prod(vcl_compressed_matrix_8, gpu_source);
+        viennacl::backend::finish();
+        viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[3].data.begin());
+        viennacl::backend::finish();
+    }
+    t.report();
+    std::cout << "That was the full cycle time to do " << gputimes << "  products using compressed_matrix_8 matrix." << std::endl;
+
+    t.start();
+    /*    for(int count =0; count<gputimes;++count){
+      copy(bicubicParameters.data.begin(),bicubicParameters.data.end(),gpu_source.begin());
+      viennacl::backend::finish();
+      gpu_target = viennacl::linalg::prod(vcl_coordinate_matrix_128,gpu_source);
+      viennacl::backend::finish();
+      viennacl::copy(gpu_target.begin(),gpu_target.end(),cpu_results[4].data.begin());
+      viennacl::backend::finish();
+    }
+    t.report();*/
+    //std::cout << "That was the full cycle time to do " << gputimes * 0 << "  products using coordinate_matrix_128 matrix." << std::endl;
+
+    // t.start();
+    /*for (int count = 0; count < gputimes; ++count) {
+        copy(bicubicParameters.data.begin(), bicubicParameters.data.end(), gpu_source.begin());
+        viennacl::backend::finish();
+        gpu_target = viennacl::linalg::prod(vcl_sliced_ell_matrix_1, gpu_source);
+        viennacl::backend::finish();
+        viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[4].data.begin());
+        viennacl::backend::finish();
+	}*/
+    // t.report();
+    //std::cout << "That was the full cycle time to do " << gputimes << "  products using sliced_ell_matrix_1 matrix." << std::endl;
 
     std::cout << "Next we report errors for each GPU calc (in above order) vs CPU dot-product calc.  Here we only report maxabs norm" << std::endl;
     for (int i = 0; i < rhocount; i++) {
         std::cout.precision(5);
-        std::cout << std::fixed << rhoset[i] << std::scientific << std::setw(15) << maxNormDiff(fastGALTResult, cpu_results[0], i) << "\t" << maxNormDiff(fastGALTResult, cpu_results[1], i) << "\t" << maxNormDiff(fastGALTResult, cpu_results[2], i) << "\t" << maxNormDiff(fastGALTResult, cpu_results[3], i) << "\t" << maxNormDiff(fastGALTResult, cpu_results[4], i) << std::endl;
+        std::cout << std::fixed << rhoset[i] << std::scientific << std::setw(15) << maxNormDiff(BCResult, cpu_results[0], i) << "\t" << maxNormDiff(BCResult, cpu_results[1], i) << "\t" << maxNormDiff(BCResult, cpu_results[2], i) << "\t" << maxNormDiff(BCResult, cpu_results[3], i) << std::endl;
     }
-
-    //end ViennaCL calc
 }
 
 /* Run test suite.  We expect the test suite to:
@@ -825,6 +926,8 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
     setupBicubicGrid();
     fullgrid bicubicResults;
     fillBicubicInterp(bicubicResults);
+    GPUTestSuiteBC(f, analytic);
+
     std::cout
         << "Below are some summary statistics for various grid.  Under each header is a pair of values.  The first is the RMS of a matrix, the second is the max absolute entry in a matrix.\n";
 
@@ -938,11 +1041,11 @@ int main() {
 	double B = 2.0;*/
 
     gridDomain g;
-    g.rhomax = 2.5;
-    g.rhomin = 0;
+    g.rhomax = 0.9;
+    g.rhomin = 0.3;
     g.xmin = g.ymin = -5;
     g.xmax = g.ymax = 5;
-    constexpr int xcount = 36, ycount = 36, rhocount = 18; //bump up to 64x64x35 later or 128x128x35
+    constexpr int xcount = 96, ycount = 96, rhocount = 3; //bump up to 64x64x35 later or 128x128x35
     constexpr double A = 2;
     constexpr double B = 2;
     constexpr double Normalizer = 50.0;
