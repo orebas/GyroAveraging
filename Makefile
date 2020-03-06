@@ -12,7 +12,7 @@ GyroAverage-CPU: GyroAverage.cpp ga.h
 GyroAverage-CUDA: GyroAverage.cu GyroAverage.cpp ga.h
 	nvcc GyroAverage.cu -I. -O3  -o GyroAverage-CUDA -DVIENNACL_WITH_CUDA -lOpenCL -I/usr/include/boost169  /usr/lib64/libboost_timer.so -Xcompiler -fopenmp -Xcompiler -I/usr/include/boost169
 
-all: GyroAverage-OpenCL GyroAverage-CPU GyroAverage-CUDA
+all: GyroAverage-OpenCL GyroAverage-CPU 
 
 clean:
 	rm -rf GyroAverage-OpenCL GyroAverage-CPU GyroAverage-CUDA
