@@ -12,6 +12,15 @@
 #include <iterator>
 #include <vector>
 
+
+template <typename TFunc>
+inline double TrapezoidIntegrate(double x, double y, TFunc f) {
+    using boost::math::quadrature::trapezoidal;
+    return trapezoidal(f, x, y);
+}
+
+
+
 template <typename T>
 std::ostream &operator<<(std::ostream &out, const std::vector<T> &v) {
     if (!v.empty()) {

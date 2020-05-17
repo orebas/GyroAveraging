@@ -8,8 +8,12 @@
 #define VIENNACL_WITH_UBLAS 1
 #define VIENNACL_HAVE_EIGEN 1
 
-#include <eigen3/Eigen/Eigen>
+#if (defined __GNUC__) && (__GNUC__>4 || __GNUC_MINOR__>=7)
+  #undef _GLIBCXX_ATOMIC_BUILTINS
+  #undef _GLIBCXX_USE_INT128
+#endif
 
+//#include<math_constants.h>
 #include <boost/numeric/ublas/lu.hpp>
 #include <boost/numeric/ublas/matrix_sparse.hpp>
 #include <boost/numeric/ublas/operation_sparse.hpp>
@@ -30,7 +34,6 @@
 #include "viennacl/tools/timer.hpp"
 #include "viennacl/vector.hpp"
 
-#include "ga.h"
 #include <algorithm>
 #include <array>
 //#include <boost/math/differentiaton/finite_difference.hpp>  //this needs a fairly recent version of boost.  boo.
@@ -48,6 +51,9 @@
 #include <math.h>
 #include <omp.h>
 #include <vector>
+#include <eigen3/Eigen/Eigen>
+
+#include "ga.h"
 
 template <typename TFunc>
 double TanhSinhIntegrate(double x, double y, TFunc f) {
@@ -55,11 +61,6 @@ double TanhSinhIntegrate(double x, double y, TFunc f) {
     return integrator.integrate(f, x, y);
 }
 
-template <typename TFunc>
-inline double TrapezoidIntegrate(double x, double y, TFunc f) {
-    using boost::math::quadrature::trapezoidal;
-    return trapezoidal(f, x, y);
-}
 
 inline double
 BilinearInterpolation(double q11, double q12, double q21, double q22, double x1, double x2, double y1, double y2, double x, double y) {
@@ -1088,11 +1089,11 @@ int main() {
 	double B = 2.0;*/
 
     gridDomain g;
-    g.rhomax = 0.3;
+    g.rhomax = 3;
     g.rhomin = 0;
     g.xmin = g.ymin = -5;
     g.xmax = g.ymax = 5;
-    constexpr int xcount = 64, ycount = 64, rhocount = 35; //bump up to 64x64x35 later or 128x128x35
+    constexpr int xcount = 32, ycount = 32, rhocount = 24; //bump up to 64x64x35 later or 128x128x35
     constexpr double A = 2;
     constexpr double B = 2;
     constexpr double Normalizer = 50.0;
@@ -1136,7 +1137,7 @@ int main() {
 
     GyroAveragingGrid<rhocount, xcount, ycount> grid(rhoset, xset, yset);
     errorAnalysis(g, testfunc2, testfunc2_analytic);
-    //grid.GyroAveragingTestSuite(testfunc2, testfunc2_analytic);
+    grid.GyroAveragingTestSuite(testfunc2, testfunc2_analytic);
     //derivTest(g, testfunc2, testfunc2_analytic_dx, testfunc2_analytic_dy, testfunc2_analytic_dx_dy);
     //interpAnalysis(g, testfunc2, testfunc2_analytic);
     //testInterpImprovement();
@@ -1200,15 +1201,15 @@ template <typename TFunc1, typename TFunc2>
 void errorAnalysis(const gridDomain &g, TFunc1 f,
                    TFunc2 analytic) {
 
-    constexpr int counts[] = {6, 12, 24, 48, 96, 192, 384, 768};
+  constexpr int counts[] = {6, 12, 24, 48, 96, 192, 384, 768}; //we skip the last one, it's too big/slow.  
     std::cout << "        gridN           Input Grid      Analytic Estimate               Linear Interp                   Bicubic Interp                 Lin rel err      Bicubic Rel err\n";
     errorAnalysisInnerLoop<counts[0]>(g, f, analytic);
     errorAnalysisInnerLoop<counts[1]>(g, f, analytic);
     errorAnalysisInnerLoop<counts[2]>(g, f, analytic);
     errorAnalysisInnerLoop<counts[3]>(g, f, analytic);
     errorAnalysisInnerLoop<counts[4]>(g, f, analytic);
-    errorAnalysisInnerLoop<counts[5]>(g, f, analytic);
-    errorAnalysisInnerLoop<counts[6]>(g, f, analytic);
+    //errorAnalysisInnerLoop<counts[5]>(g, f, analytic);
+    //errorAnalysisInnerLoop<counts[6]>(g, f, analytic);
 }
 
 template <typename TFunc1, typename TFunc2, typename TFunc3, typename TFunc4>

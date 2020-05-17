@@ -1,5 +1,3 @@
-// GyroDebugging.cpp : This file contains the 'main' function. Program execution begins and ends there.
-////#include "pch.h"
 
 #ifndef NDEBUG
 #define NDEBUG
@@ -10,8 +8,12 @@
 #define VIENNACL_WITH_UBLAS 1
 #define VIENNACL_HAVE_EIGEN 1
 
-#include <eigen3/Eigen/Eigen>
+#if (defined __GNUC__) && (__GNUC__>4 || __GNUC_MINOR__>=7)
+  #undef _GLIBCXX_ATOMIC_BUILTINS
+  #undef _GLIBCXX_USE_INT128
+#endif
 
+#include<math_constants.h>
 #include <boost/numeric/ublas/lu.hpp>
 #include <boost/numeric/ublas/matrix_sparse.hpp>
 #include <boost/numeric/ublas/operation_sparse.hpp>
@@ -32,7 +34,6 @@
 #include "viennacl/tools/timer.hpp"
 #include "viennacl/vector.hpp"
 
-#include "ga.h"
 #include <algorithm>
 #include <array>
 //#include <boost/math/differentiaton/finite_difference.hpp>  //this needs a fairly recent version of boost.  boo.
@@ -50,6 +51,9 @@
 #include <math.h>
 #include <omp.h>
 #include <vector>
+#include <eigen3/Eigen/Eigen>
+
+#include "ga.h"
 
 template <typename TFunc>
 double TanhSinhIntegrate(double x, double y, TFunc f) {
@@ -57,11 +61,6 @@ double TanhSinhIntegrate(double x, double y, TFunc f) {
     return integrator.integrate(f, x, y);
 }
 
-template <typename TFunc>
-inline double TrapezoidIntegrate(double x, double y, TFunc f) {
-    using boost::math::quadrature::trapezoidal;
-    return trapezoidal(f, x, y);
-}
 
 inline double
 BilinearInterpolation(double q11, double q12, double q21, double q22, double x1, double x2, double y1, double y2, double x, double y) {
@@ -147,10 +146,10 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::setupBicubicGrid() {
                     y0 * y0, y1 * y1, 2 * y0, 2 * y1,
                     y0 * y0 * y0, y1 * y1 * y1, 3 * y0 * y0, 3 * y1 * y1;
 
-                temp1 = X.fullPivLu().inverse(); //this line crashes on my home machine without optimization turned on.
-                temp2 = Y.fullPivLu().inverse(); // we should take out the Eigen dependency methinks.  TODO
+                // temp1 = X.fullPivLu().inverse(); //this line crashes on my home machine without optimization turned on.
+                // temp2 = Y.fullPivLu().inverse(); // we should take out the Eigen dependency methinks.  TODO
 
-                A = temp1 * RHS * temp2;
+                A = X.inverse() * RHS * Y.inverse();
                 for (int t = 0; t < 16; ++t)
                     b(i, j, k, t) = A(t % 4, t / 4);
             }
@@ -453,7 +452,7 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::assembleFastGACalc(void) {
     LTOffsetTensor.resize(rhocount * xcount * ycount, rhocount * xcount * ycount);
     LTOffsetTensor.setFromTriplets(Triplets.begin(), Triplets.end());
 
-    std::cout << "Number of double  products needed for LT calc: " << LTOffsetTensor.nonZeros() << " and rough memory usage is " << LTOffsetTensor.nonZeros() * (sizeof(double) + sizeof(long)) << std::endl;
+    //std::cout << "Number of double  products needed for LT calc: " << LTOffsetTensor.nonZeros() << " and rough memory usage is " << LTOffsetTensor.nonZeros() * (sizeof(double) + sizeof(long)) << std::endl;
 }
 
 template <int rhocount, int xcount, int ycount>
@@ -543,7 +542,7 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::assembleFastBCCalc(void) { //b
     }
     BCOffsetTensor.resize(rhocount * xcount * ycount, rhocount * xcount * ycount * 16);
     BCOffsetTensor.setFromTriplets(Triplets.begin(), Triplets.end());
-    std::cout << "Number of double  products needed for BC calc: " << BCOffsetTensor.nonZeros() << " and rough memory usage is " << BCOffsetTensor.nonZeros() * (sizeof(double) + sizeof(long)) << std::endl;
+    // std::cout << "Number of double  products needed for BC calc: " << BCOffsetTensor.nonZeros() << " and rough memory usage is " << BCOffsetTensor.nonZeros() * (sizeof(double) + sizeof(long)) << std::endl;
 }
 
 template <int rhocount, int xcount, int ycount>
@@ -774,7 +773,7 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuiteBC(TFunc1 f, TFunc
     t.report();
     std::cout << "That was the time to do all of the products, and copy the result back." << std::endl;
 
-    constexpr int gputimes = 100;
+    constexpr int gputimes = 1000;
     //At this point everything has been done once.  We start benchmarking.  We are going to include cost of vectors transfers back and forth.
 
     t.start();
@@ -848,6 +847,20 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuiteBC(TFunc1 f, TFunc
 	}*/
     // t.report();
     //std::cout << "That was the full cycle time to do " << gputimes << "  products using sliced_ell_matrix_1 matrix." << std::endl;
+
+    t.start();
+    for (int count = 0; count < gputimes; ++count) {
+        setupDerivsGrid();
+        setupBicubicGrid();
+        copy(bicubicParameters.data.begin(), bicubicParameters.data.end(), gpu_source.begin());
+        viennacl::backend::finish();
+        gpu_target = viennacl::linalg::prod(vcl_sparse_matrix, gpu_source);
+        viennacl::backend::finish();
+        viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[0].data.begin());
+        viennacl::backend::finish();
+    }
+    t.report();
+    std::cout << "That was the full cycle time to do " << gputimes << "  products using default sparse matrix, and recalculated derivatives and BC parameters." << std::endl;
 
     std::cout << "Next we report errors for each GPU calc (in above order) vs CPU dot-product calc.  Here we only report maxabs norm" << std::endl;
     for (int i = 0; i < rhocount; i++) {
@@ -954,7 +967,7 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
                   << maxNorm(BCResult, i) << "\n";
     }
     std::cout << "Diffs:\n";
-    std::cout << "rho        Analytic vs Quadrature       Error due to truncation         Error due to interp             Analytic vs interp              interp vs dot-product GA          GPU vs CPU\n";
+    std::cout << "rho        Analytic vs Quadrature       Error due to truncation         Error due to interp             Analytic vs interp              interp vs DP        bicub trap vs analytic          bicubic DP vs analytic \n";
     for (int i = 0; i < rhocount; i++) {
         std::cout.precision(5);
         std::cout << std::fixed << rhoset[i] << std::scientific << std::setw(15)
@@ -968,15 +981,50 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 
                   << maxNormDiff(analytic_averages, trapezoidInterp, i) << "\t"
                   << RMSNormDiff(trapezoidInterp, fastGALTResult, i) << "\t"
                   << maxNormDiff(trapezoidInterp, fastGALTResult, i) << "\t"
-                  << RMSNormDiff(bicubicResults, truncatedAlmostExactGA, i) << "\t"
-                  << maxNormDiff(bicubicResults, truncatedAlmostExactGA, i) << "\t"
-                  << RMSNormDiff(BCResult, truncatedAlmostExactGA, i) << "\t"
-                  << maxNormDiff(BCResult, truncatedAlmostExactGA, i) << "\n";
+                  << RMSNormDiff(bicubicResults, analytic_averages, i) << "\t"
+                  << maxNormDiff(bicubicResults, analytic_averages, i) << "\t"
+                  << RMSNormDiff(BCResult, analytic_averages, i) << "\t"
+                  << maxNormDiff(BCResult, analytic_averages, i) << "\n";
         //     << RMSNormDiff(fastGALTResult, cpu_results[0], i) << "\t"
         //    << maxNormDiff(fastGALTResult, cpu_results[0], i) << "\n";
 
         //<< RMSNormDiff(fastGALTResult, fastGACalcResultOffset, i) << "\t"
         //<< maxNormDiff(fastGALTResult, fastGACalcResultOffset, i) << "\n";
+    }
+}
+
+template <int rhocount, int xcount, int ycount>
+template <typename TFunc1, typename TFunc2>
+void GyroAveragingGrid<rhocount, xcount, ycount>::compactErrorAnalysis(TFunc1 f, TFunc2 analytic) {
+    fill(gridValues, f);               //This is the base grid of values we will interpolate.
+    fill(analytic_averages, analytic); //analytic formula for gyroaverages
+    setupInterpGrid();
+    fillAlmostExactGA(almostExactGA, f);
+    fillTruncatedAlmostExactGA(truncatedAlmostExactGA, f);
+    fillTrapezoidInterp(trapezoidInterp, f);
+    assembleFastGACalc();
+    setupDerivsGrid();
+    setupBicubicGrid();
+    assembleFastBCCalc();
+    fastLTCalcOffset();
+    fastBCCalcOffset();
+    fullgrid bicubicResults;
+    fillBicubicInterp(bicubicResults);
+
+    for (int i = 0; i < rhocount; i++) {
+
+        std::cout.precision(5);
+        std::cout << std::fixed << xcount << std::scientific << std::setw(15)
+                  << RMSNorm(gridValues, i) << "\t"
+                  << maxNorm(gridValues, i) << "\t"
+                  << RMSNorm(analytic_averages, i) << "\t"
+                  << maxNorm(analytic_averages, i) << "\t"
+                  << RMSNorm(fastGALTResult, i) << "\t"
+                  << maxNorm(fastGALTResult, i) << "\t"
+                  << RMSNorm(BCResult, i) << "\t"
+                  << maxNorm(BCResult, i) << "\t"
+                  << maxNormDiff(fastGALTResult, analytic_averages, i) / maxNorm(analytic_averages, i) << "\t"
+                  << maxNormDiff(BCResult, analytic_averages, i) / maxNorm(analytic_averages, i) << "\n";
     }
 }
 
@@ -1041,11 +1089,11 @@ int main() {
 	double B = 2.0;*/
 
     gridDomain g;
-    g.rhomax = 0.9;
-    g.rhomin = 0.3;
+    g.rhomax = 3;
+    g.rhomin = 0;
     g.xmin = g.ymin = -5;
     g.xmax = g.ymax = 5;
-    constexpr int xcount = 96, ycount = 96, rhocount = 3; //bump up to 64x64x35 later or 128x128x35
+    constexpr int xcount = 32, ycount = 32, rhocount = 24; //bump up to 64x64x35 later or 128x128x35
     constexpr double A = 2;
     constexpr double B = 2;
     constexpr double Normalizer = 50.0;
@@ -1088,6 +1136,7 @@ int main() {
     yset = LinearSpacedArray(g.ymin, g.ymax, ycount);
 
     GyroAveragingGrid<rhocount, xcount, ycount> grid(rhoset, xset, yset);
+    errorAnalysis(g, testfunc2, testfunc2_analytic);
     grid.GyroAveragingTestSuite(testfunc2, testfunc2_analytic);
     //derivTest(g, testfunc2, testfunc2_analytic_dx, testfunc2_analytic_dy, testfunc2_analytic_dx_dy);
     //interpAnalysis(g, testfunc2, testfunc2_analytic);
@@ -1121,6 +1170,20 @@ void interpAnalysisInnerLoop(const gridDomain &g, TFunc1 f,
     grid.InterpErrorAnalysis(f, analytic);
 }
 
+template <int count, typename TFunc1, typename TFunc2>
+void errorAnalysisInnerLoop(const gridDomain &g, TFunc1 f,
+                            TFunc2 analytic) {
+    constexpr int rhocount = 1; //TODO MAGIC NUMBER SHOULD BE PASSED IN
+    std::vector<double> rhoset;
+    std::vector<double> xset;
+    std::vector<double> yset;
+    rhoset.push_back(g.rhomax);
+    xset = LinearSpacedArray(g.xmin, g.xmax, count);
+    yset = LinearSpacedArray(g.ymin, g.ymax, count);
+    GyroAveragingGrid<rhocount, count, count> grid(rhoset, xset, yset);
+    grid.compactErrorAnalysis(f, analytic);
+}
+
 template <typename TFunc1, typename TFunc2>
 void interpAnalysis(const gridDomain &g, TFunc1 f,
                     TFunc2 analytic) {
@@ -1132,6 +1195,21 @@ void interpAnalysis(const gridDomain &g, TFunc1 f,
     interpAnalysisInnerLoop<counts[3]>(g, f, analytic);
     interpAnalysisInnerLoop<counts[4]>(g, f, analytic);
     interpAnalysisInnerLoop<counts[5]>(g, f, analytic);
+}
+
+template <typename TFunc1, typename TFunc2>
+void errorAnalysis(const gridDomain &g, TFunc1 f,
+                   TFunc2 analytic) {
+
+  constexpr int counts[] = {6, 12, 24, 48, 96, 192, 384, 768}; //we skip the last one, it's too big/slow.  
+    std::cout << "        gridN           Input Grid      Analytic Estimate               Linear Interp                   Bicubic Interp                 Lin rel err      Bicubic Rel err\n";
+    errorAnalysisInnerLoop<counts[0]>(g, f, analytic);
+    errorAnalysisInnerLoop<counts[1]>(g, f, analytic);
+    errorAnalysisInnerLoop<counts[2]>(g, f, analytic);
+    errorAnalysisInnerLoop<counts[3]>(g, f, analytic);
+    errorAnalysisInnerLoop<counts[4]>(g, f, analytic);
+    //errorAnalysisInnerLoop<counts[5]>(g, f, analytic);
+    //errorAnalysisInnerLoop<counts[6]>(g, f, analytic);
 }
 
 template <typename TFunc1, typename TFunc2, typename TFunc3, typename TFunc4>
