@@ -13,7 +13,10 @@
   #undef _GLIBCXX_USE_INT128
 #endif
 
-//#include<math_constants.h>
+#ifdef INCL_MATH_CONSTANTS 
+#include<math_constants.h>
+#endif
+
 #include <boost/numeric/ublas/lu.hpp>
 #include <boost/numeric/ublas/matrix_sparse.hpp>
 #include <boost/numeric/ublas/operation_sparse.hpp>
@@ -40,7 +43,7 @@
 #include <boost/math/quadrature/tanh_sinh.hpp>
 #include <boost/math/quadrature/trapezoidal.hpp>
 #include <boost/math/special_functions/bessel.hpp>
-#include <boost/timer/timer.hpp>
+//#include <boost/timer/timer.hpp>
 #include <cassert>
 #include <cmath>
 #include <iomanip>
@@ -565,17 +568,17 @@ template <int rhocount, int xcount, int ycount>
 template <typename TFunc1, typename TFunc2>
 void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuite(TFunc1 f, TFunc2 analytic) {
 
-    boost::timer::auto_cpu_timer t;
+    //boost::timer::auto_cpu_timer t;
     SpM &cpu_sparse_matrix = LTOffsetTensor;
     viennacl::compressed_matrix<double> vcl_sparse_matrix(xcount * ycount * rhocount, xcount * ycount * rhocount);
-    t.start();
+    //t.start();
 
     viennacl::copy(cpu_sparse_matrix, vcl_sparse_matrix);
 
     viennacl::backend::finish();
-    t.report();
+    //t.report();
     std::cout << "That was the time to create the CPU matrix and copy it once to GPU." << std::endl;
-    t.start();
+    //t.start();
 
     viennacl::compressed_matrix<double, 1> vcl_compressed_matrix_1(xcount * ycount * rhocount, xcount * ycount * rhocount);
     viennacl::compressed_matrix<double, 4> vcl_compressed_matrix_4(xcount * ycount * rhocount, xcount * ycount * rhocount);
@@ -600,8 +603,8 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuite(TFunc1 f, TFunc2 
     //viennacl::copy(ublas_matrix,vcl_hyb_matrix_1);
     //viennacl::copy(cpu_sparse_matrix, vcl_sliced_ell_matrix_1);
     viennacl::backend::finish();
-    t.report();
-    t.start();
+    //t.report();
+    //t.start();
     std::cout << "That was the time to copy everything onto the GPU." << std::endl;
 
     fullgrid cpu_results[8];
@@ -623,13 +626,13 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuite(TFunc1 f, TFunc2 
     viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[0].data.begin());
     viennacl::backend::finish();
 
-    t.report();
+    //t.report();
     std::cout << "That was the time to do all of the products, and copy the result back twice." << std::endl;
 
-    constexpr int gputimes = 1000;
+    constexpr int gputimes = 1;
     //At this point everything has been done once.  We start benchmarking.  We are going to include cost of vectors transfers back and forth.
 
-    t.start();
+    //t.start();
     for (int count = 0; count < gputimes; ++count) {
         copy(gridValues.data.begin(), gridValues.data.end(), gpu_source.begin());
         viennacl::backend::finish();
@@ -638,10 +641,10 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuite(TFunc1 f, TFunc2 
         viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[0].data.begin());
         viennacl::backend::finish();
     }
-    t.report();
+    //t.report();
     std::cout << "That was the full cycle time to do " << gputimes << "  products using default sparse matrix." << std::endl;
 
-    t.start();
+    //t.start();
     for (int count = 0; count < gputimes; ++count) {
         copy(gridValues.data.begin(), gridValues.data.end(), gpu_source.begin());
         viennacl::backend::finish();
@@ -650,10 +653,10 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuite(TFunc1 f, TFunc2 
         viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[1].data.begin());
         viennacl::backend::finish();
     }
-    t.report();
+    //t.report();
     std::cout << "That was the full cycle time to do " << gputimes << "  products using compressed_matrix_1 matrix." << std::endl;
 
-    t.start();
+    //t.start();
     for (int count = 0; count < gputimes; ++count) {
         copy(gridValues.data.begin(), gridValues.data.end(), gpu_source.begin());
         viennacl::backend::finish();
@@ -662,10 +665,10 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuite(TFunc1 f, TFunc2 
         viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[2].data.begin());
         viennacl::backend::finish();
     }
-    t.report();
+    //t.report();
     std::cout << "That was the full cycle time to do " << gputimes << "  products using compressed_matrix_4 matrix." << std::endl;
 
-    t.start();
+   //t.start();
     for (int count = 0; count < gputimes; ++count) {
         copy(gridValues.data.begin(), gridValues.data.end(), gpu_source.begin());
         viennacl::backend::finish();
@@ -674,7 +677,7 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuite(TFunc1 f, TFunc2 
         viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[3].data.begin());
         viennacl::backend::finish();
     }
-    t.report();
+   // t.report();
     std::cout << "That was the full cycle time to do " << gputimes << "  products using compressed_matrix_8 matrix." << std::endl;
 
     /* t.start();
@@ -717,15 +720,15 @@ template <typename TFunc1, typename TFunc2>
 void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuiteBC(TFunc1 f, TFunc2 analytic) {
     //TODO the below cheats and doesn't yet recompute derivs/params.  Need to add that and benchmark.
     std::cout << "Beginning GPU test of BC calc.\n";
-    boost::timer::auto_cpu_timer t;
+    //boost::timer::auto_cpu_timer t;
     viennacl::compressed_matrix<double> vcl_sparse_matrix(xcount * ycount * rhocount, xcount * ycount * rhocount * 16);
-    t.start();
+   // t.start();
     SpM &cpu_sparse_matrix = BCOffsetTensor;
     viennacl::copy(cpu_sparse_matrix, vcl_sparse_matrix);
     viennacl::backend::finish();
-    t.report();
+   // t.report();
     std::cout << "That was the time to create the CPU matrix and copy it once to GPU." << std::endl;
-    t.start();
+   // t.start();
     viennacl::backend::finish();
 
     viennacl::compressed_matrix<double, 1> vcl_compressed_matrix_1(xcount * ycount * rhocount, xcount * ycount * rhocount * 16);
@@ -751,8 +754,8 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuiteBC(TFunc1 f, TFunc
     //viennacl::copy(ublas_matrix,vcl_hyb_matrix_1);
     //viennacl::copy(cpu_sparse_matrix, vcl_sliced_ell_matrix_1);
     viennacl::backend::finish();
-    t.report();
-    t.start();
+   // t.report();
+   // t.start();
     std::cout << "That was the time to copy everything onto the GPU." << std::endl;
 
     fullgrid cpu_results[8];
@@ -770,13 +773,13 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuiteBC(TFunc1 f, TFunc
     viennacl::backend::finish();
     viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[0].data.begin());
     viennacl::backend::finish();
-    t.report();
+    //t.report();
     std::cout << "That was the time to do all of the products, and copy the result back." << std::endl;
 
-    constexpr int gputimes = 1000;
+    constexpr int gputimes = 1;
     //At this point everything has been done once.  We start benchmarking.  We are going to include cost of vectors transfers back and forth.
 
-    t.start();
+   // t.start();
     for (int count = 0; count < gputimes; ++count) {
         copy(bicubicParameters.data.begin(), bicubicParameters.data.end(), gpu_source.begin());
         viennacl::backend::finish();
@@ -785,10 +788,10 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuiteBC(TFunc1 f, TFunc
         viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[0].data.begin());
         viennacl::backend::finish();
     }
-    t.report();
+   // t.report();
     std::cout << "That was the full cycle time to do " << gputimes << "  products using default sparse matrix." << std::endl;
 
-    t.start();
+   // t.start();
     for (int count = 0; count < gputimes; ++count) {
         copy(bicubicParameters.data.begin(), bicubicParameters.data.end(), gpu_source.begin());
         viennacl::backend::finish();
@@ -797,10 +800,10 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuiteBC(TFunc1 f, TFunc
         viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[1].data.begin());
         viennacl::backend::finish();
     }
-    t.report();
+    //t.report();
     std::cout << "That was the full cycle time to do " << gputimes << "  products using compressed_matrix_1 matrix." << std::endl;
 
-    t.start();
+    //t.start();
     for (int count = 0; count < gputimes; ++count) {
         copy(bicubicParameters.data.begin(), bicubicParameters.data.end(), gpu_source.begin());
         viennacl::backend::finish();
@@ -809,10 +812,10 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuiteBC(TFunc1 f, TFunc
         viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[2].data.begin());
         viennacl::backend::finish();
     }
-    t.report();
+   // t.report();
     std::cout << "That was the full cycle time to do " << gputimes << "  products using compressed_matrix_4 matrix." << std::endl;
 
-    t.start();
+   // t.start();
     for (int count = 0; count < gputimes; ++count) {
         copy(bicubicParameters.data.begin(), bicubicParameters.data.end(), gpu_source.begin());
         viennacl::backend::finish();
@@ -821,10 +824,10 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuiteBC(TFunc1 f, TFunc
         viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[3].data.begin());
         viennacl::backend::finish();
     }
-    t.report();
+  //  t.report();
     std::cout << "That was the full cycle time to do " << gputimes << "  products using compressed_matrix_8 matrix." << std::endl;
 
-    t.start();
+   // t.start();
     /*    for(int count =0; count<gputimes;++count){
       copy(bicubicParameters.data.begin(),bicubicParameters.data.end(),gpu_source.begin());
       viennacl::backend::finish();
@@ -848,7 +851,7 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuiteBC(TFunc1 f, TFunc
     // t.report();
     //std::cout << "That was the full cycle time to do " << gputimes << "  products using sliced_ell_matrix_1 matrix." << std::endl;
 
-    t.start();
+   // t.start();
     for (int count = 0; count < gputimes; ++count) {
         setupDerivsGrid();
         setupBicubicGrid();
@@ -859,7 +862,7 @@ void GyroAveragingGrid<rhocount, xcount, ycount>::GPUTestSuiteBC(TFunc1 f, TFunc
         viennacl::copy(gpu_target.begin(), gpu_target.end(), cpu_results[0].data.begin());
         viennacl::backend::finish();
     }
-    t.report();
+   // t.report();
     std::cout << "That was the full cycle time to do " << gputimes << "  products using default sparse matrix, and recalculated derivatives and BC parameters." << std::endl;
 
     std::cout << "Next we report errors for each GPU calc (in above order) vs CPU dot-product calc.  Here we only report maxabs norm" << std::endl;
@@ -881,57 +884,57 @@ We report evolution of errorand sample timings.
 template <int rhocount, int xcount, int ycount>
 template <typename TFunc1, typename TFunc2>
 void GyroAveragingGrid<rhocount, xcount, ycount>::GyroAveragingTestSuite(TFunc1 f, TFunc2 analytic) {
-    boost::timer::auto_cpu_timer t;
+    //boost::timer::auto_cpu_timer t;
     fill(gridValues, f); //This is the base grid of values we will interpolate.
-    t.start();
+  //  t.start();
     fill(analytic_averages, analytic); //analytic formula for gyroaverages
-    t.report();
+   // t.report();
     std::cout << "That was the time required to calculate analytic gyroaverages.\n";
     setupInterpGrid();
-    t.start();
+  //  t.start();
     fillAlmostExactGA(almostExactGA, f);
-    t.report();
+  //  t.report();
     std::cout << "That was the time required to calculate gyroaverages from the definition, with the trapezoid rule.\n";
-    t.start();
+ //   t.start();
     fillTruncatedAlmostExactGA(truncatedAlmostExactGA, f);
-    t.report();
+ //   t.report();
     std::cout << "That was the time required to calculate gryoaverages by def (as above), except we hard truncated f() to 0 off-grid.\n";
-    t.start();
+  //  t.start();
     fillTrapezoidInterp(trapezoidInterp, f);
-    t.report();
+  //  t.report();
     std::cout << "That was the time required to calc gyroaverages by def, replacing f() by its bilinear interpolant." << std::endl;
-    t.start();
+  //  t.start();
     assembleFastGACalc();
-    t.report();
+  //  t.report();
     std::cout << "That was the time required to assemble the sparse matrix in the fast-GA dot product calculation." << std::endl;
-    t.start();
+ //  t.start();
     setupDerivsGrid();
-    t.report();
-    t.start();
+  //  t.report();
+  //  t.start();
     setupBicubicGrid();
-    t.report();
-    t.start();
+  //  t.report();
+  //  t.start();
     assembleFastBCCalc();
-    t.report();
+  //  t.report();
     std::cout << "That was the time required to assemble the sparse matrix in the fast-BC dot product calculation." << std::endl;
 
-    t.start();
-    int times = 10;
+  //  t.start();
+    int times = 1;
     for (int counter = 0; counter < times; counter++) {
         fastLTCalcOffset();
     }
 
-    t.report();
+   // t.report();
     std::cout << "The was the time require to run LT gyroaverage calc " << times << " times. \n " << std::endl;
 
-    t.start();
+   // t.start();
     for (int counter = 0; counter < times; counter++) {
         setupDerivsGrid();
         setupBicubicGrid();
         fastBCCalcOffset();
     }
 
-    t.report();
+    //t.report();
     std::cout << "The was the time require to run BC gyroaverage calc " << times << " times. \n " << std::endl;
 
     GPUTestSuite(f, analytic);
