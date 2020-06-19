@@ -9,15 +9,17 @@
 #define VIENNACL_WITH_UBLAS 1
 #define VIENNACL_HAVE_EIGEN 1
 
-#if (defined __GNUC__) && (__GNUC__>4 || __GNUC_MINOR__>=7)
-  #undef _GLIBCXX_ATOMIC_BUILTINS
-  #undef _GLIBCXX_USE_INT128
+#if (defined __GNUC__) && (__GNUC__ > 4 || __GNUC_MINOR__ >= 7)
+#undef _GLIBCXX_ATOMIC_BUILTINS
+#undef _GLIBCXX_USE_INT128
 #endif
 
-#ifdef INCL_MATH_CONSTANTS 
-#include<math_constants.h>
+#ifdef INCL_MATH_CONSTANTS
+#include <math_constants.h>
 #endif
 
+#include <algorithm>
+#include <array>
 #include <boost/numeric/ublas/lu.hpp>
 #include <boost/numeric/ublas/matrix_sparse.hpp>
 #include <boost/numeric/ublas/operation_sparse.hpp>
@@ -37,31 +39,22 @@
 #include "viennacl/sliced_ell_matrix.hpp"
 #include "viennacl/tools/timer.hpp"
 #include "viennacl/vector.hpp"
-
-#include <algorithm>
-#include <array>
 //#include <boost/math/differentiaton/finite_difference.hpp>  //this needs a fairly recent version of boost.  boo.
 #include <boost/math/quadrature/tanh_sinh.hpp>
 #include <boost/math/quadrature/trapezoidal.hpp>
 #include <boost/math/special_functions/bessel.hpp>
 //#include <boost/timer/timer.hpp>
+#include <math.h>
+#include <omp.h>
+
 #include <cassert>
 #include <cmath>
+#include <eigen3/Eigen/Eigen>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
 #include <limits>
 #include <map>
-#include <math.h>
-#include <omp.h>
 #include <vector>
-#include <eigen3/Eigen/Eigen>
 
 #include "ga.h"
-
-
-
-
-
-
-
