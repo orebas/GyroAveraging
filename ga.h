@@ -1383,7 +1383,7 @@ GACalculator<rhocount, xcount, ycount, RealT, padcount>::Factory::newCalculator(
         return bicubicDotProductCPU<rhocount, xcount, ycount, RealT>::create(g, f);
     else if (c == calculatorType::DCTCPUPaddedCalculator2)
         return DCTCPUPaddedCalculator<rhocount, xcount, ycount, padcount, RealT>::create(g);
-    else if (c == calculatorType::DCTCPUPaddedCalculator2)
+    else if (c == calculatorType::bicubicDotProductGPU)
         return bicubicDotProductGPU<rhocount, xcount, ycount, RealT>::create(g, f);
     else
         return linearCPUCalculator<rhocount, xcount, ycount, RealT>::create();
