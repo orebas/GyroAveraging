@@ -3,7 +3,44 @@
 #ifndef GYROAVERAGING_UTILS_H
 #define GYROAVERAGING_UTILS_H
 
+#include <chrono>
+
 namespace OOGA {
+
+template <typename TimeT = std::chrono::milliseconds>
+struct measure {
+    template <typename F, typename... Args>
+    static typename TimeT::rep execution(F func, Args &&... args) {
+        auto start = std::chrono::steady_clock::now();
+
+        // Now call the function with all the parameters you need.
+        func(std::forward<Args>(args)...);
+
+        auto duration = std::chrono::duration_cast<TimeT>(std::chrono::steady_clock::now() - start);
+
+        return duration.count();
+    }
+
+    template <typename F, typename... Args>
+    static typename TimeT::rep execution2(F func, Args &&... args) {
+        auto start = std::chrono::steady_clock::now();
+
+        // Now call the function with all the parameters you need.
+        func(std::forward<Args>(args)...);
+
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start);
+
+        auto start2 = std::chrono::steady_clock::now();
+        int iters = 1000 / (duration.count() + 1);
+        iters = std::max(1, iters);
+        iters = std::min(iters, 10000);
+        for (int i = 0; i < iters; ++i)
+            func(std::forward<Args>(args)...);
+
+        auto duration2 = std::chrono::duration_cast<TimeT>(std::chrono::steady_clock::now() - start2);
+        return duration2.count() / iters;
+    }
+};
 
 template <class RealT = double>
 struct indexedPoint {
@@ -86,6 +123,9 @@ template <typename TFunc, class RealT = double>
 inline RealT TrapezoidIntegrate(RealT x, RealT y, TFunc f) {
     using boost::math::quadrature::trapezoidal;
     return trapezoidal(f, x, y);
+
+    //boost::math::quadrature::tanh_sinh<RealT> integrator;
+    //return integrator.integrate(f, x, y);  //TODO REPLACE
 }
 
 template <typename T>
@@ -153,6 +193,10 @@ class Array4d {
 
     inline T operator()(int x, int y, int z, int t) const {
         return data[x * h * d * l + y * d * l + z * l + t];
+    }
+
+    inline static int internalRef(int x, int y, int z, int t) {
+        return x * h * d * l + y * d * l + z * l + t;
     }
 };
 
