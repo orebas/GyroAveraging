@@ -1353,8 +1353,6 @@ class bicubicDotProductGPU
         copy(b.data.begin(), b.data.end(), gpu_source.begin());
         copy(m.gridValues.data.begin(), m.gridValues.data.end(), gpu_target.end());
 
-        Eigen::Map<Eigen::Matrix<RealT, rhocount * xcount * ycount * 16, 1>> source(b.data.data());
-        Eigen::Map<Eigen::Matrix<RealT, rhocount * xcount * ycount, 1>> target(m.gridValues.data.data());
         // this is garbage data, I just want to make sure  it's allocated.
         gpu_target = viennacl::linalg::prod(vcl_sparse_matrix, gpu_source);
         viennacl::copy(gpu_target.begin(), gpu_target.end(),
