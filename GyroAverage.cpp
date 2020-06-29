@@ -177,9 +177,9 @@ int main() {
     calclist.push_back(OOGA::calculatorType::DCTCPUCalculator2);
     calclist.push_back(OOGA::calculatorType::DCTCPUPaddedCalculator2);
     calclist.push_back(OOGA::calculatorType::bicubicDotProductGPU);
-    constexpr double padtest = xcount * mainRhoMax / std::abs(mainxyMax - mainxyMin);
+    //constexpr double padtest = xcount * mainRhoMax / std::abs(mainxyMax - mainxyMin);
 
-    constexpr int padcount = mymax(8, 4 + static_cast<int>(std::ceil(padtest)));
+    //constexpr int padcount = mymax(8, 4 + static_cast<int>(std::ceil(padtest)));
 
     for (auto i = 0; i < calclist.size(); ++i) {
         std::cout << "Method ";
@@ -187,7 +187,7 @@ int main() {
         std::cout << i << " took:";
         std::cout << measure<std::chrono::milliseconds>::execution(GACalculator<rhocount, xcount, ycount, mainReal>::Factory::newCalculator, calclist[i], g, exact);
         std::cout << " milliseconds to initialize" << std::endl;
-        calcset.emplace_back(GACalculator<rhocount, xcount, ycount, mainReal, padcount>::Factory::newCalculator(calclist[i], g, exact));
+        calcset.emplace_back(GACalculator<rhocount, xcount, ycount, mainReal, 12>::Factory::newCalculator(calclist[i], g, exact)); //change back to padcount variable?
     }
 
     std::cout << "Done initializing." << std::endl;
