@@ -869,7 +869,7 @@ class DCTCPUCalculator
 
                         d = pi * p * row * (N - 1) / (N * (g.xmax - g.xmin));
                         b = -pi * q * row * (N - 1) / (N * (g.ymax - g.ymin));
-                        double j = std::cyl_bessel_j(0, std::sqrt(b * b + d * d));
+                        double j = boost::math::cyl_bessel_j(0, std::sqrt(b * b + d * d));
                         return ap * bq * std::cos(a) * std::cos(c) * j;
                     };
 
@@ -932,7 +932,7 @@ class DCTCPUCalculator
 
                     d = pi * p * row * (N - 1) / (N * (g.xmax - g.xmin));
                     b = -pi * q * row * (N - 1) / (N * (g.ymax - g.ymin));
-                    double j = std::cyl_bessel_j(0, std::sqrt(b * b + d * d));
+                    double j = boost::math::cyl_bessel_j(0, std::sqrt(b * b + d * d));
                     return ap * bq * std::cos(a) * std::cos(c) * j;
                 };
 
@@ -1043,7 +1043,7 @@ class DCTCPUCalculator2
                     double b, d;
                     d = pi * p * rhoset[r] * (N - 1) / (N * (g.xmax - g.xmin));
                     b = -pi * q * rhoset[r] * (N - 1) / (N * (g.ymax - g.ymin));
-                    double j = std::cyl_bessel_j(0, std::sqrt(b * b + d * d));
+                    double j = boost::math::cyl_bessel_j(0, std::sqrt(b * b + d * d));
                     besselVals[r * xcount * ycount + ycount * p + q] = j / (xcount * ycount * 4.0);
                 }
             }
