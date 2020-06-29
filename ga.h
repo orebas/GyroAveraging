@@ -1351,7 +1351,7 @@ class bicubicDotProductGPU
         viennacl::vector<RealT> gpu_target(m.gridValues.data.size());
 
         copy(b.data.begin(), b.data.end(), gpu_source.begin());
-        copy(m.gridValues.data.begin(), m.gridValues.data.end(), gpu_target.end());
+        copy(m.gridValues.data.begin(), m.gridValues.data.end(), gpu_target.begin());
 
         // this is garbage data, I just want to make sure  it's allocated.
         gpu_target = viennacl::linalg::prod(vcl_sparse_matrix, gpu_source);
