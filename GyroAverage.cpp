@@ -149,7 +149,7 @@ int main() {
     g.rhomin = mainRhoMin;
     g.xmin = g.ymin = mainxyMin;
     g.xmax = g.ymax = mainxyMax;
-    constexpr int xcount = 128, ycount = 128,
+    constexpr int xcount = 256, ycount = 256,
                   rhocount = 1;  // bump up to 64x64x35 later or 128x128x35
     constexpr mainReal A = 0.5;
     constexpr mainReal B = 1.6;
@@ -176,7 +176,7 @@ int main() {
     //calclist.push_back(OOGA::calculatorType::DCTCPUCalculator);
     calclist.push_back(OOGA::calculatorType::DCTCPUCalculator2);
     calclist.push_back(OOGA::calculatorType::DCTCPUPaddedCalculator2);
-    calclist.push_back(OOGA::calculatorType::bicubicDotProductGPU);
+    //    calclist.push_back(OOGA::calculatorType::bicubicDotProductGPU);
     //constexpr double padtest = xcount * mainRhoMax / std::abs(mainxyMax - mainxyMin);
 
     //constexpr int padcount = mymax(8, 4 + static_cast<int>(std::ceil(padtest)));
