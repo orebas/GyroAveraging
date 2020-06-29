@@ -1365,7 +1365,7 @@ class bicubicDotProductGPU
 };
 // GPU Bicubic DP
 
-template <int rhocount, int xcount, int ycount, class RealT = double, int padcount = 0>
+template <int rhocount, int xcount, int ycount, class RealT, int padcount>
 std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
 GACalculator<rhocount, xcount, ycount, RealT, padcount>::Factory::newCalculator(
     calculatorType c, gridDomain<RealT> &g, functionGrid<rhocount, xcount, ycount, RealT> &f) {
