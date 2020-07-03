@@ -1,3 +1,5 @@
+
+
 // file foobar.h:
 #ifndef GYROAVERAGING_GA_H
 #define GYROAVERAGING_GA_H
@@ -1305,10 +1307,11 @@ class bicubicDotProductCPU
         BCOffsetTensor.resize(rhocount * xcount * ycount,
                               rhocount * xcount * ycount * 16);
         BCOffsetTensor.setFromTriplets(Triplets.begin(), Triplets.end());
-        return BCOffsetTensor;
-        // std::cout << "Number of RealT  products needed for BC calc: " <<
-        // BCOffsetTensor.nonZeros() << " and rough memory usage is " <<
-        // BCOffsetTensor.nonZeros() * (sizeof(RealT) + sizeof(long)) << std::endl;
+        
+         std::cout << "Number of RealT  products needed for BC calc: " <<
+         BCOffsetTensor.nonZeros() << " and rough memory usage is " <<
+         BCOffsetTensor.nonZeros() * (sizeof(RealT) + sizeof(long)) << std::endl;
+	 return BCOffsetTensor;
     }
 
     functionGrid<rhocount, xcount, ycount, RealT> calculate(

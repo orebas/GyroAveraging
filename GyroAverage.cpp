@@ -140,8 +140,8 @@ int main() {
     //fft_testing();
     using namespace OOGA;
     typedef double mainReal;
-    constexpr double mainRhoMin = 0.5;
-    constexpr double mainRhoMax = 1.5;
+    constexpr double mainRhoMin = 0.25;
+    constexpr double mainRhoMax = 1.55;
     constexpr double mainxyMin = -4;
     constexpr double mainxyMax = 4;
     gridDomain<mainReal> g;
@@ -150,7 +150,7 @@ int main() {
     g.xmin = g.ymin = mainxyMin;
     g.xmax = g.ymax = mainxyMax;
     constexpr int xcount = 64, ycount = 64,
-                  rhocount = 35;  // bump up to 64x64x35 later or 128x128x35
+                  rhocount = 10;  // bump up to 64x64x35 later or 128x128x35
     constexpr mainReal A = 0.5;
     constexpr mainReal B = 1.6;
     constexpr mainReal Normalizer = 50.0;
