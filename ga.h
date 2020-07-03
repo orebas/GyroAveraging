@@ -797,7 +797,8 @@ class biquadCPUCalculator
     }
 };
 
-// FFT - JUST STARTED
+// FFT - we sort of abandoned this; it only computes the first rhoset[0].
+//also the initialization is VERY slow.
 template <int rhocount, int xcount, int ycount, class RealT = double>
 class DCTCPUCalculator
     : public GACalculator<rhocount, xcount, ycount, RealT> {
@@ -1039,16 +1040,30 @@ class DCTCPUCalculator2
         for (int r = 0; r < rhocount; r++)
             for (int p = 0; p < xcount; ++p) {
                 for (int q = 0; q < ycount; ++q) {
-                    constexpr double N = xcount;
+                    constexpr double Nx = xcount;
+                    constexpr double Ny = ycount;
                     double b, d;
-                    d = pi * p * rhoset[r] * (N - 1) / (N * (g.xmax - g.xmin));
-                    b = -pi * q * rhoset[r] * (N - 1) / (N * (g.ymax - g.ymin));
+                    d = pi * p * rhoset[r] * (Nx - 1) / (Nx * (g.xmax - g.xmin));
+                    b = -pi * q * rhoset[r] * (Ny - 1) / (Ny * (g.ymax - g.ymin));
                     double j = boost::math::cyl_bessel_j(0, std::sqrt(b * b + d * d));
                     besselVals[r * xcount * ycount + ycount * p + q] = j / (xcount * ycount * 4.0);
                 }
             }
-        plan = fftw_plan_r2r_2d(xcount, ycount, fftin, fftout, FFTW_REDFT10, FFTW_REDFT10, FFTW_MEASURE);      //Forward DCT
-        plan_inv = fftw_plan_r2r_2d(xcount, ycount, fftout, fftin, FFTW_REDFT01, FFTW_REDFT01, FFTW_MEASURE);  //Backward DCT
+
+        int rank = 2;
+        int n[] = {xcount, ycount};
+        int howmany = rhocount;
+        int idist, odist, istride, ostride;
+        idist = xcount * ycount;
+        odist = xcount * ycount;
+        istride = ostride = 1;
+        fftw_r2r_kind fwd[] = {FFTW_REDFT10, FFTW_REDFT10};
+        fftw_r2r_kind inv[] = {FFTW_REDFT01, FFTW_REDFT01};
+
+        plan = fftw_plan_many_r2r(rank, n, howmany, fftin, n, istride, idist, fftout, n, ostride, odist, fwd, FFTW_MEASURE);
+        plan_inv = fftw_plan_many_r2r(rank, n, howmany, fftout, n, istride, idist, fftin, n, ostride, odist, inv, FFTW_MEASURE);
+        //plan = fftw_plan_r2r_2d(xcount, ycount, fftin, fftout, FFTW_REDFT10, FFTW_REDFT10, FFTW_MEASURE);      //Forward DCT
+        //plan_inv = fftw_plan_r2r_2d(xcount, ycount, fftout, fftin, FFTW_REDFT01, FFTW_REDFT01, FFTW_MEASURE);  //Backward DCT
     }
 
     ~DCTCPUCalculator2() {
@@ -1068,14 +1083,14 @@ class DCTCPUCalculator2
         functionGrid<rhocount, xcount, ycount, RealT> &f) {
         functionGrid<rhocount, xcount, ycount, RealT> m = f;  // do we need to write a copy constructor?
 
-        std::copy(f.gridValues.data.begin(), f.gridValues.data.begin() + xcount * ycount + 1, fftin);
+        std::copy(f.gridValues.data.begin(), f.gridValues.data.begin() + xcount * ycount * rhocount + 1, fftin);
         fftw_execute(plan);
-        std::copy(fftout, fftout + xcount * ycount + 1, m.gridValues.data.begin());
-        for (int i = 0; i < xcount * ycount; ++i) {
+        std::copy(fftout, fftout + rhocount * xcount * ycount + 1, m.gridValues.data.begin());
+        for (int i = 0; i < rhocount * xcount * ycount; ++i) {
             fftout[i] *= besselVals[i];
         }
         fftw_execute(plan_inv);
-        std::copy(fftin, fftin + xcount * ycount + 1, m.gridValues.data.begin());
+        std::copy(fftin, fftin + rhocount * xcount * ycount + 1, m.gridValues.data.begin());
 
         return m;
     }
@@ -1318,6 +1333,8 @@ class bicubicDotProductGPU
     : public GACalculator<rhocount, xcount, ycount, RealT> {
    private:
     viennacl::compressed_matrix<RealT> vcl_sparse_matrix;
+    viennacl::vector<RealT> gpu_source;
+    viennacl::vector<RealT> gpu_target;
 
    public:
     friend class GACalculator<rhocount, xcount, ycount, RealT>;
@@ -1325,7 +1342,12 @@ class bicubicDotProductGPU
         : vcl_sparse_matrix(xcount * ycount * rhocount, xcount * ycount * rhocount * 16) {
         Eigen::SparseMatrix<RealT, Eigen::RowMajor> BCSparseOperator = bicubicDotProductCPU<rhocount, xcount, ycount, RealT>::assembleFastBCCalc(g, f);
         viennacl::copy(BCSparseOperator, vcl_sparse_matrix);
-        //add a call to initialize compute kernel maybe?
+        typename functionGrid<rhocount, xcount, ycount, RealT>::bicubicParameterGrid b = functionGrid<rhocount, xcount, ycount, RealT>::setupBicubicGrid(f);
+        gpu_source.resize(b.data.size());
+        gpu_target.resize(f.gridValues.data.size());
+        gpu_source.clear();
+        gpu_target.clear();
+        auto garbage = this->calculate(f);  //call to initialize compute kernel maybe?
         viennacl::backend::finish();
     };
     ~bicubicDotProductGPU(){
@@ -1345,10 +1367,8 @@ class bicubicDotProductGPU
         functionGrid<rhocount, xcount, ycount, RealT> m =
             f;
 
-        m.clearGrid();
+        //        m.clearGrid();
         typename functionGrid<rhocount, xcount, ycount, RealT>::bicubicParameterGrid b = functionGrid<rhocount, xcount, ycount, RealT>::setupBicubicGrid(f);
-        viennacl::vector<RealT> gpu_source(b.data.size());
-        viennacl::vector<RealT> gpu_target(m.gridValues.data.size());
 
         copy(b.data.begin(), b.data.end(), gpu_source.begin());
         copy(m.gridValues.data.begin(), m.gridValues.data.end(), gpu_target.begin());

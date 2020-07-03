@@ -141,16 +141,16 @@ int main() {
     using namespace OOGA;
     typedef double mainReal;
     constexpr double mainRhoMin = 0.5;
-    constexpr double mainRhoMax = 0.5;
-    constexpr double mainxyMin = -3;
-    constexpr double mainxyMax = 3;
+    constexpr double mainRhoMax = 1.5;
+    constexpr double mainxyMin = -4;
+    constexpr double mainxyMax = 4;
     gridDomain<mainReal> g;
     g.rhomax = mainRhoMax;
     g.rhomin = mainRhoMin;
     g.xmin = g.ymin = mainxyMin;
     g.xmax = g.ymax = mainxyMax;
-    constexpr int xcount = 256, ycount = 256,
-                  rhocount = 1;  // bump up to 64x64x35 later or 128x128x35
+    constexpr int xcount = 64, ycount = 64,
+                  rhocount = 35;  // bump up to 64x64x35 later or 128x128x35
     constexpr mainReal A = 0.5;
     constexpr mainReal B = 1.6;
     constexpr mainReal Normalizer = 50.0;
@@ -187,7 +187,7 @@ int main() {
         std::cout << i << " took:";
         std::cout << measure<std::chrono::milliseconds>::execution(GACalculator<rhocount, xcount, ycount, mainReal>::Factory::newCalculator, calclist[i], g, exact);
         std::cout << " milliseconds to initialize" << std::endl;
-        calcset.emplace_back(GACalculator<rhocount, xcount, ycount, mainReal, 12>::Factory::newCalculator(calclist[i], g, exact)); //change back to padcount variable?
+        calcset.emplace_back(GACalculator<rhocount, xcount, ycount, mainReal, 12>::Factory::newCalculator(calclist[i], g, exact));  //change back to padcount variable?
     }
 
     std::cout << "Done initializing." << std::endl;
