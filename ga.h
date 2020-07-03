@@ -1334,8 +1334,8 @@ class bicubicDotProductGPU
     : public GACalculator<rhocount, xcount, ycount, RealT> {
    private:
     viennacl::compressed_matrix<RealT> vcl_sparse_matrix;
-    viennacl::vector<RealT> gpu_source;
-    viennacl::vector<RealT> gpu_target;
+    //viennacl::vector<RealT> gpu_source;
+    //viennacl::vector<RealT> gpu_target;
 
    public:
     friend class GACalculator<rhocount, xcount, ycount, RealT>;
@@ -1344,10 +1344,11 @@ class bicubicDotProductGPU
         Eigen::SparseMatrix<RealT, Eigen::RowMajor> BCSparseOperator = bicubicDotProductCPU<rhocount, xcount, ycount, RealT>::assembleFastBCCalc(g, f);
         viennacl::copy(BCSparseOperator, vcl_sparse_matrix);
         typename functionGrid<rhocount, xcount, ycount, RealT>::bicubicParameterGrid b = functionGrid<rhocount, xcount, ycount, RealT>::setupBicubicGrid(f);
-        gpu_source.resize(b.data.size());
-        gpu_target.resize(f.gridValues.data.size());
-        gpu_source.clear();
-        gpu_target.clear();
+        //gpu_source.resize(b.data.size());
+        //gpu_target.resize(f.gridValues.data.size());
+        //gpu_source.clear();
+        //gpu_target.clear();
+        std::cout << "no fail 1" << std::endl;
         auto garbage = this->calculate(f);  //call to initialize compute kernel maybe?
         viennacl::backend::finish();
     };
@@ -1370,12 +1371,18 @@ class bicubicDotProductGPU
 
         //        m.clearGrid();
         typename functionGrid<rhocount, xcount, ycount, RealT>::bicubicParameterGrid b = functionGrid<rhocount, xcount, ycount, RealT>::setupBicubicGrid(f);
+        viennacl::vector<RealT> gpu_source(b.data.size());
+        viennacl::copy(b.data.begin(), b.data.end(), gpu_source.begin());
 
-        copy(b.data.begin(), b.data.end(), gpu_source.begin());
-        copy(m.gridValues.data.begin(), m.gridValues.data.end(), gpu_target.begin());
-
+        std::cout << "no fail 2" << std::endl;
+        viennacl::backend::finish();
+        //viennacl::copy(m.gridValues.data.begin(), m.gridValues.data.end(), gpu_target.begin());
+        //viennacl::backend::finish();
         // this is garbage data, I just want to make sure  it's allocated.
-        gpu_target = viennacl::linalg::prod(vcl_sparse_matrix, gpu_source);
+        viennacl::vector<RealT> gpu_target = viennacl::linalg::prod(vcl_sparse_matrix, gpu_source);
+
+        std::cout << "no fail 3" << std::endl;
+        viennacl::backend::finish();
         viennacl::copy(gpu_target.begin(), gpu_target.end(),
                        m.gridValues.data.begin());
         viennacl::backend::finish();

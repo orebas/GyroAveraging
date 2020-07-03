@@ -80,7 +80,7 @@ int main() {
     g.xmin = g.ymin = mainxyMin;
     g.xmax = g.ymax = mainxyMax;
     constexpr int xcount = 64, ycount = 64,
-                  rhocount = 10;  // bump up to 64x64x35 later or 128x128x35
+                  rhocount = 35;  // bump up to 64x64x35 later or 128x128x35
     constexpr mainReal A = 0.5;
     constexpr mainReal B = 1.6;
     constexpr mainReal Normalizer = 50.0;
