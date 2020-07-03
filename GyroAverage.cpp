@@ -60,76 +60,6 @@
 
 #include "ga.h"
 
-void fft_testing() {
-    using namespace OOGA;
-    typedef double mainReal;
-
-    gridDomain<mainReal> g;
-    g.rhomax = 0.25;
-    g.rhomin = 1.55;
-    g.xmin = g.ymin = -2;
-    g.xmax = g.ymax = 2;
-    constexpr int xcount = 4, ycount = 4,
-                  rhocount = 3;  // bump up to 64x64x35 later or 128x128x35
-
-    std::vector<mainReal> rhoset;  //TODO we should write a function to initialize a functiongrid from a gridDomain.
-    std::vector<mainReal> xset;
-    std::vector<mainReal> yset;
-
-    rhoset = LinearSpacedArray<mainReal>(g.rhomin, g.rhomax, rhocount);
-    xset = LinearSpacedArray<mainReal>(g.xmin, g.xmax, xcount);
-    yset = LinearSpacedArray<mainReal>(g.ymin, g.ymax, ycount);
-    for (int p = 0; p < xcount; ++p)
-        for (int q = 0; q < ycount; ++q) {
-            if (p > 3 || q > 3)
-                continue;
-            auto basistest = [p, q, g, xcount, ycount](mainReal row, mainReal ex, mainReal why) -> mainReal {
-                double xint = (ex - g.xmin) / (g.xmax - g.xmin) * (xcount - 1);
-                double yint = (why - g.ymin) / (g.ymax - g.ymin) * (ycount - 1);
-                double dr = DCTBasisFunction2(p, q, xint, yint, xcount);
-                /* std::cout << "row: " << row
-                          << "ex: " << ex
-                          << "why: " << why
-                          << "xint: " << xint
-                          << "yint: " << yint
-                          << "p: " << p
-                          << "q: " << q
-                          << "N: " << xcount
-                          << "dr: " << dr << std::endl;*/
-                return dr;
-            };
-
-            /*auto basistest2 = [p, q, g, xcount, ycount](int row, int ex, int why) -> mainReal {
-                double xint = (ex - g.xmin) / (g.xmax - g.xmin) * xcount;
-                double yint = (why - g.ymin) / (g.ymax - g.ymin) * ycount;
-                return DCTBasisFunction2(p, q, xint, yint, xcount);
-            };*/
-
-            functionGrid<rhocount, xcount, ycount> in(rhoset, xset, yset), in2(rhoset, xset, yset), out(rhoset, xset, yset);
-            //in2.fill(basistest);
-            in2.clearGrid();
-            in2.gridValues(0, p, q) = 1;
-            fftw_plan plan;
-            //plan = fftw_plan_r2r_2d(xcount, ycount, in2.gridValues.data.data(), out.gridValues.data.data(), FFTW_REDFT10, FFTW_REDFT10, FFTW_MEASURE);  //FORWARD "DCT"
-            plan = fftw_plan_r2r_2d(xcount, ycount, in2.gridValues.data.data(), out.gridValues.data.data(), FFTW_REDFT01, FFTW_REDFT01, FFTW_MEASURE);  //INVERSE "DCT"
-            fftw_execute(plan);
-            in2.csvPrinter(0);
-            std::cout << std::endl;
-            out.csvPrinter(0);
-            std::cout << std::endl;
-            in.fill(basistest);
-            in.csvPrinter(0);
-            std::cout << std::endl;
-
-            /*for (int i = 0; i < xcount; ++i) for (int j = 0; j < ycount; ++j) {
-                if (std::abs(out.gridValues(0, i, j) > 0.01))
-                    std::cout << p << " " << q << " " << i << " " << j << " " << out.gridValues(0, i, j) << std::endl;
-            }
-            */
-        }
-    std::cout << std::endl;
-}
-
 constexpr int inline mymax(int a, int b) {
     if (a > b)
         return a;
@@ -140,10 +70,10 @@ int main() {
     //fft_testing();
     using namespace OOGA;
     typedef double mainReal;
-    constexpr double mainRhoMin = 0.25;
-    constexpr double mainRhoMax = 1.55;
-    constexpr double mainxyMin = -4;
-    constexpr double mainxyMax = 4;
+    constexpr mainReal mainRhoMin = 0.25;
+    constexpr mainReal mainRhoMax = 1.55;
+    constexpr mainReal mainxyMin = -4;
+    constexpr mainReal mainxyMax = 4;
     gridDomain<mainReal> g;
     g.rhomax = mainRhoMax;
     g.rhomin = mainRhoMin;
@@ -177,17 +107,19 @@ int main() {
     calclist.push_back(OOGA::calculatorType::DCTCPUCalculator2);
     calclist.push_back(OOGA::calculatorType::DCTCPUPaddedCalculator2);
     //    calclist.push_back(OOGA::calculatorType::bicubicDotProductGPU);
-    //constexpr double padtest = xcount * mainRhoMax / std::abs(mainxyMax - mainxyMin);
+    //constexpr mainReal padtest = xcount * mainRhoMax / std::abs(mainxyMax - mainxyMin);
 
     //constexpr int padcount = mymax(8, 4 + static_cast<int>(std::ceil(padtest)));
 
     for (auto i = 0; i < calclist.size(); ++i) {
         std::cout << "Method ";
-
+        auto func = [&](int j) -> void {
+            calcset.emplace_back(GACalculator<rhocount, xcount, ycount, mainReal, 12>::Factory::newCalculator(calclist[j], g, exact));
+        };
         std::cout << i << " took:";
-        std::cout << measure<std::chrono::milliseconds>::execution(GACalculator<rhocount, xcount, ycount, mainReal>::Factory::newCalculator, calclist[i], g, exact);
+        std::cout << measure<std::chrono::milliseconds>::execution(func, i);
         std::cout << " milliseconds to initialize" << std::endl;
-        calcset.emplace_back(GACalculator<rhocount, xcount, ycount, mainReal, 12>::Factory::newCalculator(calclist[i], g, exact));  //change back to padcount variable?
+        //calcset.emplace_back(GACalculator<rhocount, xcount, ycount, mainReal, 12>::Factory::newCalculator(calclist[i], g, exact));  //change back to padcount variable?
     }
 
     std::cout << "Done initializing." << std::endl;
@@ -200,16 +132,16 @@ int main() {
     };
     //const int p = 3, q = 6;
     /*auto basistest = [p, q, g, xcount, ycount](mainReal row, mainReal ex, mainReal why) -> mainReal {
-        double xint = (ex - g.xmin) / (g.xmax - g.xmin) * (xcount - 1);
-        double yint = (why - g.ymin) / (g.ymax - g.ymin) * (ycount - 1);
+        mainReal xint = (ex - g.xmin) / (g.xmax - g.xmin) * (xcount - 1);
+        mainReal yint = (why - g.ymin) / (g.ymax - g.ymin) * (ycount - 1);
         return DCTBasisFunction2(p, q, xint, yint, xcount);
     };*/
 
     /*for (int p = 0; p < xcount; p++)
         for (int q = 0; q < ycount; q++) {
             auto basistest = [p, q, g, xcount, ycount](mainReal row, mainReal ex, mainReal why) -> mainReal {
-                double xint = (ex - g.xmin) / (g.xmax - g.xmin) * xcount;
-                double yint = (why - g.ymin) / (g.ymax - g.ymin) * ycount;
+                mainReal xint = (ex - g.xmin) / (g.xmax - g.xmin) * xcount;
+                mainReal yint = (why - g.ymin) / (g.ymax - g.ymin) * ycount;
                 return DCTBasisFunction2(p, q, xint, yint, xcount);
             };*/
 
@@ -273,6 +205,76 @@ int main() {
         r.csvPrinter(0);
         std::cout << std::endl;
     }*/
+}
+
+void fft_testing() {
+    using namespace OOGA;
+    typedef double mainReal;
+
+    gridDomain<mainReal> g;
+    g.rhomax = 0.25;
+    g.rhomin = 1.55;
+    g.xmin = g.ymin = -2;
+    g.xmax = g.ymax = 2;
+    constexpr int xcount = 4, ycount = 4,
+                  rhocount = 3;  // bump up to 64x64x35 later or 128x128x35
+
+    std::vector<mainReal> rhoset;  //TODO we should write a function to initialize a functiongrid from a gridDomain.
+    std::vector<mainReal> xset;
+    std::vector<mainReal> yset;
+
+    rhoset = LinearSpacedArray<mainReal>(g.rhomin, g.rhomax, rhocount);
+    xset = LinearSpacedArray<mainReal>(g.xmin, g.xmax, xcount);
+    yset = LinearSpacedArray<mainReal>(g.ymin, g.ymax, ycount);
+    for (int p = 0; p < xcount; ++p)
+        for (int q = 0; q < ycount; ++q) {
+            if (p > 3 || q > 3)
+                continue;
+            auto basistest = [p, q, g, xcount, ycount](mainReal row, mainReal ex, mainReal why) -> mainReal {
+                mainReal xint = (ex - g.xmin) / (g.xmax - g.xmin) * (xcount - 1);
+                mainReal yint = (why - g.ymin) / (g.ymax - g.ymin) * (ycount - 1);
+                mainReal dr = DCTBasisFunction2(p, q, xint, yint, xcount);
+                /* std::cout << "row: " << row
+                          << "ex: " << ex
+                          << "why: " << why
+                          << "xint: " << xint
+                          << "yint: " << yint
+                          << "p: " << p
+                          << "q: " << q
+                          << "N: " << xcount
+                          << "dr: " << dr << std::endl;*/
+                return dr;
+            };
+
+            /*auto basistest2 = [p, q, g, xcount, ycount](int row, int ex, int why) -> mainReal {
+                mainReal xint = (ex - g.xmin) / (g.xmax - g.xmin) * xcount;
+                mainReal yint = (why - g.ymin) / (g.ymax - g.ymin) * ycount;
+                return DCTBasisFunction2(p, q, xint, yint, xcount);
+            };*/
+
+            functionGrid<rhocount, xcount, ycount> in(rhoset, xset, yset), in2(rhoset, xset, yset), out(rhoset, xset, yset);
+            //in2.fill(basistest);
+            in2.clearGrid();
+            in2.gridValues(0, p, q) = 1;
+            fftw_plan plan;
+            //plan = fftw_plan_r2r_2d(xcount, ycount, in2.gridValues.data.data(), out.gridValues.data.data(), FFTW_REDFT10, FFTW_REDFT10, FFTW_MEASURE);  //FORWARD "DCT"
+            plan = fftw_plan_r2r_2d(xcount, ycount, in2.gridValues.data.data(), out.gridValues.data.data(), FFTW_REDFT01, FFTW_REDFT01, FFTW_MEASURE);  //INVERSE "DCT"
+            fftw_execute(plan);
+            in2.csvPrinter(0);
+            std::cout << std::endl;
+            out.csvPrinter(0);
+            std::cout << std::endl;
+            in.fill(basistest);
+            in.csvPrinter(0);
+            std::cout << std::endl;
+
+            /*for (int i = 0; i < xcount; ++i) for (int j = 0; j < ycount; ++j) {
+                if (std::abs(out.gridValues(0, i, j) > 0.01))
+                    std::cout << p << " " << q << " " << i << " " << j << " " << out.gridValues(0, i, j) << std::endl;
+            }
+            */
+        }
+    std::cout << std::endl;
 }
 
 namespace OOGA {
