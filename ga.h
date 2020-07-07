@@ -410,7 +410,8 @@ enum class calculatorType { linearCPU,
                             DCTCPUCalculator,
                             DCTCPUCalculator2,
                             DCTCPUPaddedCalculator2,
-                            bicubicDotProductGPU };
+                            bicubicDotProductGPU,
+                            linearDotProductGPU };
 
 template <int rhocount, int xcount, int ycount, class RealT = double, int padcount = 0>
 class GACalculator {
@@ -1391,6 +1392,69 @@ class bicubicDotProductGPU
 };
 // GPU Bicubic DP
 
+// GPU Linear DP
+template <int rhocount, int xcount, int ycount, class RealT = double>
+class linearDotProductGPU
+    : public GACalculator<rhocount, xcount, ycount, RealT> {
+   private:
+    viennacl::compressed_matrix<RealT> vcl_sparse_matrix;
+    //viennacl::vector<RealT> gpu_source;
+    //viennacl::vector<RealT> gpu_target;
+
+   public:
+    friend class GACalculator<rhocount, xcount, ycount, RealT>;
+    linearDotProductGPU(const gridDomain<RealT> &g, functionGrid<rhocount, xcount, ycount, RealT> &f)
+        : vcl_sparse_matrix(xcount * ycount * rhocount, xcount * ycount * rhocount * 16) {
+        Eigen::SparseMatrix<RealT, Eigen::RowMajor> BCSparseOperator = linearDotProductCPU<rhocount, xcount, ycount, RealT>::assembleFastBCCalc(g, f);
+        viennacl::copy(BCSparseOperator, vcl_sparse_matrix);
+        typename functionGrid<rhocount, xcount, ycount, RealT>::linearParameterGrid b = functionGrid<rhocount, xcount, ycount, RealT>::setuplinearGrid(f);
+        //gpu_source.resize(b.data.size());
+        //gpu_target.resize(f.gridValues.data.size());
+        //gpu_source.clear();
+        //gpu_target.clear();
+        std::cout << "no fail 1" << std::endl;
+        auto garbage = this->calculate(f);  //call to initialize compute kernel maybe?
+        viennacl::backend::finish();
+    };
+    ~linearDotProductGPU(){
+
+    };
+
+    static std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
+    create(const gridDomain<RealT> &g, functionGrid<rhocount, xcount, ycount, RealT> &f) {
+        return std::make_unique<linearDotProductGPU>(g, f);
+    }
+    std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>> clone() {
+        return std::make_unique<linearDotProductGPU>(*this);
+    } /*maybe disable this functionality */
+
+    functionGrid<rhocount, xcount, ycount, RealT> calculate(
+        functionGrid<rhocount, xcount, ycount, RealT> &f) {
+        functionGrid<rhocount, xcount, ycount, RealT> m =
+            f;
+
+        //        m.clearGrid();
+        typename functionGrid<rhocount, xcount, ycount, RealT>::linearParameterGrid b = functionGrid<rhocount, xcount, ycount, RealT>::setuplinearGrid(f);
+        viennacl::vector<RealT> gpu_source(b.data.size());
+        viennacl::copy(b.data.begin(), b.data.end(), gpu_source.begin());
+
+        std::cout << "no fail 2" << std::endl;
+        viennacl::backend::finish();
+        //viennacl::copy(m.gridValues.data.begin(), m.gridValues.data.end(), gpu_target.begin());
+        //viennacl::backend::finish();
+        // this is garbage data, I just want to make sure  it's allocated.
+        viennacl::vector<RealT> gpu_target = viennacl::linalg::prod(vcl_sparse_matrix, gpu_source);
+
+        std::cout << "no fail 3" << std::endl;
+        viennacl::backend::finish();
+        viennacl::copy(gpu_target.begin(), gpu_target.end(),
+                       m.gridValues.data.begin());
+        viennacl::backend::finish();
+        return m;
+    }
+};
+// GPU Linear DP
+
 template <int rhocount, int xcount, int ycount, class RealT, int padcount>
 std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
 GACalculator<rhocount, xcount, ycount, RealT, padcount>::Factory::newCalculator(
@@ -1411,6 +1475,8 @@ GACalculator<rhocount, xcount, ycount, RealT, padcount>::Factory::newCalculator(
         return DCTCPUPaddedCalculator<rhocount, xcount, ycount, padcount, RealT>::create(g);
     else if (c == calculatorType::bicubicDotProductGPU)
         return bicubicDotProductGPU<rhocount, xcount, ycount, RealT>::create(g, f);
+    else if (c == calculatorType::linearDotProductGPU)
+        return linearDotProductGPU<rhocount, xcount, ycount, RealT>::create(g, f);
     else
         return linearCPUCalculator<rhocount, xcount, ycount, RealT>::create();
 }
