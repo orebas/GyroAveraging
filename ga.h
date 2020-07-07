@@ -1349,7 +1349,7 @@ class bicubicDotProductGPU
         //gpu_target.resize(f.gridValues.data.size());
         //gpu_source.clear();
         //gpu_target.clear();
-        std::cout << "no fail 1" << std::endl;
+	//        std::cout << "no fail 1" << std::endl;
         auto garbage = this->calculate(f);  //call to initialize compute kernel maybe?
         viennacl::backend::finish();
     };
@@ -1375,14 +1375,14 @@ class bicubicDotProductGPU
         viennacl::vector<RealT> gpu_source(b.data.size());
         viennacl::copy(b.data.begin(), b.data.end(), gpu_source.begin());
 
-        std::cout << "no fail 2" << std::endl;
+        //std::cout << "no fail 2" << std::endl;
         viennacl::backend::finish();
         //viennacl::copy(m.gridValues.data.begin(), m.gridValues.data.end(), gpu_target.begin());
         //viennacl::backend::finish();
         // this is garbage data, I just want to make sure  it's allocated.
         viennacl::vector<RealT> gpu_target = viennacl::linalg::prod(vcl_sparse_matrix, gpu_source);
 
-        std::cout << "no fail 3" << std::endl;
+        //std::cout << "no fail 3" << std::endl;
         viennacl::backend::finish();
         viennacl::copy(gpu_target.begin(), gpu_target.end(),
                        m.gridValues.data.begin());
