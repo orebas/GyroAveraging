@@ -1,0 +1,62 @@
+Number of RealT  products needed for BC calc: 114624 and rough memory usage is 1833984
+Number of RealT  products needed for BC calc: 114624 and rough memory usage is 1833984
+Number of RealT  products needed for BC calc: 14784 and rough memory usage is 236544
+Number of RealT  products needed for BC calc: 14784 and rough memory usage is 236544
+linear interp, trapezoid rule, CPU ;8;0;2.69164e+07;8; 0.678883 0.976661 0.966808;
+linear interp, CPU Sparse Matrix   ;8;23;4055;8; 0.678883 0.976664 0.96679;
+linear interp, GPU Sparse Matrix   ;8;21;101095;8; 0.678883 0.976664 0.96679;
+bicubic interp, trapezoid rule, CPU;8;0;2.75777e+07;8; 0.366431 0.971364 0.949142;
+bicubic interp, CPU Sparse Matrix  ;8;86;44132;8; 0.366431 0.971364 0.949142;
+bicubic interp, GPU Sparse Matrix  ;8;87;126521;8; 0.366431 0.971364 0.949142;
+DCT+Bessel+IDCT                    ;8;0;2360;8; 0.363903 0.969063 0.946268;
+DCT+Bessel+IDCT, on padded grid    ;8;6;58736;8; 0.363915 0.969079 0.946355;
+Number of RealT  products needed for BC calc: 114624 and rough memory usage is 1833984
+Number of RealT  products needed for BC calc: 114624 and rough memory usage is 1833984
+linear interp, trapezoid rule, CPU ;16;0;6.35002e+07;8; 0.496571 0.453174 0.461893;
+linear interp, CPU Sparse Matrix   ;16;28;23708;8; 0.496754 0.452741 0.463296;
+linear interp, GPU Sparse Matrix   ;16;18;154327;8; 0.496754 0.452741 0.463296;
+bicubic interp, trapezoid rule, CPU;16;0;8.17195e+07;8; 0.0549945 0.298743 0.293334;
+bicubic interp, CPU Sparse Matrix  ;16;82;1.02631e+07;8; 0.0549945 0.298743 0.293334;
+bicubic interp, GPU Sparse Matrix  ;16;38;315277;8; 0.0549945 0.298743 0.293334;
+DCT+Bessel+IDCT                    ;16;0;18048;8; 0.0464276 0.245049 0.247834;
+DCT+Bessel+IDCT, on padded grid    ;16;1;202160;8; 0.0464324 0.245163 0.248143;
+Number of RealT  products needed for BC calc: 996032 and rough memory usage is 15936512
+Number of RealT  products needed for BC calc: 996032 and rough memory usage is 15936512
+linear interp, trapezoid rule, CPU ;32;0;2.70971e+08;8; 0.254083 0.203916 0.243242;
+linear interp, CPU Sparse Matrix   ;32;52;2.33157e+07;8; 0.254174 0.203195 0.241939;
+linear interp, GPU Sparse Matrix   ;32;55;125920;8; 0.254174 0.203195 0.241939;
+bicubic interp, trapezoid rule, CPU;32;0;2.14924e+08;8; 0.0124653 0.012718 0.0245702;
+bicubic interp, CPU Sparse Matrix  ;32;111;2.55931e+07;8; 0.0124653 0.0127186 0.0245702;
+bicubic interp, GPU Sparse Matrix  ;32;304;851405;8; 0.0124653 0.0127186 0.0245702;
+DCT+Bessel+IDCT                    ;32;3;58755;8; 0.000301499 0.00114525 0.00307987;
+DCT+Bessel+IDCT, on padded grid    ;32;21;589188;8; 0.000301954 0.00114726 0.00310871;
+Number of RealT  products needed for BC calc: 7764672 and rough memory usage is 124234752
+Number of RealT  products needed for BC calc: 7764672 and rough memory usage is 124234752
+linear interp, trapezoid rule, CPU ;64;0;8.36447e+08;8; 0.0114864 0.0654845 0.0952604;
+linear interp, CPU Sparse Matrix   ;64;258;3.14919e+06;8; 0.0113723 0.0648323 0.093595;
+linear interp, GPU Sparse Matrix   ;64;439;264030;8; 0.0113723 0.0648323 0.093595;
+bicubic interp, trapezoid rule, CPU;64;0;9.1574e+08;8; 0.00107645 0.000648703 0.000897311;
+bicubic interp, CPU Sparse Matrix  ;64;723;2.0413e+07;8; 0.00107645 0.000648703 0.000897312;
+bicubic interp, GPU Sparse Matrix  ;64;3007;6.0488e+06;8; 0.00107645 0.000648703 0.000897312;
+DCT+Bessel+IDCT                    ;64;15;392938;8; 2.06041e-11 2.80902e-10 6.42823e-10;
+DCT+Bessel+IDCT, on padded grid    ;64;61;4.33664e+06;8; 2.09354e-11 2.88096e-10 6.75307e-10;
+Number of RealT  products needed for BC calc: 63479232 and rough memory usage is 1015667712
+Number of RealT  products needed for BC calc: 63479232 and rough memory usage is 1015667712
+linear interp, trapezoid rule, CPU ;128;0;4.24081e+09;8; 0.0111049 0.0338178 0.0320627;
+linear interp, CPU Sparse Matrix   ;128;1860;2.54855e+07;8; 0.0110332 0.0336218 0.0316748;
+linear interp, GPU Sparse Matrix   ;128;3320;931098;8; 0.0110332 0.0336218 0.0316748;
+bicubic interp, trapezoid rule, CPU;128;0;4.3481e+09;8; 3.99008e-05 2.23955e-05 2.91647e-05;
+bicubic interp, CPU Sparse Matrix  ;128;5907;4.31058e+07;8; 3.99008e-05 2.23936e-05 2.91787e-05;
+bicubic interp, GPU Sparse Matrix  ;128;24834;1.73646e+07;8; 3.99008e-05 2.23936e-05 2.91787e-05;
+DCT+Bessel+IDCT                    ;128;24;1.47271e+06;8; 3.70046e-16 6.50243e-16 3.50395e-15;
+DCT+Bessel+IDCT, on padded grid    ;128;164;2.77469e+07;8; 1.85023e-16 8.6699e-16 3.37417e-15;
+Number of RealT  products needed for BC calc: 520723840 and rough memory usage is 8331581440
+Number of RealT  products needed for BC calc: 520723840 and rough memory usage is 8331581440
+linear interp, trapezoid rule, CPU ;256;0;1.85635e+10;8; 0.00618519 0.0114853 0.0109311;
+linear interp, CPU Sparse Matrix   ;256;15185;3.25853e+07;8; 0.00626712 0.0114496 0.0104144;
+linear interp, GPU Sparse Matrix   ;256;34288;6.65584e+06;8; 0.00626712 0.0114496 0.0104144;
+bicubic interp, trapezoid rule, CPU;256;7;1.48407e+10;8; 1.7944e-06 9.71023e-07 1.39966e-06;
+bicubic interp, CPU Sparse Matrix  ;256;35994;2.43407e+08;8; 1.79456e-06 9.71756e-07 1.28862e-06;
+bicubic interp, GPU Sparse Matrix  ;256;219376;9.96949e+07;8; 1.79456e-06 9.71756e-07 1.28862e-06;
+DCT+Bessel+IDCT                    ;256;99;8.83698e+06;8; 3.66201e-16 1.21875e-15 6.87792e-15;
+DCT+Bessel+IDCT, on padded grid    ;256;856;7.92654e+07;8; 3.66201e-16 1.3e-15 6.55349e-15;
