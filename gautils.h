@@ -261,6 +261,7 @@ std::array<float, 4> operator+(const std::array<float, 4> &l, const std::array<f
     return ret;
 }
 
+
 }  // namespace OOGA
 
 #endif  //GYROAVERGING_UTILS_H

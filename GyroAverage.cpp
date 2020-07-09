@@ -66,27 +66,102 @@ constexpr int inline mymax(int a, int b) {
     else
         return b;
 }
+
+struct resultsRecord {
+    OOGA::calculatorType type;
+    int N;
+    std ::vector<double> error;
+    std::vector<double> rhoset;
+    double initTime;
+    double calcTime;
+    int bits;
+    friend std::ostream& operator<<(std::ostream& output, const resultsRecord& r) {
+        auto nameMap = OOGA::calculatorNameMap();
+        output << nameMap[r.type] << ";"
+               << r.N << ";"
+               << r.initTime << ";"
+               << r.calcTime << ";"
+
+               << r.bits << ";";
+        for (auto e : r.error)
+            output << " " << e;
+        output << ";";
+
+        return output;
+    }
+};
+
+template <int N, int rhocount, class RealT, typename TFunc1>
+std::vector<resultsRecord> testRun(const std::vector<OOGA::calculatorType>& calclist, TFunc1 testfunc, OOGA::gridDomain<RealT>& g) {
+    using namespace OOGA;
+    std::vector<resultsRecord> runResults;
+    constexpr int xcount = N;
+    constexpr int ycount = N;
+    std::vector<RealT> rhoset;
+    std::vector<RealT> xset;
+    std::vector<RealT> yset;
+
+    rhoset = LinearSpacedArray<RealT>(g.rhomin, g.rhomax, rhocount);
+    xset = LinearSpacedArray<RealT>(g.xmin, g.xmax, xcount);
+    yset = LinearSpacedArray<RealT>(g.ymin, g.ymax, ycount);
+
+    functionGrid<rhocount, xcount, ycount> f(rhoset, xset, yset),
+        exact(rhoset, xset, yset), result(rhoset, xset, yset);
+
+    std::vector<std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>> calcset;
+    exact.fillAlmostExactGA(testfunc);
+    for (auto i = 0; i < calclist.size(); ++i) {
+        auto func = [&](int j) -> void {
+            calcset.emplace_back(GACalculator<rhocount, xcount, ycount, RealT, N>::Factory::newCalculator(calclist[j], g, exact));  //we are using precisely 2x padding for the padcount.
+        };
+        double initTime = measure<std::chrono::milliseconds>::execution(func, i);  // TODO:  try to use a more accurate padcount
+        f.fill(testfunc);
+        auto& b = f;
+        auto func2 = [&](void) -> void {
+            calcset.back()->calculate(b);
+        };
+
+        double calcTime = measure<std::chrono::nanoseconds>::execution2(func2);
+        result = (calcset.back()->calculate(f));
+        resultsRecord r;
+        r.type = calclist[i];
+        r.N = N;
+        r.rhoset = rhoset;
+        r.initTime = initTime;
+        r.calcTime = calcTime;
+        r.bits = sizeof(RealT);
+        r.error = rhoset;
+        for (int k = 0; k < rhocount; ++k)
+            r.error[k] = exact.maxNormDiff(result.gridValues, k) / exact.maxNorm(k);
+
+        runResults.push_back(r);
+        calcset.back().reset();
+    }
+    return runResults;
+}
+
 int main() {
     //fft_testing();
     using namespace OOGA;
     typedef double mainReal;
     constexpr mainReal mainRhoMin = 0.25;
-    constexpr mainReal mainRhoMax = 1.55;
-    constexpr mainReal mainxyMin = -4;
-    constexpr mainReal mainxyMax = 4;
+    constexpr mainReal mainRhoMax = 3;
+    constexpr mainReal mainxyMin = -8;
+    constexpr mainReal mainxyMax = 8;
     gridDomain<mainReal> g;
     g.rhomax = mainRhoMax;
     g.rhomin = mainRhoMin;
     g.xmin = g.ymin = mainxyMin;
     g.xmax = g.ymax = mainxyMax;
-    constexpr int xcount = 64, ycount = 64,
-                  rhocount = 35;  // bump up to 64x64x35 later or 128x128x35
-    constexpr mainReal A = 0.5;
-    constexpr mainReal B = 1.6;
+    constexpr int xcount = 16, ycount = 16,
+                  rhocount = 3;  // bump up to 64x64x35 later or 128x128x35
+    constexpr mainReal A = 2;
+    constexpr mainReal B = 2;
     constexpr mainReal Normalizer = 50.0;
     std::vector<mainReal> rhoset;
     std::vector<mainReal> xset;
     std::vector<mainReal> yset;
+    auto nameMap = OOGA::calculatorNameMap();
 
     rhoset = LinearSpacedArray<mainReal>(g.rhomin, g.rhomax, rhocount);
     xset = LinearSpacedArray<mainReal>(g.xmin, g.xmax, xcount);
@@ -99,19 +174,16 @@ int main() {
     std::vector<OOGA::calculatorType> calclist;
     calclist.push_back(OOGA::calculatorType::linearCPU);
     calclist.push_back(OOGA::calculatorType::linearDotProductCPU);
+    calclist.push_back(OOGA::calculatorType::linearDotProductGPU);
     calclist.push_back(OOGA::calculatorType::bicubicCPU);
     calclist.push_back(OOGA::calculatorType::bicubicDotProductCPU);
     calclist.push_back(OOGA::calculatorType::bicubicDotProductGPU);
-
-    //calclist.push_back(OOGA::calculatorType::DCTCPUCalculator);
     calclist.push_back(OOGA::calculatorType::DCTCPUCalculator2);
     calclist.push_back(OOGA::calculatorType::DCTCPUPaddedCalculator2);
-    //    calclist.push_back(OOGA::calculatorType::bicubicDotProductGPU);
     //constexpr mainReal padtest = xcount * mainRhoMax / std::abs(mainxyMax - mainxyMin);
-
     //constexpr int padcount = mymax(8, 4 + static_cast<int>(std::ceil(padtest)));
 
-    for (auto i = 0; i < calclist.size(); ++i) {
+    /*for (auto i = 0; i < calclist.size(); ++i) {
         std::cout << "Method ";
         auto func = [&](int j) -> void {
             calcset.emplace_back(GACalculator<rhocount, xcount, ycount, mainReal, 12>::Factory::newCalculator(calclist[j], g, exact));
@@ -119,10 +191,9 @@ int main() {
         std::cout << i << " took:";
         std::cout << measure<std::chrono::milliseconds>::execution(func, i);
         std::cout << " milliseconds to initialize" << std::endl;
-        //calcset.emplace_back(GACalculator<rhocount, xcount, ycount, mainReal, 12>::Factory::newCalculator(calclist[i], g, exact));  //change back to padcount variable?
-    }
+      }*/
 
-    std::cout << "Done initializing." << std::endl;
+    //std::cout << "Done initializing." << std::endl;
     auto testfunc2 = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
         return Normalizer * exp(-A * (ex * ex + why * why)) * exp(-B * row * row);
     };
@@ -130,6 +201,8 @@ int main() {
         return Normalizer * exp(-B * row * row) * exp(-A * (ex * ex + why * why + row * row)) *
                boost::math::cyl_bessel_i(0, 2 * A * row * std::sqrt(ex * ex + why * why));
     };
+
+    auto res = testRun<16, rhocount, double>(calclist, testfunc2, g);
     //const int p = 3, q = 6;
     /*auto basistest = [p, q, g, xcount, ycount](mainReal row, mainReal ex, mainReal why) -> mainReal {
         mainReal xint = (ex - g.xmin) / (g.xmax - g.xmin) * (xcount - 1);
@@ -145,19 +218,10 @@ int main() {
                 return DCTBasisFunction2(p, q, xint, yint, xcount);
             };*/
 
-    std::vector<functionGrid<rhocount, xcount, ycount, mainReal>> results;
-    exact.fillTruncatedAlmostExactGA(testfunc2);  //this is not the analytic function.
+    /*std::vector<functionGrid<rhocount, xcount, ycount, mainReal>> results;
+    exact.fill(testfunc2_analytic);  //this is not the analytic function.
     results.push_back(exact);
     f.fill(testfunc2);
-    //std::cout << std::endl;
-
-    //f.csvPrinter(0);
-    //std::cout << std::endl;
-    //std::cout << std::endl;
-
-    //exact.csvPrinter(0);
-    //std::cout << std::endl;
-    //std::cout << std::endl;
     int counter = 0;
     for (auto& c : calcset) {
         std::cout << "Method ";
@@ -176,35 +240,38 @@ int main() {
     Eigen::MatrixXd maxnorm(s, s), rms(s, s);
     for (int i = 0; i < s; i++)
         for (int j = 0; j < s; j++) {
-            maxnorm(i, j) = results[i].maxNormDiff(results[j].gridValues, 0);
-            rms(i, j) = results[i].RMSNormDiff(results[j].gridValues, 0);
+            maxnorm(i, j) = results[i].maxNormDiff(results[j].gridValues, 29);
+            rms(i, j) = results[i].RMSNormDiff(results[j].gridValues, 29);
         }
     std::cout << maxnorm << std::endl
               << std::endl
               << std::endl
               << rms << std::endl
-              << std::endl;
+              << std::endl;*/
 
-    /*results.back().csvPrinter(0);
-    std::cout << std::endl
-              << std::endl;
-    results.front().csvPrinter(0);
-    std::cout
-        << std::endl
-        << std::endl;
+    auto res1 = testRun<8, rhocount, double>(calclist, testfunc2, g);
+    for (auto r : res1)
+        std::cout << r << std::endl;
 
-    f.csvPrinter(0);
-    std::cout
-        << std::endl
-        << std::endl;
-*/
-    //exact.fillTruncatedAlmostExactGA(basistest);
+    res1 = testRun<16, rhocount, double>(calclist, testfunc2, g);
+    for (auto r : res1)
+        std::cout << r << std::endl;
 
-    /*for (auto& r : results) {
-        std::cout << std::endl;
-        r.csvPrinter(0);
-        std::cout << std::endl;
-    }*/
+    res1 = testRun<32, rhocount, double>(calclist, testfunc2, g);
+    for (auto r : res1)
+        std::cout << r << std::endl;
+
+    res1 = testRun<64, rhocount, double>(calclist, testfunc2, g);
+    for (auto r : res1)
+        std::cout << r << std::endl;
+
+    res1 = testRun<128, rhocount, double>(calclist, testfunc2, g);
+    for (auto r : res1)
+        std::cout << r << std::endl;
+
+    res1 = testRun<256, rhocount, double>(calclist, testfunc2, g);
+    for (auto r : res1)
+        std::cout << r << std::endl;
 }
 
 void fft_testing() {

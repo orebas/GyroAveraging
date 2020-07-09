@@ -12,6 +12,7 @@
 #include <cmath>
 #include <iostream>
 #include <iterator>
+#include <string>
 #include <vector>
 
 #include "gautils.h"
@@ -413,6 +414,39 @@ enum class calculatorType { linearCPU,
                             bicubicDotProductGPU,
                             linearDotProductGPU };
 
+std::map<OOGA::calculatorType, std::string> calculatorNameMap(void) {
+    std::map<OOGA::calculatorType, std::string> nameMap;
+    nameMap[OOGA::calculatorType::linearCPU] =
+        "linear interp, trapezoid rule, CPU ";
+    nameMap[OOGA::calculatorType::linearDotProductCPU] =
+        "linear interp, CPU Sparse Matrix   ";
+    nameMap[OOGA::calculatorType::bicubicCPU] =
+        "bicubic interp, trapezoid rule, CPU";
+    nameMap[OOGA::calculatorType::bicubicDotProductCPU] =
+        "bicubic interp, CPU Sparse Matrix  ";
+    nameMap[OOGA::calculatorType::DCTCPUCalculator] =
+        "Very slow fourier Method - deprecated";
+    nameMap[OOGA::calculatorType::DCTCPUCalculator2] =
+        "DCT+Bessel+IDCT                    ";
+    nameMap[OOGA::calculatorType::DCTCPUPaddedCalculator2] =
+        "DCT+Bessel+IDCT, on padded grid    ";
+    nameMap[OOGA::calculatorType::bicubicDotProductGPU] =
+        "bicubic interp, GPU Sparse Matrix  ";
+    nameMap[OOGA::calculatorType::linearDotProductGPU] =
+        "linear interp, GPU Sparse Matrix   ";
+
+    /*                      linearCPU,
+                            linearDotProductCPU,
+                            bicubicCPU,
+                            bicubicDotProductCPU,
+                            DCTCPUCalculator,
+                            DCTCPUCalculator2,
+                            DCTCPUPaddedCalculator2,
+                            bicubicDotProductGPU,
+                            linearDotProductGPU*/
+    return nameMap;
+}
+
 template <int rhocount, int xcount, int ycount, class RealT = double, int padcount = 0>
 class GACalculator {
    public:
@@ -463,13 +497,10 @@ template <int rhocount, int xcount, int ycount, class RealT = double>
 class linearDotProductCPU
     : public GACalculator<rhocount, xcount, ycount, RealT> {
    private:
-    Eigen::SparseMatrix<RealT, Eigen::RowMajor> LTOffsetTensor;
+    Eigen::SparseMatrix<RealT, Eigen::RowMajor> linearSparseTensor;
 
    public:
     friend class GACalculator<rhocount, xcount, ycount, RealT>;
-    linearDotProductCPU(const gridDomain<double> &g, functionGrid<rhocount, xcount, ycount, RealT> &f) {
-        assembleFastGACalc(g, f);
-    };
     ~linearDotProductCPU(){
 
     };
@@ -481,7 +512,8 @@ class linearDotProductCPU
         return std::make_unique<linearDotProductCPU>(*this);
     } /*maybe disable this functionality */
 
-    void assembleFastGACalc(const gridDomain<double> &g, functionGrid<rhocount, xcount, ycount, RealT> &f) {
+    static Eigen::SparseMatrix<RealT, Eigen::RowMajor> assembleFastGACalc(const gridDomain<double> &g, functionGrid<rhocount, xcount, ycount, RealT> &f) {
+        Eigen::SparseMatrix<RealT, Eigen::RowMajor> LTOffsetTensor;
         LTOffsetTensor.setZero();
         std::vector<std::vector<Eigen::Triplet<RealT>>>
             TripletVecVec(rhocount);
@@ -623,11 +655,15 @@ class linearDotProductCPU
         LTOffsetTensor.resize(rhocount * xcount * ycount,
                               rhocount * xcount * ycount);
         LTOffsetTensor.setFromTriplets(Triplets.begin(), Triplets.end());
+        return LTOffsetTensor;
 
         // std::cout << "Number of RealT  products needed for LT calc: " <<
         // LTOffsetTensor.nonZeros() << " and rough memory usage is " <<
         // LTOffsetTensor.nonZeros() * (sizeof(RealT) + sizeof(long)) << std::endl;
     }
+    linearDotProductCPU(const gridDomain<double> &g, functionGrid<rhocount, xcount, ycount, RealT> &f) {
+        linearSparseTensor = assembleFastGACalc(g, f);
+    };
 
     functionGrid<rhocount, xcount, ycount, RealT> calculate(
         functionGrid<rhocount, xcount, ycount, RealT> &f) {
@@ -639,7 +675,7 @@ class linearDotProductCPU
             f.gridValues.data.data());
         Eigen::Map<Eigen::Matrix<RealT, rhocount * xcount * ycount, 1>> target(
             m.gridValues.data.data());
-        target = LTOffsetTensor * source;
+        target = linearSparseTensor * source;
         return m;
     }
 };
@@ -1349,7 +1385,7 @@ class bicubicDotProductGPU
         //gpu_target.resize(f.gridValues.data.size());
         //gpu_source.clear();
         //gpu_target.clear();
-	//        std::cout << "no fail 1" << std::endl;
+        //        std::cout << "no fail 1" << std::endl;
         auto garbage = this->calculate(f);  //call to initialize compute kernel maybe?
         viennacl::backend::finish();
     };
@@ -1398,21 +1434,15 @@ class linearDotProductGPU
     : public GACalculator<rhocount, xcount, ycount, RealT> {
    private:
     viennacl::compressed_matrix<RealT> vcl_sparse_matrix;
-    //viennacl::vector<RealT> gpu_source;
-    //viennacl::vector<RealT> gpu_target;
 
    public:
     friend class GACalculator<rhocount, xcount, ycount, RealT>;
     linearDotProductGPU(const gridDomain<RealT> &g, functionGrid<rhocount, xcount, ycount, RealT> &f)
-        : vcl_sparse_matrix(xcount * ycount * rhocount, xcount * ycount * rhocount * 16) {
-        Eigen::SparseMatrix<RealT, Eigen::RowMajor> BCSparseOperator = linearDotProductCPU<rhocount, xcount, ycount, RealT>::assembleFastBCCalc(g, f);
-        viennacl::copy(BCSparseOperator, vcl_sparse_matrix);
-        typename functionGrid<rhocount, xcount, ycount, RealT>::linearParameterGrid b = functionGrid<rhocount, xcount, ycount, RealT>::setuplinearGrid(f);
-        //gpu_source.resize(b.data.size());
-        //gpu_target.resize(f.gridValues.data.size());
-        //gpu_source.clear();
-        //gpu_target.clear();
-        std::cout << "no fail 1" << std::endl;
+        : vcl_sparse_matrix(xcount * ycount * rhocount, xcount * ycount * rhocount) {
+        Eigen::SparseMatrix<RealT, Eigen::RowMajor> GASparseOperator = linearDotProductCPU<rhocount, xcount, ycount, RealT>::assembleFastGACalc(g, f);
+        viennacl::copy(GASparseOperator, vcl_sparse_matrix);
+        //typename functionGrid<rhocount, xcount, ycount, RealT>::linearParameterGrid b = functionGrid<rhocount, xcount, ycount, RealT>::setuplinearGrid(f);
+        //std::cout << "no fail 1" << std::endl;
         auto garbage = this->calculate(f);  //call to initialize compute kernel maybe?
         viennacl::backend::finish();
     };
@@ -1434,18 +1464,18 @@ class linearDotProductGPU
             f;
 
         //        m.clearGrid();
-        typename functionGrid<rhocount, xcount, ycount, RealT>::linearParameterGrid b = functionGrid<rhocount, xcount, ycount, RealT>::setuplinearGrid(f);
-        viennacl::vector<RealT> gpu_source(b.data.size());
-        viennacl::copy(b.data.begin(), b.data.end(), gpu_source.begin());
+        //typename functionGrid<rhocount, xcount, ycount, RealT>::linearParameterGrid b = functionGrid<rhocount, xcount, ycount, RealT>::setuplinearGrid(f);
+        viennacl::vector<RealT> gpu_source(f.gridValues.data.size());
+        viennacl::copy(f.gridValues.data.begin(), f.gridValues.data.end(), gpu_source.begin());
 
-        std::cout << "no fail 2" << std::endl;
+        //std::cout << "no fail 2" << std::endl;
         viennacl::backend::finish();
         //viennacl::copy(m.gridValues.data.begin(), m.gridValues.data.end(), gpu_target.begin());
         //viennacl::backend::finish();
         // this is garbage data, I just want to make sure  it's allocated.
         viennacl::vector<RealT> gpu_target = viennacl::linalg::prod(vcl_sparse_matrix, gpu_source);
 
-        std::cout << "no fail 3" << std::endl;
+        //std::cout << "no fail 3" << std::endl;
         viennacl::backend::finish();
         viennacl::copy(gpu_target.begin(), gpu_target.end(),
                        m.gridValues.data.begin());
