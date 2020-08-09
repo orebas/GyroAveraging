@@ -146,8 +146,8 @@ int main() {
     typedef double mainReal;
     constexpr mainReal mainRhoMin = 0.25;
     constexpr mainReal mainRhoMax = 3;
-    constexpr mainReal mainxyMin = -8;
-    constexpr mainReal mainxyMax = 8;
+    constexpr mainReal mainxyMin = -4;
+    constexpr mainReal mainxyMax = 4;
     gridDomain<mainReal> g;
     g.rhomax = mainRhoMax;
     g.rhomin = mainRhoMin;
@@ -155,8 +155,8 @@ int main() {
     g.xmax = g.ymax = mainxyMax;
     constexpr int xcount = 16, ycount = 16,
                   rhocount = 3;  // bump up to 64x64x35 later or 128x128x35
-    constexpr mainReal A = 2;
-    constexpr mainReal B = 2;
+    constexpr mainReal A = 1.5;
+    constexpr mainReal B = 1.1;
     constexpr mainReal Normalizer = 50.0;
     std::vector<mainReal> rhoset;
     std::vector<mainReal> xset;
