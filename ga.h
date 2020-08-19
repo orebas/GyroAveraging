@@ -412,7 +412,8 @@ enum class calculatorType { linearCPU,
                             DCTCPUCalculator2,
                             DCTCPUPaddedCalculator2,
                             bicubicDotProductGPU,
-                            linearDotProductGPU };
+                            linearDotProductGPU,
+                            chebCPUDense };
 
 std::map<OOGA::calculatorType, std::string> calculatorNameMap(void) {
     std::map<OOGA::calculatorType, std::string> nameMap;
@@ -434,16 +435,9 @@ std::map<OOGA::calculatorType, std::string> calculatorNameMap(void) {
         "bicubic interp, GPU Sparse Matrix  ";
     nameMap[OOGA::calculatorType::linearDotProductGPU] =
         "linear interp, GPU Sparse Matrix   ";
+    nameMap[OOGA::calculatorType::chebCPUDense] =
+        "chebyshev interp, CPU Dense Matrix ";
 
-    /*                      linearCPU,
-                            linearDotProductCPU,
-                            bicubicCPU,
-                            bicubicDotProductCPU,
-                            DCTCPUCalculator,
-                            DCTCPUCalculator2,
-                            DCTCPUPaddedCalculator2,
-                            bicubicDotProductGPU,
-                            linearDotProductGPU*/
     return nameMap;
 }
 
@@ -1041,7 +1035,7 @@ class DCTCPUCalculator
                         std::cout << p << " " << q << " " << i << " " << j << " " << out.gridValues(0, i, j) << std::endl;*/
         }
 
-        std::copy(f.gridValues.data.begin(), f.gridValues.data.begin() + xcount * ycount + 1, fftin);
+        std::copy(f.gridValues.data.begin(), f.gridValues.data.begin() + xcount * ycount, fftin);
         fftw_execute(plan);
         Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>> X(fftout);
         //std::cout << "FFT result: \n " << X << std::endl;
@@ -1054,7 +1048,89 @@ class DCTCPUCalculator
         //         << b << std::endl;
         return m;
     }
+};
+
+//cheb
+template <int rhocount, int xcount, int ycount, class RealT = double>
+class chebCPUDense
+    : public GACalculator<rhocount, xcount, ycount, RealT> {
+   private:
+    double *fftin, *fftout;
+    fftw_plan plan;
+    Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> denseGAMatrix;
+
+   public:
+    friend class GACalculator<rhocount, xcount, ycount, RealT>;
+
+    void slowTruncFill(const gridDomain<RealT> &g) {
+        denseGAMatrix.resize(xcount * ycount, xcount * ycount);
+        denseGAMatrix.setZero();
+        std::vector<RealT> rhoset;
+        std::vector<RealT> xset;
+        std::vector<RealT> yset;
+
+        rhoset = LinearSpacedArray<RealT>(g.rhomin, g.rhomax, rhocount);
+        xset = LinearSpacedArray<RealT>(g.xmin, g.xmax, xcount);
+        yset = LinearSpacedArray<RealT>(g.ymin, g.ymax, ycount);
+        {
+#pragma omp parallel for
+            for (int p = 0; p < xcount; ++p) {
+                functionGrid<rhocount, xcount, ycount> f(rhoset, xset, yset);
+                for (int q = 0; q < ycount; ++q) {
+                    auto basistest = [p, q, g](RealT row, RealT ex, RealT why) -> RealT {
+                        return chebBasisFunction(p, q, ex, why, xcount);
+                    };
+
+                    f.fillTruncatedAlmostExactGA(basistest);
+                    Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>> m(f.gridValues.data.data());
+                    denseGAMatrix.row(ycount * p + q) = m;  //TODO NOT FINISHED REDO THIS LINE
+                }
+            }
+        }
+        denseGAMatrix.transposeInPlace();
+        //std::cout << "dense matrix: \n " << denseGAMatrix << std::endl;
+    }
+
+    chebCPUDense(const gridDomain<RealT> &g) {
+        fftin = (double *)fftw_malloc(xcount * ycount * sizeof(double));
+        fftout = (double *)fftw_malloc(xcount * ycount * sizeof(double));
+        plan = fftw_plan_r2r_2d(xcount, ycount, fftin, fftout, FFTW_REDFT00, FFTW_REDFT00, FFTW_MEASURE);  //Forward DCT
+        slowTruncFill(g);
+    }
+
+    ~chebCPUDense() {
+        fftw_free(fftin);
+        fftw_free(fftout);
+    }
+    static std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
+    create(const gridDomain<RealT> &g) {
+        return std::make_unique<chebCPUDense>(g);
+    }
+    std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>> clone() {
+        return std::make_unique<chebCPUDense>(*this);
+    } /*maybe disable this functionality */
+
+    functionGrid<rhocount, xcount, ycount, RealT> calculate(
+        functionGrid<rhocount, xcount, ycount, RealT> &f) {
+        functionGrid<rhocount, xcount, ycount, RealT> m = f;  // do we need to write a copy constructor?
+
+        std::copy(f.gridValues.data.begin(), f.gridValues.data.begin() + xcount * ycount, fftin);
+        fftw_execute(plan);
+        Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>> X(fftout);
+        //std::cout << "FFT result: \n " << X << std::endl;
+        X *= (1.0 / ((xcount - 1) * (ycount - 1)));
+
+        Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>>
+            b(m.gridValues.data.data());
+        b = denseGAMatrix * X;
+        //std::cout << std::endl
+        //         << b << std::endl;
+        return m;
+    }
 };  // namespace OOGA
+
+//cheb
+
 //FFT
 //FFT2
 template <int rhocount, int xcount, int ycount, class RealT = double>
@@ -1122,14 +1198,14 @@ class DCTCPUCalculator2
         functionGrid<rhocount, xcount, ycount, RealT> &f) {
         functionGrid<rhocount, xcount, ycount, RealT> m = f;  // do we need to write a copy constructor?
 
-        std::copy(f.gridValues.data.begin(), f.gridValues.data.begin() + xcount * ycount * rhocount + 1, fftin);
+        std::copy(f.gridValues.data.begin(), f.gridValues.data.begin() + xcount * ycount * rhocount, fftin);
         fftw_execute(plan);
         std::copy(fftout, fftout + rhocount * xcount * ycount + 1, m.gridValues.data.begin());
         for (int i = 0; i < rhocount * xcount * ycount; ++i) {
             fftout[i] *= besselVals[i];
         }
         fftw_execute(plan_inv);
-        std::copy(fftin, fftin + rhocount * xcount * ycount + 1, m.gridValues.data.begin());
+        std::copy(fftin, fftin + rhocount * xcount * ycount, m.gridValues.data.begin());
 
         return m;
     }
@@ -1345,7 +1421,7 @@ class bicubicDotProductCPU
                               rhocount * xcount * ycount * 16);
         BCOffsetTensor.setFromTriplets(Triplets.begin(), Triplets.end());
 
-        std::cout << "Number of RealT  products needed for BC calc: " << BCOffsetTensor.nonZeros() << " and rough memory usage is " << BCOffsetTensor.nonZeros() * (sizeof(RealT) + sizeof(long)) << std::endl;
+        //std::cout << "Number of RealT  products needed for BC calc: " << BCOffsetTensor.nonZeros() << " and rough memory usage is " << BCOffsetTensor.nonZeros() * (sizeof(RealT) + sizeof(long)) << std::endl;
         return BCOffsetTensor;
     }
 
@@ -1507,6 +1583,9 @@ GACalculator<rhocount, xcount, ycount, RealT, padcount>::Factory::newCalculator(
         return bicubicDotProductGPU<rhocount, xcount, ycount, RealT>::create(g, f);
     else if (c == calculatorType::linearDotProductGPU)
         return linearDotProductGPU<rhocount, xcount, ycount, RealT>::create(g, f);
+    else if (c == calculatorType::chebCPUDense)
+        return chebCPUDense<rhocount, xcount, ycount, RealT>::create(g);
+
     else
         return linearCPUCalculator<rhocount, xcount, ycount, RealT>::create();
 }

@@ -92,6 +92,16 @@ double inline DCTBasisFunction2(double p, double q, double i, double j, int N) {
            std::cos(pi * (2 * i + 1) * p / (2.0 * N)) *
            std::cos(pi * (2 * j + 1) * q / (2.0 * N));
 }
+
+double inline chebBasisFunction(int p, int q, double x, double y, int N) {
+    double a = 1, b = 1;
+    if (p == 0) a = 0.5;
+    if (q == 0) b = 0.5;
+    if (p == N - 1) a = 0.5;
+    if (q == N - 1) b = 0.5;
+    return a * b * boost::math::chebyshev_t(p, -x) * boost::math::chebyshev_t(q, -y);
+};  // namespace OOGA
+
 void inline arcIntegralBicubic(
     std::array<double, 16> &coeffs,  // this function is being left in double,
                                      // intentionally, for now
@@ -260,7 +270,6 @@ std::array<float, 4> operator+(const std::array<float, 4> &l, const std::array<f
     ret[3] = l[3] + r[3];
     return ret;
 }
-
 
 }  // namespace OOGA
 
