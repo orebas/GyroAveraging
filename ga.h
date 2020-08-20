@@ -446,7 +446,7 @@ class GACalculator {
    public:
     struct Factory {
         static std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
-        newCalculator(calculatorType c, gridDomain<RealT> &g, functionGrid<rhocount, xcount, ycount, RealT> &f);
+        newCalculator(calculatorType c, const gridDomain<RealT> &g, functionGrid<rhocount, xcount, ycount, RealT> &f);
     };
     virtual ~GACalculator() = default;
     virtual functionGrid<rhocount, xcount, ycount, RealT> calculate(
@@ -999,6 +999,7 @@ class DCTCPUCalculator
     ~DCTCPUCalculator() {
         fftw_free(fftin);
         fftw_free(fftout);
+        fftw_destroy_plan(plan);
     }
     static std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
     create(const gridDomain<RealT> &g) {
@@ -1091,16 +1092,56 @@ class chebCPUDense
         //std::cout << "dense matrix: \n " << denseGAMatrix << std::endl;
     }
 
+    void fastFill(const gridDomain<RealT> &g) {
+        denseGAMatrix.resize(xcount * ycount, xcount * ycount);
+        denseGAMatrix.setZero();
+        std::vector<RealT> rhoset;
+        std::vector<RealT> xset;
+        std::vector<RealT> yset;
+
+        rhoset = LinearSpacedArray<RealT>(g.rhomin, g.rhomax, rhocount);
+        xset = LinearSpacedArray<RealT>(g.xmin, g.xmax, xcount);
+        yset = LinearSpacedArray<RealT>(g.ymin, g.ymax, ycount);
+        functionGrid<rhocount, xcount, ycount> f(rhoset, xset, yset);
+        auto res = f;
+
+        std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>> calc;
+        calc = GACalculator<rhocount, xcount, ycount, RealT, xcount / 2>::Factory::newCalculator(OOGA::calculatorType::DCTCPUPaddedCalculator2, g, f);
+        for (int p = 0; p < xcount; ++p) {
+            for (int q = 0; q < ycount; ++q) {
+                auto basistest = [p, q, g](RealT row, RealT ex, RealT why) -> RealT {
+                    return chebBasisFunction(p, q, ex, why, xcount);
+                };
+
+                f.fill(basistest);
+                res = calc->calculate(f);
+                //std::cout << p << " " << q << " " << std::endl;
+                //res.csvPrinter(0);
+                //std::cout << std::endl;
+                //f.fillAlmostExactGA(basistest);
+                //f.csvPrinter(0);
+                Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>> m(res.gridValues.data.data());
+                denseGAMatrix.row(ycount * p + q) = m;  //TODO NOT FINISHED REDO THIS LINE
+            }
+        }
+        denseGAMatrix.transposeInPlace();
+        //std::cout << testMatrix << std::endl
+        //          << denseGAMatrix << std::endl;
+        //std::cout << "Norm diff is :" << (testMatrix - denseGAMatrix).norm() << std::endl;
+    }
+
     chebCPUDense(const gridDomain<RealT> &g) {
         fftin = (double *)fftw_malloc(xcount * ycount * sizeof(double));
         fftout = (double *)fftw_malloc(xcount * ycount * sizeof(double));
         plan = fftw_plan_r2r_2d(xcount, ycount, fftin, fftout, FFTW_REDFT00, FFTW_REDFT00, FFTW_MEASURE);  //Forward DCT
-        slowTruncFill(g);
+        //slowTruncFill(g);
+        fastFill(g);
     }
 
     ~chebCPUDense() {
         fftw_free(fftin);
         fftw_free(fftout);
+        fftw_destroy_plan(plan);
     }
     static std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
     create(const gridDomain<RealT> &g) {
@@ -1185,6 +1226,8 @@ class DCTCPUCalculator2
         fftw_free(fftin);
         fftw_free(fftout);
         fftw_free(besselVals);
+        fftw_destroy_plan(plan);
+        fftw_destroy_plan(plan_inv);
     }
     static std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
     create(const gridDomain<RealT> &g) {
@@ -1200,7 +1243,7 @@ class DCTCPUCalculator2
 
         std::copy(f.gridValues.data.begin(), f.gridValues.data.begin() + xcount * ycount * rhocount, fftin);
         fftw_execute(plan);
-        std::copy(fftout, fftout + rhocount * xcount * ycount + 1, m.gridValues.data.begin());
+        std::copy(fftout, fftout + rhocount * xcount * ycount, m.gridValues.data.begin());
         for (int i = 0; i < rhocount * xcount * ycount; ++i) {
             fftout[i] *= besselVals[i];
         }
@@ -1218,8 +1261,6 @@ class DCTCPUPaddedCalculator
    private:
     double *fftin, *fftout, *besselVals;
     gridDomain<RealT> paddedg;
-    fftw_plan plan;
-    fftw_plan plan_inv;
     Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> denseGAMatrix;
     std::unique_ptr<DCTCPUCalculator2<rhocount, xcount + padcount * 2, ycount + padcount * 2, RealT>> dctCalc;
 
@@ -1564,7 +1605,7 @@ class linearDotProductGPU
 template <int rhocount, int xcount, int ycount, class RealT, int padcount>
 std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
 GACalculator<rhocount, xcount, ycount, RealT, padcount>::Factory::newCalculator(
-    calculatorType c, gridDomain<RealT> &g, functionGrid<rhocount, xcount, ycount, RealT> &f) {
+    calculatorType c, const gridDomain<RealT> &g, functionGrid<rhocount, xcount, ycount, RealT> &f) {
     if (c == calculatorType::linearCPU)
         return linearCPUCalculator<rhocount, xcount, ycount, RealT>::create();
     else if (c == calculatorType::bicubicCPU)

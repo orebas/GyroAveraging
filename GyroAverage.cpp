@@ -75,7 +75,7 @@ constexpr int inline mymax(int a, int b) {
 template <class RealT = double>
 std::vector<RealT> chebPoints(int N) {
     std::vector<RealT> xs(N);
-    for (int i = 0; i < xs.size(); ++i)
+    for (size_t i = 0; i < xs.size(); ++i)
         xs[i] = -1 * std::cos(i * OOGA::pi / (N - 1));
 
     return xs;
@@ -227,7 +227,7 @@ std::vector<resultsRecord> testRun(const std::vector<OOGA::calculatorType>& calc
     //exact.csvPrinter(0);
     //std::cout << std::endl;
 
-    for (auto i = 0; i < calclist.size(); ++i) {
+    for (size_t i = 0; i < calclist.size(); ++i) {
         auto func = [&](int j) -> void { calcset.emplace_back(GACalculator<rhocount, xcount, ycount, RealT, N>::Factory::newCalculator(calclist[j], g, exact)); };
         double initTime = measure<std::chrono::milliseconds>::execution(func, i);
         f.fill(testfunc);
@@ -264,8 +264,8 @@ int main() {
     //cd return 0;
     using namespace OOGA;
     typedef double mainReal;
-    constexpr mainReal mainRhoMin = 0.05 / 4.0;  //used to be 0.25/4
-    constexpr mainReal mainRhoMax = 0.05 / 4.0;  //used to be 3/4
+    constexpr mainReal mainRhoMin = 3 / 4.0;  //used to be 0.25/4
+    constexpr mainReal mainRhoMax = 3 / 4.0;  //used to be 3/4
     constexpr mainReal mainxyMin = -1;
     constexpr mainReal mainxyMax = 1;
     gridDomain<mainReal> g;
@@ -396,7 +396,17 @@ int main() {
     for (auto r : res1)
         std::cout << r << std::endl;
 
-    
+    res1 = testRun<64, rhocount, double, true>(chebCalclist, testfunc2, g);
+    for (auto r : res1)
+        std::cout << r << std::endl;
+
+    res1 = testRun<128, rhocount, double, true>(chebCalclist, testfunc2, g);
+    for (auto r : res1)
+        std::cout << r << std::endl;
+    /*res1 = testRun<256, rhocount, double, true>(chebCalclist, testfunc2, g);
+    for (auto r : res1)
+        std::cout << r << std::endl;*/
+
     res1 = testRun<8, rhocount, double>(calclist, testfunc2, g);
     for (auto r : res1)
         std::cout << r << std::endl;
@@ -421,16 +431,7 @@ int main() {
     for (auto r : res1)
         std::cout << r << std::endl;
 
-    res1 = testRun<64, rhocount, double, true>(chebCalclist, testfunc2, g);
-    for (auto r : res1)
-        std::cout << r << std::endl;
-
-    res1 = testRun<96, rhocount, double, true>(chebCalclist, testfunc2, g);
-    for (auto r : res1)
-        std::cout << r << std::endl;
-    res1 = testRun<128, rhocount, double, true>(chebCalclist, testfunc2, g);
-    for (auto r : res1)
-        std::cout << r << std::endl;
+    fftw_cleanup();
 }
 
 void fft_testing() {
