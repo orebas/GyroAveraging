@@ -1,0 +1,166 @@
+/home/orebas/GyroAveraging/./gautils.h:3:9: warning: header guard does not follow preferred style [llvm-header-guard]
+#ifndef GYROAVERAGING_UTILS_H
+        ^~~~~~~~~~~~~~~~~~~~~
+        _HOME_OREBAS_GYROAVERAGING_GAUTILS_H
+/home/orebas/GyroAveraging/./gautils.h:34:9: warning: consider replacing 'long' with 'int64' [google-runtime-int]
+        long iters = 1000 / (duration.count() + 1);
+        ^
+/home/orebas/GyroAveraging/./gautils.h:37:14: warning: consider replacing 'long' with 'int64' [google-runtime-int]
+        for (long i = 0; i < iters; ++i) {
+             ^
+/home/orebas/GyroAveraging/./gautils.h:47:11: warning: member variable 'xvalue' has public visibility [misc-non-private-member-variables-in-classes]
+    RealT xvalue = 0;
+          ^
+/home/orebas/GyroAveraging/./gautils.h:48:11: warning: member variable 'yvalue' has public visibility [misc-non-private-member-variables-in-classes]
+    RealT yvalue = 0;
+          ^
+/home/orebas/GyroAveraging/./gautils.h:49:11: warning: member variable 's' has public visibility [misc-non-private-member-variables-in-classes]
+    RealT s = 0;  // from 0 to 2*Pi only please.
+          ^
+/home/orebas/GyroAveraging/./gautils.h:50:27: warning: declaring a parameter with a default argument is disallowed [fuchsia-default-arguments-declarations]
+    explicit indexedPoint(RealT x = 0, RealT y = 0, RealT row = 0)
+                          ^      ~~~~
+/home/orebas/GyroAveraging/./gautils.h:50:40: warning: declaring a parameter with a default argument is disallowed [fuchsia-default-arguments-declarations]
+    explicit indexedPoint(RealT x = 0, RealT y = 0, RealT row = 0)
+                                       ^      ~~~~
+/home/orebas/GyroAveraging/./gautils.h:50:53: warning: declaring a parameter with a default argument is disallowed [fuchsia-default-arguments-declarations]
+    explicit indexedPoint(RealT x = 0, RealT y = 0, RealT row = 0)
+                                                    ^        ~~~~
+/home/orebas/GyroAveraging/./gautils.h:118:29: warning: non-const reference parameter 'coeffs', make it const or use a pointer [google-runtime-references]
+    std::array<double, 16> &coeffs,  // this function is being left in double,
+                            ^
+/home/orebas/GyroAveraging/./gautils.h:147:12: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+    return trapezoidal(f, x, y);
+           ^
+/usr/include/boost/math/quadrature/trapezoidal.hpp:111:158: note: default parameter was declared here
+auto trapezoidal(F f, Real a, Real b, Real tol = boost::math::tools::root_epsilon<Real>(), std::size_t max_refinements = 12, Real* error_estimate = nullptr, Real* L1 = nullptr)->decltype(std::declval<F>()(std::declval<Real>()))
+                                                                                                                                                             ^
+/home/orebas/GyroAveraging/./gautils.h:154:1: warning: overloading 'operator<<' is disallowed [fuchsia-overloaded-operator]
+std::ostream &operator<<(std::ostream &out, const std::vector<T> &v) {
+^
+/home/orebas/GyroAveraging/./gautils.h:164:1: warning: overloading 'operator<<' is disallowed [fuchsia-overloaded-operator]
+std::ostream &operator<<(std::ostream &out, const std::array<T, s> &v) {
+^
+/home/orebas/GyroAveraging/./gautils.h:176:20: warning: member variable 'data' has public visibility [misc-non-private-member-variables-in-classes]
+    std::vector<T> data;
+                   ^
+/home/orebas/GyroAveraging/./gautils.h:178:17: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+    Array3d() : data(w * h * d, 0) {}
+                ^
+/usr/lib/gcc/x86_64-linux-gnu/10/../../../../include/c++/10/bits/stl_vector.h:520:7: note: default parameter was declared here
+             const allocator_type& __a = allocator_type())
+             ^
+/home/orebas/GyroAveraging/./gautils.h:186:5: warning: overloading 'operator()' is disallowed [fuchsia-overloaded-operator]
+    inline T &operator()(int x, int y, int z) {
+    ^
+/home/orebas/GyroAveraging/./gautils.h:190:5: warning: overloading 'operator()' is disallowed [fuchsia-overloaded-operator]
+    inline T operator()(int x, int y, int z) const {
+    ^
+/home/orebas/GyroAveraging/./gautils.h:198:20: warning: member variable 'data' has public visibility [misc-non-private-member-variables-in-classes]
+    std::vector<T> data;
+                   ^
+/home/orebas/GyroAveraging/./gautils.h:200:4: warning: redundant access specifier has the same accessibility as the previous access specifier [readability-redundant-access-specifiers]
+   public:
+   ^~~~~~~
+/home/orebas/GyroAveraging/./gautils.h:197:4: note: previously declared here
+   public:
+   ^
+/home/orebas/GyroAveraging/./gautils.h:201:17: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+    Array4d() : data(w * h * d * l, 0) {}
+                ^
+/usr/lib/gcc/x86_64-linux-gnu/10/../../../../include/c++/10/bits/stl_vector.h:520:7: note: default parameter was declared here
+             const allocator_type& __a = allocator_type())
+             ^
+/home/orebas/GyroAveraging/./gautils.h:211:5: warning: overloading 'operator()' is disallowed [fuchsia-overloaded-operator]
+    inline T &operator()(int x, int y, int z, int t) {
+    ^
+/home/orebas/GyroAveraging/./gautils.h:215:5: warning: overloading 'operator()' is disallowed [fuchsia-overloaded-operator]
+    inline T operator()(int x, int y, int z, int t) const {
+    ^
+/home/orebas/GyroAveraging/./gautils.h:246:24: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+    std::vector<RealT> xs(N);
+                       ^
+/usr/lib/gcc/x86_64-linux-gnu/10/../../../../include/c++/10/bits/stl_vector.h:507:29: note: default parameter was declared here
+      vector(size_type __n, const allocator_type& __a = allocator_type())
+                            ^
+/home/orebas/GyroAveraging/./gautils.h:268:1: warning: overloading 'operator+' is disallowed [fuchsia-overloaded-operator]
+inline std::array<double, 4> operator+(const std::array<double, 4> &l, const std::array<double, 4> &r) {
+^
+/home/orebas/GyroAveraging/./gautils.h:277:1: warning: overloading 'operator+' is disallowed [fuchsia-overloaded-operator]
+inline std::array<float, 4> operator+(const std::array<float, 4> &l, const std::array<float, 4> &r) {
+^
+/home/orebas/GyroAveraging/./gautils.h:297:24: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+    std::vector<RealT> xs(N);
+                       ^
+/usr/lib/gcc/x86_64-linux-gnu/10/../../../../include/c++/10/bits/stl_vector.h:507:29: note: default parameter was declared here
+      vector(size_type __n, const allocator_type& __a = allocator_type())
+                            ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:8:9: warning: macro 'VIENNACL_WITH_UBLAS' used to declare a constant; consider using a 'constexpr' constant [cppcoreguidelines-macro-usage]
+#define VIENNACL_WITH_UBLAS 1
+        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:9:9: warning: macro 'VIENNACL_HAVE_EIGEN' used to declare a constant; consider using a 'constexpr' constant [cppcoreguidelines-macro-usage]
+#define VIENNACL_HAVE_EIGEN 1
+        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:75:5: warning: overloading 'operator<<' is disallowed [fuchsia-overloaded-operator]
+    friend std::ostream& operator<<(std::ostream& output, const resultsRecord& r) {
+    ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:92:1: warning: overloading 'operator<<' is disallowed [fuchsia-overloaded-operator]
+std::ostream& operator<<(std::ostream& output, const std::vector<resultsRecord>& r) {
+^
+/home/orebas/GyroAveraging/GyroAverage.cpp:159:5: warning: an exception may be thrown in function 'main' which should not throw exceptions [bugprone-exception-escape]
+int main() {
+    ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:397:52: warning: parameter 'row' is unused [misc-unused-parameters]
+            auto cheb_basis_func = [p, q](mainReal row, mainReal ex, mainReal why) -> mainReal {
+                                          ~~~~~~~~~^~~~~
+/home/orebas/GyroAveraging/GyroAverage.cpp:405:48: warning: do not use pointer arithmetic [cppcoreguidelines-pro-bounds-pointer-arithmetic]
+            std::copy(plan.fftout, plan.fftout + rhocount * xcount * ycount, m.gridValues.data.begin());  //add division by 4
+                                               ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:472:9: warning: function-like macro 'f00' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f00(x) ((x))
+        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:474:9: warning: function-like macro 'f10' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f10(x) (c * (x)-r * cos((x)))
+        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:476:9: warning: function-like macro 'f20' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f20(x) (c2 * (x)-2 * c * r * cos((x)) + r2 * (x) / 2 - r2 * sin(2 * (x)) / 4)
+        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:478:9: warning: function-like macro 'f30' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f30(x)                                                                     \
+        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:482:9: warning: function-like macro 'f01' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f01(x) (d * (x)-r * sin((x)))
+        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:484:9: warning: function-like macro 'f11' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f11(x) \
+        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:487:9: warning: function-like macro 'f21' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f21(x)                                                                 \
+        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:493:9: warning: function-like macro 'f31' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f31(x)                                                                     \
+        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:501:9: warning: function-like macro 'f02' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f02(x) \
+        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:504:9: warning: function-like macro 'f12' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f12(x)                                                       \
+        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:510:9: warning: function-like macro 'f22' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f22(x)                                                                     \
+        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:518:9: warning: function-like macro 'f32' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f32(x)                                                           \
+        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:529:9: warning: function-like macro 'f03' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f03(x)                                                             \
+        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:534:9: warning: function-like macro 'f13' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f13(x)                                                                 \
+        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:542:9: warning: function-like macro 'f23' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f23(x)                                                                                                                                                \
+        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:554:9: warning: function-like macro 'f33' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f33(x)                                                               \
+        ^

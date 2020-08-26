@@ -23,26 +23,24 @@ template <class RealT = double>
 struct gridDomain {
     RealT xmin = 0, xmax = 0, ymin = 0, ymax = 0, rhomin = 0, rhomax = 0;
 };
-
+//TODO(orebas): I think we should have two seperate classes that compose with functionGrid, one for equispaced and one for cheb
+//also they should just take griddomain as constructor (and xcount,ycount).  no need to take arbitrary grid points.
 template <int rhocount, int xcount, int ycount, class RealT = double>
 class functionGrid {
    public:
-    typedef Array3d<rhocount, xcount, ycount, RealT> fullgrid;
-    typedef Array4d<rhocount, xcount, ycount, 4, RealT> fullgridInterp;
-    typedef Array4d<rhocount, xcount, ycount, 4, RealT>
-        derivsGrid;  // at each rho,x,y calculate [f,f_x,f_y,f_xy]
-    typedef Array4d<rhocount, xcount, ycount, 16, RealT> bicubicParameterGrid;
-    typedef Array4d<rhocount, xcount, ycount, 9, RealT> biquadParameterGrid;
-    typedef Eigen::SparseMatrix<RealT, Eigen::RowMajor> SpM;
-    typedef Eigen::Triplet<RealT> SpT;
+    using fullgrid = Array3d<rhocount, xcount, ycount, RealT>;
+    using fullgridInterp = Array4d<rhocount, xcount, ycount, 4, RealT>;
+    using derivsGrid = Array4d<rhocount, xcount, ycount, 4, RealT>;  // at each rho,x,y calculate [f,f_x,f_y,f_xy]
+    using bicubicParameterGrid = Array4d<rhocount, xcount, ycount, 16, RealT>;
+    using biquadParameterGrid = Array4d<rhocount, xcount, ycount, 9, RealT>;
+    using SpM = Eigen::SparseMatrix<RealT, Eigen::RowMajor>;
+    using SpT = Eigen::Triplet<RealT>;
 
-   public:  // change to private later.
     std::vector<RealT> rhoset;
     std::vector<RealT> xset;
     std::vector<RealT> yset;
     fullgrid gridValues;  // input values of f
 
-   public:
     void csvPrinter(int rho) {
         for (int j = 0; j < xcount; j++) {
             for (int k = 0; k < ycount; k++) {
@@ -55,8 +53,7 @@ class functionGrid {
     void csvPrinterDiff(const functionGrid &n, int rho) {
         for (int j = 0; j < xcount; j++) {
             for (int k = 0; k < ycount; k++) {
-                std::cout << gridValues(rho, j, k) - n.gridValues(rho, j, k)
-                          << ",";
+                std::cout << gridValues(rho, j, k) - n.gridValues(rho, j, k) << ",";
             }
             std::cout << std::endl;
         }
@@ -64,43 +61,50 @@ class functionGrid {
 
     void clearGrid() {
         for (auto i = 0; i < rhocount; i++) {
-            for (auto j = 0; j < xcount; j++)
+            for (auto j = 0; j < xcount; j++) {
                 for (auto k = 0; k < ycount; k++) {
                     gridValues(i, j, k) = 0;
                 }
+            }
         }
     }
     RealT RMSNorm(int rho) {
         RealT result = 0;
-        for (int j = 0; j < xcount; j++)
-            for (int k = 0; k < ycount; k++)
+        for (int j = 0; j < xcount; j++) {
+            for (int k = 0; k < ycount; k++) {
                 result += gridValues(rho, j, k) * gridValues(rho, j, k);
-        return std::sqrt(result / (xcount * ycount));
+            }
+            return std::sqrt(result / (xcount * ycount));
+        }
     }
     RealT maxNorm(int rho) {
         RealT result = 0;
-        for (int j = 0; j < xcount; j++)
-            for (int k = 0; k < ycount; k++)
+        for (int j = 0; j < xcount; j++) {
+            for (int k = 0; k < ycount; k++) {
                 result = std::max(result, std::abs(gridValues(rho, j, k)));
+            }
+        }
         return result;
     }
 
     RealT RMSNormDiff(const fullgrid &m2, int rho) {
         RealT result = 0;
-        for (int j = 0; j < xcount; j++)
+        for (int j = 0; j < xcount; j++) {
             for (int k = 0; k < ycount; k++) {
                 RealT t = gridValues(rho, j, k) - m2(rho, j, k);
                 result += t * t;
             }
+        }
         return std::sqrt(result / (xcount * ycount));
     }
     RealT maxNormDiff(const fullgrid &m2, int rho) {
         RealT result = 0;
-        for (int j = 0; j < xcount; j++)
+        for (int j = 0; j < xcount; j++) {
             for (int k = 0; k < ycount; k++) {
                 RealT t = gridValues(rho, j, k) - m2(rho, j, k);
                 result = std::max(result, std::abs(t));
             }
+        }
         return result;
     }
 
@@ -109,28 +113,33 @@ class functionGrid {
     void fill(TFunc f) {
 #pragma omp parallel for
         for (auto i = 0; i < rhocount; i++) {
-            for (auto j = 0; j < xcount; j++)
+            for (auto j = 0; j < xcount; j++) {
                 for (auto k = 0; k < ycount; k++) {
                     gridValues(i, j, k) = f(rhoset[i], xset[j], yset[k]);
                 }
+            }
         }
     }
     // below fills a grid, given a function of i,j,k
     template <typename TFunc>
     void fillbyindex(TFunc f) {
 #pragma omp parallel for
-        for (int i = 0; i < rhocount; i++)
-            for (int j = 0; j < xcount; j++)
+        for (int i = 0; i < rhocount; i++) {
+            for (int j = 0; j < xcount; j++) {
                 for (int k = 0; k < ycount; k++) {
                     gridValues(i, j, k) = f(i, j, k);
                 }
+            }
+        }
     }
     template <typename TFunc1>
     void fillAlmostExactGA(TFunc1 f) {                   // f is only used to fill the rho=0 case
         fillbyindex([&](int i, int j, int k) -> RealT {  // adaptive trapezoid rule on actual input function.
             RealT xc = xset[j];
             RealT yc = yset[k];
-            if (rhoset[i] == 0) return f(i, xc, yc);
+            if (rhoset[i] == 0) {
+                return f(i, xc, yc);
+            }
             auto new_f = [&](RealT x) -> RealT {
                 return f(rhoset[i], xc + rhoset[i] * std::sin(x),
                          yc - rhoset[i] * std::cos(x));
@@ -146,12 +155,18 @@ class functionGrid {
         fillbyindex([&](int i, int j, int k) -> RealT {
             RealT xc = xset[j];
             RealT yc = yset[k];
-            if (rhoset[i] == 0) return f(i, xc, yc);
+            if (rhoset[i] == 0) {
+                return f(i, xc, yc);
+            }
             auto new_f = [&](RealT x) -> RealT {
                 RealT ex = xc + rhoset[i] * std::sin(x);
                 RealT why = yc - rhoset[i] * std::cos(x);
-                if ((ex < xset[0]) || (ex > xset.back())) return 0;
-                if ((why < yset[0]) || (why > yset.back())) return 0;
+                if ((ex < xset[0]) || (ex > xset.back())) {
+                    return 0;
+                }
+                if ((why < yset[0]) || (why > yset.back())) {
+                    return 0;
+                }
                 return f(rhoset[i], ex, why);
             };
             RealT result = TrapezoidIntegrate(0.0, 2 * pi, new_f) / (2 * pi);
@@ -166,7 +181,9 @@ class functionGrid {
         fillbyindex([&](int i, int j, int k) -> RealT {
             RealT xc = xset[j];
             RealT yc = yset[k];
-            if (rhoset[i] == 0) return f(rhoset[i], xc, yc);
+            if (rhoset[i] == 0) {
+                return f(rhoset[i], xc, yc);
+            }
             auto new_f = [&](RealT x) -> RealT {
                 return interp2d(i, xc + rhoset[i] * std::sin(x),
                                 yc - rhoset[i] * std::cos(x));
@@ -176,12 +193,13 @@ class functionGrid {
         });
     }
     // below requires the bicubic parameter grid to be populated.
-    void fillBicubicInterp(void) {
+    void fillBicubicInterp() {
         fillbyindex([&](int i, int j, int k) -> RealT {
             RealT xc = xset[j];
             RealT yc = yset[k];
-            if (rhoset[i] == 0) return gridValues(i, j, k);
-
+            if (rhoset[i] == 0) {
+                return gridValues(i, j, k);
+            }
             auto new_f = [&](RealT x) -> RealT {
                 return interpNaiveBicubic(i, xc + rhoset[i] * std::sin(x),
                                           yc - rhoset[i] * std::cos(x));
@@ -190,8 +208,6 @@ class functionGrid {
             return result;
         });
     }
-
-   public:
     functionGrid(const std::vector<RealT> &rhos, const std::vector<RealT> &xes,
                  const std::vector<RealT> &yies)
         : rhoset(rhos), xset(xes), yset(yies) {
@@ -224,12 +240,12 @@ class functionGrid {
 
     RealT interp2d(int rhoindex, const RealT x, const RealT y) const {
         assert((rhoindex >= 0) && (rhoindex < rhocount));
-        if ((x <= xset[0]) || (y <= yset[0]) || (x >= xset.back()) ||
-            (y >= yset.back()))
+        if ((x <= xset[0]) || (y <= yset[0]) || (x >= xset.back()) || (y >= yset.back())) {
             return 0;
+        }
         int xindex = 0, yindex = 0;
         interpIndexSearch(x, y, xindex, yindex);
-        RealT result = BilinearInterpolation<RealT>(
+        auto result = BilinearInterpolation<RealT>(
             gridValues(rhoindex, xindex, yindex),
             gridValues(rhoindex, xindex + 1, yindex),
             gridValues(rhoindex, xindex, yindex + 1),
@@ -247,13 +263,14 @@ class functionGrid {
 
     static bicubicParameterGrid setupBicubicGrid(
         const functionGrid<rhocount, xcount, ycount, RealT> &f) {
-        using namespace Eigen;
+        using Eigen::Matrix;
+
         auto d = f.calcDerivsGrid();
         bicubicParameterGrid b;
         for (int i = 0; i < rhocount; i++) {
             // we explicitly rely on parameters being initialized to 0,
             // including the top and right sides.
-            for (int j = 0; j < xcount - 1; j++)
+            for (int j = 0; j < xcount - 1; j++) {
                 for (int k = 0; k < ycount - 1; k++) {
                     RealT x0 = f.xset[j], x1 = f.xset[j + 1];
                     RealT y0 = f.yset[k], y1 = f.yset[k + 1];
@@ -279,9 +296,11 @@ class functionGrid {
                     // dependency methinks.  TODO
 
                     A = X.inverse() * RHS * Y.inverse();
-                    for (int t = 0; t < 16; ++t)
+                    for (int t = 0; t < 16; ++t) {
                         b(i, j, k, t) = A(t % 4, t / 4);
+                    }
                 }
+            }
         }
         return b;
     }
@@ -310,12 +329,13 @@ class functionGrid {
                      -18.0 * g(i, xcount - 3, k) + 6.0 * g(i, xcount - 4, k) +
                      -1.0 * g(i, xcount - 5, k)) /
                     (12.0 * xdenom);
-                for (int j = 2; j <= xcount - 3; j++)
+                for (int j = 2; j <= xcount - 3; j++) {
                     derivs(i, j, k, 1) =
                         (1.0 * g(i, j - 2, k) + -8.0 * g(i, j - 1, k) +
                          0.0 * g(i, j, k) + 8.0 * g(i, j + 1, k) +
                          -1.0 * g(i, j + 2, k)) /
                         (12.0 * xdenom);
+                }
             }
             for (int j = 0; j < xcount; j++) {
                 derivs(i, j, 0, 2) = 0;
@@ -396,6 +416,67 @@ class functionGrid {
     // friend void testInterpImprovement();
 };
 
+template <int rhocount, int xcount, int ycount>
+class fftw_wrapper_double_2d {
+   public:
+    double *fftin;
+    double *fftout;
+    fftw_wrapper_double_2d() = delete;
+    explicit fftw_wrapper_double_2d(fftw_r2r_kind t) {
+        int rank = 2;
+        int n[] = {xcount, ycount};
+        int howmany = rhocount;
+        int idist = xcount * ycount;
+        int odist = xcount * ycount;
+        int istride = 1;
+        int ostride = 1;
+        fftw_r2r_kind type[] = {t, t};
+
+        fftin = static_cast<double *>(fftw_malloc(rhocount * xcount * ycount * sizeof(double)));
+        fftout = static_cast<double *>(fftw_malloc(rhocount * xcount * ycount * sizeof(double)));
+        plan = fftw_plan_many_r2r(rank, static_cast<int *>(n), howmany, fftin, static_cast<int *>(n), istride, idist, fftout, static_cast<int *>(n), ostride, odist, static_cast<fftw_r2r_kind *>(type), FFTW_MEASURE);
+    }
+
+    fftw_wrapper_double_2d(const fftw_wrapper_double_2d<rhocount, xcount, ycount> &other) = delete;
+    fftw_wrapper_double_2d(fftw_wrapper_double_2d<rhocount, xcount, ycount> &&other) noexcept
+        : fftin{other.fftin}, fftout{other.fftout}, plan{other.plan} {
+        other.fftin = nullptr;
+        other.fftout = nullptr;
+    }
+
+    fftw_wrapper_double_2d<rhocount, xcount, ycount> &operator=(const fftw_wrapper_double_2d<rhocount, xcount, ycount> &other) = delete;
+
+    fftw_wrapper_double_2d<rhocount, xcount, ycount> &operator=(fftw_wrapper_double_2d<rhocount, xcount, ycount> &&other) noexcept {
+        if (&other != this) {
+            fftw_free(fftin);
+            fftw_free(fftout);
+            fftw_destroy_plan(plan);
+            fftin = other.fftin;
+            fftout = other.fftout;
+            plan = other.plan;
+        }
+        return *this;
+    }
+
+    void execute(const functionGrid<rhocount, xcount, ycount, double> &in, functionGrid<rhocount, xcount, ycount, double> *out) {
+        std::copy(in.gridValues.data.begin(), in.gridValues.data.begin() + xcount * ycount * rhocount, fftin);
+        fftw_execute(plan);
+        std::copy(fftout, fftout + rhocount * xcount * ycount, out->gridValues.data.begin());
+    }
+
+    void execute() {
+        fftw_execute(plan);
+    }
+    ~fftw_wrapper_double_2d() {
+        fftw_free(fftin);
+        fftw_free(fftout);
+        fftw_destroy_plan(plan);
+    };
+
+   private:
+    fftw_plan plan;
+};
+
 /* GACalculator API
 Create
 Calculate
@@ -415,7 +496,7 @@ enum class calculatorType { linearCPU,
                             linearDotProductGPU,
                             chebCPUDense };
 
-std::map<OOGA::calculatorType, std::string> calculatorNameMap(void) {
+inline std::map<OOGA::calculatorType, std::string> calculatorNameMap() {
     std::map<OOGA::calculatorType, std::string> nameMap;
     nameMap[OOGA::calculatorType::linearCPU] =
         "linear interp, trapezoid rule, CPU ";
@@ -449,8 +530,13 @@ class GACalculator {
         newCalculator(calculatorType c, const gridDomain<RealT> &g, functionGrid<rhocount, xcount, ycount, RealT> &f);
     };
     virtual ~GACalculator() = default;
+    GACalculator() = default;
     virtual functionGrid<rhocount, xcount, ycount, RealT> calculate(
         functionGrid<rhocount, xcount, ycount, RealT> &f) = 0;
+    GACalculator(const GACalculator &) = delete;
+    GACalculator &operator=(const GACalculator &) = delete;
+    GACalculator(GACalculator &&other) = delete;
+    GACalculator &operator=(GACalculator &&) = delete;
 };
 
 template <int rhocount, int xcount, int ycount, class RealT = double>
@@ -458,8 +544,6 @@ class linearCPUCalculator
     : public GACalculator<rhocount, xcount, ycount, RealT> {
    public:
     friend class GACalculator<rhocount, xcount, ycount, RealT>;
-    linearCPUCalculator() = default;
-    ~linearCPUCalculator() = default;
     static std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
     create() {
         return std::make_unique<linearCPUCalculator>();
@@ -468,14 +552,16 @@ class linearCPUCalculator
         return std::make_unique<linearCPUCalculator>(*this);
     } /*maybe disable this functionality */
     functionGrid<rhocount, xcount, ycount, RealT> calculate(
-        functionGrid<rhocount, xcount, ycount, RealT> &f) {
+        functionGrid<rhocount, xcount, ycount, RealT> &f) override {
         functionGrid<rhocount, xcount, ycount, RealT> m =
             f;  // do we need to write a copy constructor?
 
         m.fillbyindex([&](int i, int j, int k) -> RealT {
             RealT xc = f.xset[j];
             RealT yc = f.yset[k];
-            if (f.rhoset[i] == 0) return f.gridValues(i, j, k);
+            if (f.rhoset[i] == 0) {
+                return f.gridValues(i, j, k);
+            }
             auto new_f = [&](RealT x) -> RealT {
                 return f.interp2d(i, xc + f.rhoset[i] * std::sin(x),
                                   yc - f.rhoset[i] * std::cos(x));
@@ -495,25 +581,23 @@ class linearDotProductCPU
 
    public:
     friend class GACalculator<rhocount, xcount, ycount, RealT>;
-    ~linearDotProductCPU(){
 
-    };
     static std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
-    create(const gridDomain<double> &g, functionGrid<rhocount, xcount, ycount, RealT> &f) {
-        return std::make_unique<linearDotProductCPU>(g, f);
+    create(functionGrid<rhocount, xcount, ycount, RealT> &f) {
+        return std::make_unique<linearDotProductCPU>(f);
     }
     std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>> clone() {
         return std::make_unique<linearDotProductCPU>(*this);
     } /*maybe disable this functionality */
 
-    static Eigen::SparseMatrix<RealT, Eigen::RowMajor> assembleFastGACalc(const gridDomain<double> &g, functionGrid<rhocount, xcount, ycount, RealT> &f) {
+    static Eigen::SparseMatrix<RealT, Eigen::RowMajor> assembleFastGACalc(functionGrid<rhocount, xcount, ycount, RealT> &f) {
         Eigen::SparseMatrix<RealT, Eigen::RowMajor> LTOffsetTensor;
         LTOffsetTensor.setZero();
         std::vector<std::vector<Eigen::Triplet<RealT>>>
             TripletVecVec(rhocount);
 #pragma omp parallel for
         for (auto i = 0; i < rhocount; i++) {
-            for (auto j = 0; j < xcount; j++)
+            for (auto j = 0; j < xcount; j++) {
                 for (auto k = 0; k < ycount; k++) {
                     std::vector<indexedPoint<RealT>> intersections;
                     RealT rho = f.rhoset[i];
@@ -524,36 +608,44 @@ class linearDotProductCPU
                     std::vector<RealT> xIntersections, yIntersections;
                     // these two loops calculate all potential intersection points
                     // between GA circle and the grid.
-                    for (auto v : f.xset)
+                    for (auto v : f.xset) {
                         if (std::abs(v - xc) <= rho) {
                             RealT deltax = v - xc;
                             RealT deltay = std::sqrt(rho * rho - deltax * deltax);
-                            if ((yc + deltay >= ymin) && (yc + deltay <= ymax))
+                            if ((yc + deltay >= ymin) && (yc + deltay <= ymax)) {
                                 intersections.push_back(
                                     indexedPoint<RealT>(v, yc + deltay, 0));
-                            if ((yc - deltay >= ymin) && (yc - deltay <= ymax))
+                            }
+                            if ((yc - deltay >= ymin) && (yc - deltay <= ymax)) {
                                 intersections.push_back(
                                     indexedPoint<RealT>(v, yc - deltay, 0));
+                            }
                         }
-                    for (auto v : f.yset)
+                    }
+                    for (auto v : f.yset) {
                         if (std::abs(v - yc) <= rho) {
                             RealT deltay = v - yc;
                             RealT deltax = std::sqrt(rho * rho - deltay * deltay);
-                            if ((xc + deltax >= xmin) && (xc + deltax <= xmax))
+                            if ((xc + deltax >= xmin) && (xc + deltax <= xmax)) {
                                 intersections.push_back(
                                     indexedPoint<RealT>(xc + deltax, v, 0));
-                            if ((xc - deltax >= xmin) && (xc - deltax <= xmax))
+                            }
+                            if ((xc - deltax >= xmin) && (xc - deltax <= xmax)) {
                                 intersections.push_back(
                                     indexedPoint<RealT>(xc - deltax, v, 0));
+                            }
                         }
+                    }
                     for (auto &v : intersections) {
                         v.s = std::atan2(v.xvalue - xc, yc - v.yvalue);
-                        if (v.s < 0) v.s += 2 * pi;
+                        if (v.s < 0) {
+                            v.s += 2 * pi;
+                        }
                         assert((0 <= v.s) && (v.s < 2 * pi));
                         assert((xc + std::sin(v.s) * rho) - v.xvalue < 1e-10);
                         assert((yc - std::cos(v.s) * rho) - v.yvalue < 1e-10);
                     }
-                    indexedPoint<RealT> temp;
+                    indexedPoint<RealT> temp(0, 0, 0);
                     temp.s = 0;
                     intersections.push_back(temp);
                     temp.s = 2 * pi;
@@ -568,17 +660,17 @@ class linearDotProductCPU
                     for (size_t p = 0; p < intersections.size() - 1; p++) {
                         RealT s0 = intersections[p].s, s1 = intersections[p + 1].s;
                         RealT xmid, ymid;
-                        std::array<RealT, 4> coeffs;
                         int xInterpIndex = 0, yInterpIndex = 0;
-                        if (s1 - s0 < 1e-12)
+                        if (s1 - s0 < 1e-12) {
                             continue;  // if two of our points are equal or very
                                        // close to one another, we make the arc
                                        // larger. this will probably happen for s=0
                                        // and s=pi/2, but doesn't cost us anything.
+                        }
                         integrand(rho, xc, yc, (s0 + s1) / 2, xmid,
                                   ymid);  // this just calculates into (xmid,ymid)
                                           // the point half through the arc.
-                        coeffs = arcIntegral(rho, xc, yc, s0, s1);
+                        std::array<RealT, 4> coeffs = arcIntegral(rho, xc, yc, s0, s1);
                         f.interpIndexSearch(xmid, ymid, xInterpIndex, yInterpIndex);
 
                         if (!((xInterpIndex == (xcount - 1)) &&
@@ -636,8 +728,10 @@ class linearDotProductCPU
                         }
                     }
                 }
-        }
-        std::vector<Eigen::Triplet<RealT>> Triplets;
+            }  // namespace OOGA
+        }      // namespace OOGA
+        std::vector<Eigen::Triplet<RealT>>
+            Triplets;
 
         for (int i = 0; i < rhocount; i++) {
             for (auto iter = TripletVecVec[i].begin();
@@ -654,13 +748,13 @@ class linearDotProductCPU
         // std::cout << "Number of RealT  products needed for LT calc: " <<
         // LTOffsetTensor.nonZeros() << " and rough memory usage is " <<
         // LTOffsetTensor.nonZeros() * (sizeof(RealT) + sizeof(long)) << std::endl;
-    }
-    linearDotProductCPU(const gridDomain<double> &g, functionGrid<rhocount, xcount, ycount, RealT> &f) {
-        linearSparseTensor = assembleFastGACalc(g, f);
+    }  // namespace OOGA
+    explicit linearDotProductCPU(functionGrid<rhocount, xcount, ycount, RealT> &f) {
+        linearSparseTensor = assembleFastGACalc(f);
     };
 
     functionGrid<rhocount, xcount, ycount, RealT> calculate(
-        functionGrid<rhocount, xcount, ycount, RealT> &f) {
+        functionGrid<rhocount, xcount, ycount, RealT> &f) override {
         functionGrid<rhocount, xcount, ycount, RealT> m =
             f;  // do we need to write a copy constructor?
 
@@ -672,7 +766,7 @@ class linearDotProductCPU
         target = linearSparseTensor * source;
         return m;
     }
-};
+};  // namespace OOGA
 
 template <int rhocount, int xcount, int ycount, class RealT = double>
 class bicubicCPUCalculator
@@ -681,9 +775,6 @@ class bicubicCPUCalculator
 
    public:
     friend class GACalculator<rhocount, xcount, ycount, RealT>;
-    bicubicCPUCalculator() = default;
-
-    ~bicubicCPUCalculator() = default;
     static std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
     create() {
         return std::make_unique<bicubicCPUCalculator>();
@@ -697,29 +788,33 @@ class bicubicCPUCalculator
                              int rhoindex, const RealT x, const RealT y) const {
         assert((rhoindex >= 0) && (rhoindex < rhocount));
         if ((x <= f.xset[0]) || (y <= f.yset[0]) || (x >= f.xset.back()) ||
-            (y >= f.yset.back()))
+            (y >= f.yset.back())) {
             return 0;
+        }
         int xindex = 0, yindex = 0;
         RealT result = 0;
         f.interpIndexSearch(x, y, xindex, yindex);
-        RealT xns[4] = {1, x, x * x, x * x * x};
-        RealT yns[4] = {1, y, y * y, y * y * y};
-        for (int i = 0; i <= 3; ++i)
+        std::array<RealT, 4> xns = {1, x, x * x, x * x * x};
+        std::array<RealT, 4> yns = {1, y, y * y, y * y * y};
+        for (int i = 0; i <= 3; ++i) {
             for (int j = 0; j <= 3; ++j) {
                 result += b(rhoindex, xindex, yindex, j * 4 + i) *
-                          xns[i] * yns[j];
+                          xns[i] * yns[j];  //TODO(orebas) horner's method (bivariate)
             }
+        }
         return result;
     }
 
     functionGrid<rhocount, xcount, ycount, RealT> calculate(
-        functionGrid<rhocount, xcount, ycount, RealT> &f) {
+        functionGrid<rhocount, xcount, ycount, RealT> &f) override {
         functionGrid<rhocount, xcount, ycount, RealT> m = f;  // do we need to write a copy constructor?
         typename functionGrid<rhocount, xcount, ycount, RealT>::bicubicParameterGrid b = functionGrid<rhocount, xcount, ycount, RealT>::setupBicubicGrid(f);
         m.fillbyindex([&](int i, int j, int k) -> RealT {
             RealT xc = f.xset[j];
             RealT yc = f.yset[k];
-            if (f.rhoset[i] == 0) return f.gridValues(i, j, k);
+            if (f.rhoset[i] == 0) {
+                return f.gridValues(i, j, k);
+            }
             auto new_f = [&](RealT x) -> RealT {
                 return this->interpNaiveBicubic(f, b, i, xc + f.rhoset[i] * std::sin(x),
                                                 yc - f.rhoset[i] * std::cos(x));
@@ -739,9 +834,6 @@ class biquadCPUCalculator
 
    public:
     friend class GACalculator<rhocount, xcount, ycount, RealT>;
-    biquadCPUCalculator() = default;
-
-    ~biquadCPUCalculator() = default;
     static std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
     create() {
         return std::make_unique<biquadCPUCalculator>();
@@ -752,13 +844,14 @@ class biquadCPUCalculator
 
     typename functionGrid<rhocount, xcount, ycount, RealT>::biquadParameterGrid setupBiquadGrid(
         const functionGrid<rhocount, xcount, ycount, RealT> &f) {
-        using namespace Eigen;
+        //using namespace Eigen;
+        using Eigen::Matrix;
         auto d = f.calcDerivsGrid();
         typename functionGrid<rhocount, xcount, ycount, RealT>::biquadParameterGrid b;
         for (int i = 0; i < rhocount; i++) {
             // we explicitly rely on parameters being initialized to 0,
             // including the top and right sides.
-            for (int j = 0; j < xcount - 1; j++)
+            for (int j = 0; j < xcount - 1; j++) {
                 for (int k = 0; k < ycount - 1; k++) {
                     RealT x0 = f.xset[j], x1 = f.xset[j + 1];
                     RealT y0 = f.yset[k], y1 = f.yset[k + 1];
@@ -784,9 +877,11 @@ class biquadCPUCalculator
                     // dependency methinks.  TODO
 
                     A = X.inverse() * RHS * Y.inverse();
-                    for (int t = 0; t < 16; ++t)
+                    for (int t = 0; t < 16; ++t) {
                         b(i, j, k, t) = A(t % 4, t / 4);
+                    }
                 }
+            }
         }
         return b;
     }
@@ -796,18 +891,20 @@ class biquadCPUCalculator
                             int rhoindex, const RealT x, const RealT y) const {
         assert((rhoindex >= 0) && (rhoindex < f.rhocount));
         if ((x <= f.xset[0]) || (y <= f.yset[0]) || (x >= f.xset.back()) ||
-            (y >= f.yset.back()))
+            (y >= f.yset.back())) {
             return 0;
+        }
         int xindex = 0, yindex = 0;
         RealT result = 0;
         f.interpIndexSearch(x, y, xindex, yindex);
-        RealT xns[3] = {1, x, x * x};
-        RealT yns[3] = {1, y, y * y};
-        for (int i = 0; i <= 3; ++i)
+        std::array<RealT, 4> xns = {1, x, x * x};
+        std::array<RealT, 4> yns = {1, y, y * y};
+        for (int i = 0; i <= 3; ++i) {
             for (int j = 0; j <= 3; ++j) {
                 result += b(rhoindex, xindex, yindex, j * 3 + i) *
                           xns[i] * yns[j];
             }
+        }
         return result;
     }
 
@@ -818,7 +915,9 @@ class biquadCPUCalculator
         m.fillbyindex([&](int i, int j, int k) -> RealT {
             RealT xc = f.xset[j];
             RealT yc = f.yset[k];
-            if (f.rhoset[i] == 0) return f.gridValues(i, j, k);
+            if (f.rhoset[i] == 0) {
+                return f.gridValues(i, j, k);
+            }
             auto new_f = [&](RealT x) -> RealT {
                 return this->interpNaiveBiquad(f, b, i, xc + f.rhoset[i] * std::sin(x),
                                                yc - f.rhoset[i] * std::cos(x));
@@ -829,7 +928,7 @@ class biquadCPUCalculator
         return m;
     }
 };
-
+/*
 // FFT - we sort of abandoned this; it only computes the first rhoset[0].
 //also the initialization is VERY slow.
 template <int rhocount, int xcount, int ycount, class RealT = double>
@@ -861,12 +960,12 @@ class DCTCPUCalculator
                     auto basistest = [p, q, g](RealT row, RealT ex, RealT why) -> RealT {
                         double xint = (ex - g.xmin) / (g.xmax - g.xmin) * (xcount - 1);
                         double yint = (why - g.ymin) / (g.ymax - g.ymin) * (ycount - 1);
-                        return DCTBasisFunction2(p, q, xint, yint, xcount);
+                        return row * 0.0 + DCTBasisFunction2(p, q, xint, yint, xcount);
                     };
 
                     f.fillTruncatedAlmostExactGA(basistest);
                     Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>> m(f.gridValues.data.data());
-                    denseGAMatrix.row(ycount * p + q) = m;  //TODO NOT FINISHED REDO THIS LINE
+                    denseGAMatrix.row(ycount * p + q) = m;  //TODO(orebas) NOT FINISHED REDO THIS LINE
                 }
             }
         }
@@ -894,22 +993,24 @@ class DCTCPUCalculator
                         double xint = (ex - g.xmin) / (g.xmax - g.xmin) * (xcount - 1);
                         double yint = (why - g.ymin) / (g.ymax - g.ymin) * (ycount - 1);
                         double ap = 2, bq = 2;
-                        if (p == 0) ap = 1;
-                        if (q == 0) bq = 1;
+                        if (p == 0) {
+                            ap = 1;
+                        }
+                        if (q == 0) {
+                            bq = 1;
+                        }
 
-                        double a, b, c, d;
-                        a = pi * p * (2.0 * xint * (2 - 1) + 1) / (2.0 * N);  //change "2" to "N"
-                        c = pi * q * (2.0 * yint * (2 - 1) + 1) / (2.0 * N);
-
-                        d = pi * p * row * (N - 1) / (N * (g.xmax - g.xmin));
-                        b = -pi * q * row * (N - 1) / (N * (g.ymax - g.ymin));
+                        double a = pi * p * (2.0 * xint * (2 - 1) + 1) / (2.0 * N);  //change "2" to "N"
+                        double c = pi * q * (2.0 * yint * (2 - 1) + 1) / (2.0 * N);
+                        double d = pi * p * row * (N - 1) / (N * (g.xmax - g.xmin));
+                        double b = -pi * q * row * (N - 1) / (N * (g.ymax - g.ymin));
                         double j = boost::math::cyl_bessel_j(0, std::sqrt(b * b + d * d));
                         return ap * bq * std::cos(a) * std::cos(c) * j;
                     };
 
                     f.fill(besseltest);
                     Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>> m(f.gridValues.data.data());
-                    denseGAMatrix.row(ycount * p + q) = m;  //TODO NOT FINISHED REDO THIS LINE
+                    denseGAMatrix.row(ycount * p + q) = m;  //TODO(orebas) NOT FINISHED REDO THIS LINE
                 }
             }
         }
@@ -917,7 +1018,7 @@ class DCTCPUCalculator
         //std::cout << "dense matrix: \n " << denseGAMatrix << std::endl;
     }
 
-    DCTCPUCalculator(const gridDomain<RealT> &g) {
+    explicit DCTCPUCalculator(const gridDomain<RealT> &g) {
         fftin = (double *)fftw_malloc(xcount * ycount * sizeof(double));
         fftout = (double *)fftw_malloc(xcount * ycount * sizeof(double));
         plan = fftw_plan_r2r_2d(xcount, ycount, fftin, fftout, FFTW_REDFT10, FFTW_REDFT10, FFTW_MEASURE);  //Forward DCT
@@ -949,7 +1050,7 @@ class DCTCPUCalculator
                 auto basistest = [p, q, g](RealT row, RealT ex, RealT why) -> RealT {
                     double xint = (ex - g.xmin) / (g.xmax - g.xmin) * (xcount - 1);
                     double yint = (why - g.ymin) / (g.ymax - g.ymin) * (ycount - 1);
-                    return DCTBasisFunction2(p, q, xint, yint, xcount);
+                    return row * 0 + DCTBasisFunction2(p, q, xint, yint, xcount);
                 };
 
                 auto besseltest = [p, q, g](RealT row, RealT ex, RealT why) {
@@ -957,15 +1058,18 @@ class DCTCPUCalculator
                     double xint = (ex - g.xmin) / (g.xmax - g.xmin) * (xcount - 1);
                     double yint = (why - g.ymin) / (g.ymax - g.ymin) * (ycount - 1);
                     double ap = 2, bq = 2;
-                    if (p == 0) ap = 1;
-                    if (q == 0) bq = 1;
+                    if (p == 0) {
+                        ap = 1;
+                    }
+                    if (q == 0) {
+                        bq = 1;
+                    }
 
-                    double a, b, c, d;
-                    a = pi * p * (2.0 * xint * (2 - 1) + 1) / (2.0 * N);  //change "2" to "N"
-                    c = pi * q * (2.0 * yint * (2 - 1) + 1) / (2.0 * N);
+                    double a = pi * p * (2.0 * xint * (2 - 1) + 1) / (2.0 * N);  //change "2" to "N"
+                    double c = pi * q * (2.0 * yint * (2 - 1) + 1) / (2.0 * N);
 
-                    d = pi * p * row * (N - 1) / (N * (g.xmax - g.xmin));
-                    b = -pi * q * row * (N - 1) / (N * (g.ymax - g.ymin));
+                    double d = pi * p * row * (N - 1) / (N * (g.xmax - g.xmin));
+                    double b = -pi * q * row * (N - 1) / (N * (g.ymax - g.ymin));
                     double j = boost::math::cyl_bessel_j(0, std::sqrt(b * b + d * d));
                     return ap * bq * std::cos(a) * std::cos(c) * j;
                 };
@@ -982,167 +1086,141 @@ class DCTCPUCalculator
         }
         tm.transposeInPlace();
         testm.transposeInPlace();
-        /*std::cout << "True Matrix:" << std::endl
-                  << tm << std::endl
-                  << std::endl
-                  << std::endl
-                  << "Test Matrix:" << std::endl
-                  << testm << std::endl
-                  << std::endl
-                  << std::endl
-                  << "Truncated Matrix:" << std::endl
-                  << denseGAMatrix << std::endl
-                  << std::endl
-                  << std::endl;*/
-    }
+        //std::cout << "True Matrix:" << std::endl
+        //          << tm << std::endl
+        //          << std::endl
+        //          << std::endl
+        //          << "Test Matrix:" << std::endl
+        //          << testm << std::endl
+        //          << std::endl
+        //          << std::endl
+        //          << "Truncated Matrix:" << std::endl
+        //          << denseGAMatrix << std::endl
+        //          << std::endl
+        //          << std::endl;
+}  // namespace OOGA
 
-    ~DCTCPUCalculator() {
-        fftw_free(fftin);
-        fftw_free(fftout);
-        fftw_destroy_plan(plan);
-    }
-    static std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
-    create(const gridDomain<RealT> &g) {
-        return std::make_unique<DCTCPUCalculator>(g);
-    }
-    std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>> clone() {
-        return std::make_unique<DCTCPUCalculator>(*this);
-    } /*maybe disable this functionality */
+~DCTCPUCalculator() override {
+    fftw_free(fftin);
+    fftw_free(fftout);
+    fftw_destroy_plan(plan);
+}
+static std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
+create(const gridDomain<RealT> &g) {
+    return std::make_unique<DCTCPUCalculator>(g);
+}
+std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>> clone() {
+    return std::make_unique<DCTCPUCalculator>(*this);
+}
 
-    functionGrid<rhocount, xcount, ycount, RealT> calculate(
-        functionGrid<rhocount, xcount, ycount, RealT> &f) {
-        functionGrid<rhocount, xcount, ycount, RealT> m = f;  // do we need to write a copy constructor?
+functionGrid<rhocount, xcount, ycount, RealT> calculate(
+    functionGrid<rhocount, xcount, ycount, RealT> &f) override {
+    functionGrid<rhocount, xcount, ycount, RealT> m = f;  // do we need to write a copy constructor?
 
-        { /* //testing code;
-            const int p = 2, q = 3;
-            gridDomain<double> g;
-            g.rhomax = 0.25;
-            g.rhomin = 1.55;
-            g.xmin = g.ymin = -3;
-            g.xmax = g.ymax = 3;
-            auto basistest = [p, q, g](double row, double ex, double why) -> double {
-                double xint = (ex - g.xmin) / (g.xmax - g.xmin) * xcount;
-                double yint = (why - g.ymin) / (g.ymax - g.ymin) * ycount;
-                return DCTBasisFunction2(p, q, xint, yint, xcount);
-            };
-            functionGrid<rhocount, xcount, ycount> in(f.rhoset, f.xset, f.yset), in2(f.rhoset, f.xset, f.yset), out(f.rhoset, f.xset, f.yset);
-            in2.fill(basistest);
-            fftw_plan plan2;
-            plan2 = fftw_plan_r2r_2d(xcount, ycount, in2.gridValues.data.data(), out.gridValues.data.data(), FFTW_REDFT10, FFTW_REDFT10, FFTW_MEASURE);  //FORWARD "DCT"
-            fftw_execute(plan2);
-            for (int i = 0; i < xcount; ++i)
-                for (int j = 0; j < ycount; ++j)
-                    if (out.gridValues(0, i, j) > 0.01)
-                        std::cout << p << " " << q << " " << i << " " << j << " " << out.gridValues(0, i, j) << std::endl;*/
-        }
+     
 
-        std::copy(f.gridValues.data.begin(), f.gridValues.data.begin() + xcount * ycount, fftin);
-        fftw_execute(plan);
-        Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>> X(fftout);
-        //std::cout << "FFT result: \n " << X << std::endl;
-        X *= (1.0 / (xcount * ycount * 4));
+    std::copy(f.gridValues.data.begin(), f.gridValues.data.begin() + xcount * ycount, fftin);
+    fftw_execute(plan);
+    Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>> X(fftout);
+    //std::cout << "FFT result: \n " << X << std::endl;
+    X *= (1.0 / (xcount * ycount * 4));
 
-        Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>>
-            b(m.gridValues.data.data());
-        b = denseGAMatrix * X;
-        //std::cout << std::endl
-        //         << b << std::endl;
-        return m;
-    }
+    Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>>
+        b(m.gridValues.data.data());
+    b = denseGAMatrix * X;
+    //std::cout << std::endl
+    //         << b << std::endl;
+    return m;
+}
 };
-
+*/
 //cheb
 template <int rhocount, int xcount, int ycount, class RealT = double>
 class chebCPUDense
     : public GACalculator<rhocount, xcount, ycount, RealT> {
    private:
-    double *fftin, *fftout;
-    fftw_plan plan;
-    Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> denseGAMatrix;
+    fftw_wrapper_double_2d<rhocount, xcount, ycount> plan = fftw_wrapper_double_2d<rhocount, xcount, ycount>(FFTW_REDFT00);
+    Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> denseGAMatrix[rhocount];
 
    public:
     friend class GACalculator<rhocount, xcount, ycount, RealT>;
 
     void slowTruncFill(const gridDomain<RealT> &g) {
-        denseGAMatrix.resize(xcount * ycount, xcount * ycount);
-        denseGAMatrix.setZero();
-        std::vector<RealT> rhoset;
-        std::vector<RealT> xset;
-        std::vector<RealT> yset;
+        for (int rho_iter = 0; rho_iter < rhocount; ++rho_iter) {
+            denseGAMatrix[rho_iter].resize(xcount * ycount, xcount * ycount);
+            denseGAMatrix[rho_iter].setZero();
+            std::vector<RealT> rhoset;
+            std::vector<RealT> xset;
+            std::vector<RealT> yset;
 
-        rhoset = LinearSpacedArray<RealT>(g.rhomin, g.rhomax, rhocount);
-        xset = LinearSpacedArray<RealT>(g.xmin, g.xmax, xcount);
-        yset = LinearSpacedArray<RealT>(g.ymin, g.ymax, ycount);
-        {
+            rhoset = LinearSpacedArray<RealT>(g.rhomin, g.rhomax, rhocount);
+            xset = LinearSpacedArray<RealT>(g.xmin, g.xmax, xcount);
+            yset = LinearSpacedArray<RealT>(g.ymin, g.ymax, ycount);
+            {
 #pragma omp parallel for
-            for (int p = 0; p < xcount; ++p) {
-                functionGrid<rhocount, xcount, ycount> f(rhoset, xset, yset);
-                for (int q = 0; q < ycount; ++q) {
-                    auto basistest = [p, q, g](RealT row, RealT ex, RealT why) -> RealT {
-                        return chebBasisFunction(p, q, ex, why, xcount);
-                    };
+                for (int p = 0; p < xcount; ++p) {
+                    functionGrid<rhocount, xcount, ycount> f(rhoset, xset, yset);
+                    for (int q = 0; q < ycount; ++q) {
+                        auto basistest = [p, q, g](RealT row, RealT ex, RealT why) -> RealT {
+                            return row * 0 + chebBasisFunction(p, q, ex, why, xcount);
+                        };
 
-                    f.fillTruncatedAlmostExactGA(basistest);
-                    Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>> m(f.gridValues.data.data());
-                    denseGAMatrix.row(ycount * p + q) = m;  //TODO NOT FINISHED REDO THIS LINE
+                        f.fillTruncatedAlmostExactGA(basistest);
+                        Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>> m(f.gridValues.data.data());
+                        denseGAMatrix[rho_iter].row(ycount * p + q) = m;  //TODO(orebas) NOT FINISHED REDO THIS LINE
+                    }
                 }
             }
+            denseGAMatrix[rho_iter].transposeInPlace();
+            //std::cout << "dense matrix: \n " << denseGAMatrix[rho_iter] << std::endl;
         }
-        denseGAMatrix.transposeInPlace();
-        //std::cout << "dense matrix: \n " << denseGAMatrix << std::endl;
     }
 
     void fastFill(const gridDomain<RealT> &g) {
-        denseGAMatrix.resize(xcount * ycount, xcount * ycount);
-        denseGAMatrix.setZero();
-        std::vector<RealT> rhoset;
-        std::vector<RealT> xset;
-        std::vector<RealT> yset;
+        for (int rho_iter = 0; rho_iter < rhocount; ++rho_iter) {
+            denseGAMatrix[rho_iter].resize(xcount * ycount, xcount * ycount);
+            denseGAMatrix[rho_iter].setZero();
+            std::vector<RealT> rhoset;
+            std::vector<RealT> xset;
+            std::vector<RealT> yset;
 
-        rhoset = LinearSpacedArray<RealT>(g.rhomin, g.rhomax, rhocount);
-        xset = LinearSpacedArray<RealT>(g.xmin, g.xmax, xcount);
-        yset = LinearSpacedArray<RealT>(g.ymin, g.ymax, ycount);
-        functionGrid<rhocount, xcount, ycount> f(rhoset, xset, yset);
-        auto res = f;
+            rhoset = LinearSpacedArray<RealT>(g.rhomin, g.rhomax, rhocount);
+            xset = LinearSpacedArray<RealT>(g.xmin, g.xmax, xcount);
+            yset = LinearSpacedArray<RealT>(g.ymin, g.ymax, ycount);
+            functionGrid<rhocount, xcount, ycount> f(rhoset, xset, yset);
+            auto res = f;
 
-        std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>> calc;
-        calc = GACalculator<rhocount, xcount, ycount, RealT, xcount / 2>::Factory::newCalculator(OOGA::calculatorType::DCTCPUPaddedCalculator2, g, f);
-        for (int p = 0; p < xcount; ++p) {
-            for (int q = 0; q < ycount; ++q) {
-                auto basistest = [p, q, g](RealT row, RealT ex, RealT why) -> RealT {
-                    return chebBasisFunction(p, q, ex, why, xcount);
-                };
+            std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>> calc;
+            calc = GACalculator<rhocount, xcount, ycount, RealT, xcount / 2>::Factory::newCalculator(OOGA::calculatorType::DCTCPUPaddedCalculator2, g, f);
+            for (int p = 0; p < xcount; ++p) {
+                for (int q = 0; q < ycount; ++q) {
+                    auto basistest = [p, q, g](RealT row, RealT ex, RealT why) -> RealT {
+                        return row * 0 + chebBasisFunction(p, q, ex, why, xcount);
+                    };
 
-                f.fill(basistest);
-                res = calc->calculate(f);
-                //std::cout << p << " " << q << " " << std::endl;
-                //res.csvPrinter(0);
-                //std::cout << std::endl;
-                //f.fillAlmostExactGA(basistest);
-                //f.csvPrinter(0);
-                Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>> m(res.gridValues.data.data());
-                denseGAMatrix.row(ycount * p + q) = m;  //TODO NOT FINISHED REDO THIS LINE
+                    f.fill(basistest);
+                    res = calc->calculate(f);
+                    //std::cout << p << " " << q << " " << std::endl;
+                    //res.csvPrinter(0);
+                    //std::cout << std::endl;
+                    //f.fillAlmostExactGA(basistest);
+                    //f.csvPrinter(0);
+                    Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>> m(res.gridValues.data.data() + rho_iter * xcount * ycount);
+                    denseGAMatrix[rho_iter].row(ycount * p + q) = m;  //TODO(orebas) NOT FINISHED REDO THIS LINE
+                }
             }
+            denseGAMatrix[rho_iter].transposeInPlace();
+            //std::cout << testMatrix << std::endl
+            //          << denseGAMatrix[rho_iter] << std::endl;
+            //std::cout << "Norm diff is :" << (testMatrix - denseGAMatrix[rho_iter]).norm() << std::endl;
         }
-        denseGAMatrix.transposeInPlace();
-        //std::cout << testMatrix << std::endl
-        //          << denseGAMatrix << std::endl;
-        //std::cout << "Norm diff is :" << (testMatrix - denseGAMatrix).norm() << std::endl;
     }
 
-    chebCPUDense(const gridDomain<RealT> &g) {
-        fftin = (double *)fftw_malloc(xcount * ycount * sizeof(double));
-        fftout = (double *)fftw_malloc(xcount * ycount * sizeof(double));
-        plan = fftw_plan_r2r_2d(xcount, ycount, fftin, fftout, FFTW_REDFT00, FFTW_REDFT00, FFTW_MEASURE);  //Forward DCT
+    explicit chebCPUDense(const gridDomain<RealT> &g) {
         //slowTruncFill(g);
         fastFill(g);
     }
 
-    ~chebCPUDense() {
-        fftw_free(fftin);
-        fftw_free(fftout);
-        fftw_destroy_plan(plan);
-    }
     static std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
     create(const gridDomain<RealT> &g) {
         return std::make_unique<chebCPUDense>(g);
@@ -1152,20 +1230,20 @@ class chebCPUDense
     } /*maybe disable this functionality */
 
     functionGrid<rhocount, xcount, ycount, RealT> calculate(
-        functionGrid<rhocount, xcount, ycount, RealT> &f) {
+        functionGrid<rhocount, xcount, ycount, RealT> &f) override {
         functionGrid<rhocount, xcount, ycount, RealT> m = f;  // do we need to write a copy constructor?
 
-        std::copy(f.gridValues.data.begin(), f.gridValues.data.begin() + xcount * ycount, fftin);
-        fftw_execute(plan);
-        Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>> X(fftout);
-        //std::cout << "FFT result: \n " << X << std::endl;
-        X *= (1.0 / ((xcount - 1) * (ycount - 1)));
+        std::copy(f.gridValues.data.begin(), f.gridValues.data.begin() + rhocount * xcount * ycount, plan.fftin);
+        plan.execute();
+        for (int rho_iter = 0; rho_iter < rhocount; ++rho_iter) {
+            Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>> X(plan.fftout + rho_iter * xcount * ycount);
+            X *= (1.0 / ((xcount - 1) * (ycount - 1)));
 
-        Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>>
-            b(m.gridValues.data.data());
-        b = denseGAMatrix * X;
-        //std::cout << std::endl
-        //         << b << std::endl;
+            Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>> b(m.gridValues.data.data() + rho_iter * xcount * ycount);
+            b = denseGAMatrix[rho_iter] * X;
+            //std::cout << std::endl
+            //         << b << std::endl;
+        }
         return m;
     }
 };  // namespace OOGA
@@ -1178,57 +1256,34 @@ template <int rhocount, int xcount, int ycount, class RealT = double>
 class DCTCPUCalculator2
     : public GACalculator<rhocount, xcount, ycount, RealT> {
    private:
-    double *fftin, *fftout, *besselVals;
+    std::vector<double> besselVals;
     gridDomain<RealT> g;
-    fftw_plan plan;
-    fftw_plan plan_inv;
     Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> denseGAMatrix;
+
+    fftw_wrapper_double_2d<rhocount, xcount, ycount> plan = fftw_wrapper_double_2d<rhocount, xcount, ycount>(FFTW_REDFT10);
+    fftw_wrapper_double_2d<rhocount, xcount, ycount> plan_inv = fftw_wrapper_double_2d<rhocount, xcount, ycount>(FFTW_REDFT01);
 
    public:
     friend class GACalculator<rhocount, xcount, ycount, RealT>;
 
-    DCTCPUCalculator2(const gridDomain<RealT> &gd) {
+    explicit DCTCPUCalculator2(const gridDomain<RealT> &gd) {
         g = gd;
-        fftin = (double *)fftw_malloc(rhocount * xcount * ycount * sizeof(double));
-        fftout = (double *)fftw_malloc(rhocount * xcount * ycount * sizeof(double));
-        besselVals = (double *)fftw_malloc(rhocount * xcount * ycount * sizeof(double));
+        besselVals.resize(rhocount * xcount * ycount);
         auto rhoset = LinearSpacedArray(g.rhomin, g.rhomax, rhocount);
-        for (int r = 0; r < rhocount; r++)
+        for (int r = 0; r < rhocount; r++) {
             for (int p = 0; p < xcount; ++p) {
                 for (int q = 0; q < ycount; ++q) {
                     constexpr double Nx = xcount;
                     constexpr double Ny = ycount;
-                    double b, d;
-                    d = pi * p * rhoset[r] * (Nx - 1) / (Nx * (g.xmax - g.xmin));
-                    b = -pi * q * rhoset[r] * (Ny - 1) / (Ny * (g.ymax - g.ymin));
+                    double d = pi * p * rhoset[r] * (Nx - 1) / (Nx * (g.xmax - g.xmin));
+                    double b = -pi * q * rhoset[r] * (Ny - 1) / (Ny * (g.ymax - g.ymin));
                     double j = boost::math::cyl_bessel_j(0, std::sqrt(b * b + d * d));
                     besselVals[r * xcount * ycount + ycount * p + q] = j / (xcount * ycount * 4.0);
                 }
             }
-
-        int rank = 2;
-        int n[] = {xcount, ycount};
-        int howmany = rhocount;
-        int idist, odist, istride, ostride;
-        idist = xcount * ycount;
-        odist = xcount * ycount;
-        istride = ostride = 1;
-        fftw_r2r_kind fwd[] = {FFTW_REDFT10, FFTW_REDFT10};
-        fftw_r2r_kind inv[] = {FFTW_REDFT01, FFTW_REDFT01};
-
-        plan = fftw_plan_many_r2r(rank, n, howmany, fftin, n, istride, idist, fftout, n, ostride, odist, fwd, FFTW_MEASURE);
-        plan_inv = fftw_plan_many_r2r(rank, n, howmany, fftout, n, istride, idist, fftin, n, ostride, odist, inv, FFTW_MEASURE);
-        //plan = fftw_plan_r2r_2d(xcount, ycount, fftin, fftout, FFTW_REDFT10, FFTW_REDFT10, FFTW_MEASURE);      //Forward DCT
-        //plan_inv = fftw_plan_r2r_2d(xcount, ycount, fftout, fftin, FFTW_REDFT01, FFTW_REDFT01, FFTW_MEASURE);  //Backward DCT
+        }
     }
 
-    ~DCTCPUCalculator2() {
-        fftw_free(fftin);
-        fftw_free(fftout);
-        fftw_free(besselVals);
-        fftw_destroy_plan(plan);
-        fftw_destroy_plan(plan_inv);
-    }
     static std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
     create(const gridDomain<RealT> &g) {
         return std::make_unique<DCTCPUCalculator2>(g);
@@ -1238,28 +1293,29 @@ class DCTCPUCalculator2
     } /*maybe disable this functionality */
 
     functionGrid<rhocount, xcount, ycount, RealT> calculate(
-        functionGrid<rhocount, xcount, ycount, RealT> &f) {
+        functionGrid<rhocount, xcount, ycount, RealT> &f) override {
         functionGrid<rhocount, xcount, ycount, RealT> m = f;  // do we need to write a copy constructor?
 
-        std::copy(f.gridValues.data.begin(), f.gridValues.data.begin() + xcount * ycount * rhocount, fftin);
-        fftw_execute(plan);
-        std::copy(fftout, fftout + rhocount * xcount * ycount, m.gridValues.data.begin());
+        std::copy(f.gridValues.data.begin(), f.gridValues.data.begin() + xcount * ycount * rhocount, plan.fftin);
+        plan.execute();
+        std::copy(plan.fftout, plan.fftout + rhocount * xcount * ycount, plan_inv.fftin);
         for (int i = 0; i < rhocount * xcount * ycount; ++i) {
-            fftout[i] *= besselVals[i];
+            plan_inv.fftin[i] *= besselVals[i];
         }
-        fftw_execute(plan_inv);
-        std::copy(fftin, fftin + rhocount * xcount * ycount, m.gridValues.data.begin());
+        plan_inv.execute();
+        std::copy(plan_inv.fftout, plan_inv.fftout + rhocount * xcount * ycount, m.gridValues.data.begin());
 
         return m;
     }
 };
+
 //FFT2
 //FFTPADDED
 template <int rhocount, int xcount, int ycount, int padcount = 0, class RealT = double>
 class DCTCPUPaddedCalculator
     : public GACalculator<rhocount, xcount, ycount, RealT> {
    private:
-    double *fftin, *fftout, *besselVals;
+    //double *fftin, *fftout, *besselVals;
     gridDomain<RealT> paddedg;
     Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> denseGAMatrix;
     std::unique_ptr<DCTCPUCalculator2<rhocount, xcount + padcount * 2, ycount + padcount * 2, RealT>> dctCalc;
@@ -1267,7 +1323,7 @@ class DCTCPUPaddedCalculator
    public:
     friend class GACalculator<rhocount, xcount, ycount, RealT>;
 
-    DCTCPUPaddedCalculator(const gridDomain<RealT> &g) {
+    explicit DCTCPUPaddedCalculator(const gridDomain<RealT> &g) {
         paddedg = g;
         double deltax = (g.xmax - g.xmin) / (xcount - 1.0);
         double deltay = (g.ymax - g.ymin) / (ycount - 1.0);
@@ -1278,9 +1334,10 @@ class DCTCPUPaddedCalculator
         dctCalc = std::make_unique<DCTCPUCalculator2<rhocount, xcount + padcount * 2, ycount + padcount * 2, RealT>>(paddedg);
     }
 
-    ~DCTCPUPaddedCalculator() {
-        dctCalc.reset(nullptr);
-    }
+    //~DCTCPUPaddedCalculator() override {
+    //    dctCalc.reset(nullptr);
+    //}  //we think we don't need this because unique_ptr destroys itself.
+
     static std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
     create(const gridDomain<RealT> &g) {
         return std::make_unique<DCTCPUPaddedCalculator>(g);
@@ -1290,7 +1347,7 @@ class DCTCPUPaddedCalculator
     } /*maybe disable this functionality */
 
     functionGrid<rhocount, xcount, ycount, RealT> calculate(
-        functionGrid<rhocount, xcount, ycount, RealT> &f) {
+        functionGrid<rhocount, xcount, ycount, RealT> &f) override {
         functionGrid<rhocount, xcount, ycount, RealT> m = f;
         double xdelta = f.xset[1] - f.xset[0];
         double ydelta = f.yset[1] - f.yset[0];
@@ -1310,21 +1367,25 @@ class DCTCPUPaddedCalculator
 
         functionGrid<rhocount, xcount + padcount * 2, ycount + padcount * 2, RealT>
             paddedf(f.rhoset, xnew, ynew);
-        for (int i = 0; i < rhocount; ++i)
-            for (int j = 0; j < xcount; ++j)
+        for (int i = 0; i < rhocount; ++i) {
+            for (int j = 0; j < xcount; ++j) {
                 for (int k = 0; k < ycount; ++k) {
                     paddedf.gridValues(i, j + padcount, k + padcount) = f.gridValues(i, j, k);
                 }
+            }
+        }
         auto paddedf2 = dctCalc->calculate(paddedf);
         /*std::cout << "Padded Result:" << std::endl;
         paddedf2.csvPrinter(0);
         std::cout << std::endl
                   << std::endl;*/
-        for (int i = 0; i < rhocount; ++i)
-            for (int j = 0; j < xcount; ++j)
+        for (int i = 0; i < rhocount; ++i) {
+            for (int j = 0; j < xcount; ++j) {
                 for (int k = 0; k < ycount; ++k) {
                     m.gridValues(i, j, k) = paddedf2.gridValues(i, j + padcount, k + padcount);
                 }
+            }
+        }
 
         return m;
     }
@@ -1340,22 +1401,19 @@ class bicubicDotProductCPU
 
    public:
     friend class GACalculator<rhocount, xcount, ycount, RealT>;
-    bicubicDotProductCPU(const gridDomain<RealT> &g, functionGrid<rhocount, xcount, ycount, RealT> &f) {
-        BCSparseOperator = assembleFastBCCalc(g, f);
-    };
-    ~bicubicDotProductCPU(){
-
+    explicit bicubicDotProductCPU(functionGrid<rhocount, xcount, ycount, RealT> &f) {
+        BCSparseOperator = assembleFastBCCalc(f);
     };
 
     static std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
-    create(const gridDomain<RealT> &g, functionGrid<rhocount, xcount, ycount, RealT> &f) {
-        return std::make_unique<bicubicDotProductCPU>(g, f);
+    create(functionGrid<rhocount, xcount, ycount, RealT> &f) {
+        return std::make_unique<bicubicDotProductCPU>(f);
     }
     std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>> clone() {
         return std::make_unique<bicubicDotProductCPU>(*this);
     } /*maybe disable this functionality */
 
-    static Eigen::SparseMatrix<RealT, Eigen::RowMajor> assembleFastBCCalc(const gridDomain<double> &g, functionGrid<rhocount, xcount, ycount, RealT> &f) {
+    static Eigen::SparseMatrix<RealT, Eigen::RowMajor> assembleFastBCCalc(functionGrid<rhocount, xcount, ycount, RealT> &f) {
         Eigen::SparseMatrix<RealT, Eigen::RowMajor> BCOffsetTensor;
         BCOffsetTensor.setZero();
         auto ref = functionGrid<rhocount, xcount, ycount, RealT>::bicubicParameterGrid::internalRef;
@@ -1363,7 +1421,7 @@ class bicubicDotProductCPU
             TripletVecVec(rhocount * xcount);
         for (auto i = 0; i < rhocount; i++) {
 #pragma omp parallel for
-            for (auto j = 0; j < xcount; j++)
+            for (auto j = 0; j < xcount; j++) {
                 for (auto k = 0; k < ycount; k++) {
                     std::vector<indexedPoint<RealT>> intersections;
                     RealT rho = f.rhoset[i];
@@ -1374,36 +1432,44 @@ class bicubicDotProductCPU
                     std::vector<RealT> xIntersections, yIntersections;
                     // these two loops calculate all potential intersection points
                     // between GA circle and the grid.
-                    for (auto v : f.xset)
+                    for (auto v : f.xset) {
                         if (std::abs(v - xc) <= rho) {
                             RealT deltax = v - xc;
                             RealT deltay = std::sqrt(rho * rho - deltax * deltax);
-                            if ((yc + deltay >= ymin) && (yc + deltay <= ymax))
+                            if ((yc + deltay >= ymin) && (yc + deltay <= ymax)) {
                                 intersections.push_back(
                                     indexedPoint<RealT>(v, yc + deltay, 0));
-                            if ((yc - deltay >= ymin) && (yc - deltay <= ymax))
+                            }
+                            if ((yc - deltay >= ymin) && (yc - deltay <= ymax)) {
                                 intersections.push_back(
                                     indexedPoint<RealT>(v, yc - deltay, 0));
+                            }
                         }
-                    for (auto v : f.yset)
+                    }
+                    for (auto v : f.yset) {
                         if (std::abs(v - yc) <= rho) {
                             RealT deltay = v - yc;
                             RealT deltax = std::sqrt(rho * rho - deltay * deltay);
-                            if ((xc + deltax >= xmin) && (xc + deltax <= xmax))
+                            if ((xc + deltax >= xmin) && (xc + deltax <= xmax)) {
                                 intersections.push_back(
                                     indexedPoint<RealT>(xc + deltax, v, 0));
-                            if ((xc - deltax >= xmin) && (xc - deltax <= xmax))
+                            }
+                            if ((xc - deltax >= xmin) && (xc - deltax <= xmax)) {
                                 intersections.push_back(
                                     indexedPoint<RealT>(xc - deltax, v, 0));
+                            }
                         }
+                    }
                     for (auto &v : intersections) {
                         v.s = std::atan2(v.xvalue - xc, yc - v.yvalue);
-                        if (v.s < 0) v.s += 2 * pi;
+                        if (v.s < 0) {
+                            v.s += 2 * pi;
+                        }
                         assert((0 <= v.s) && (v.s < 2 * pi));
                         assert((xc + std::sin(v.s) * rho) - v.xvalue < 1e-10);
                         assert((yc - std::cos(v.s) * rho) - v.yvalue < 1e-10);
                     }
-                    indexedPoint<RealT> temp;
+                    indexedPoint<RealT> temp(0, 0, 0);
                     temp.s = 0;
                     intersections.push_back(temp);
                     temp.s = 2 * pi;
@@ -1418,14 +1484,16 @@ class bicubicDotProductCPU
                     for (size_t p = 0; p < intersections.size() - 1; p++) {
                         RealT s0 = intersections[p].s, s1 = intersections[p + 1].s;
                         RealT xmid, ymid;
-                        std::array<RealT, 16> coeffs;
+                        std::array<RealT, 16> coeffs = {};
                         int xInterpIndex = 0, yInterpIndex = 0;
                         if (s1 - s0 <
-                            1e-12)     // TODO MAGIC NUMBER (here and another place )
+                            1e-12) {
+                            // TODO(orebas) MAGIC NUMBER (here and another place )
                             continue;  // if two of our points are equal or very
                                        // close to one another, we make the arc
                                        // larger. this will probably happen for s=0
                                        // and s=pi/2, but doesn't cost us anything.
+                        }
                         integrand(rho, xc, yc, (s0 + s1) / 2, xmid,
                                   ymid);  // this just calculates into (xmid,ymid)
                                           // the point half through the arc.
@@ -1434,8 +1502,8 @@ class bicubicDotProductCPU
                         // begin look-thru code
                         if (!((xInterpIndex == (xcount - 1)) &&
                               (yInterpIndex == (ycount - 1)))) {
-                            std::array<int, 16> LTSources, LTTargets;
-                            std::array<RealT, 16> LTCoeffs;
+                            std::array<int, 16> LTSources = {}, LTTargets = {};
+                            std::array<RealT, 16> LTCoeffs = {};
                             for (int l = 0; l < 16; l++) {
                                 LTSources[l] =
                                     ref(i, xInterpIndex, yInterpIndex, l) - ref(0, 0, 0, 0);
@@ -1449,12 +1517,13 @@ class bicubicDotProductCPU
                         }
                     }
                 }
+            }
         }
         std::vector<Eigen::Triplet<RealT>> Triplets;
         for (int i = 0; i < rhocount * xcount; i++) {
             for (auto iter = TripletVecVec[i].begin();
                  iter != TripletVecVec[i].end(); ++iter) {
-                Eigen::Triplet<RealT> lto(*iter);
+                //Eigen::Triplet<RealT> lto(*iter);
                 Triplets.emplace_back(*iter);
             }
         }
@@ -1467,7 +1536,7 @@ class bicubicDotProductCPU
     }
 
     functionGrid<rhocount, xcount, ycount, RealT> calculate(
-        functionGrid<rhocount, xcount, ycount, RealT> &f) {
+        functionGrid<rhocount, xcount, ycount, RealT> &f) override {
         functionGrid<rhocount, xcount, ycount, RealT> m =
             f;  // do we need to write a copy constructor?
 
@@ -1493,9 +1562,9 @@ class bicubicDotProductGPU
 
    public:
     friend class GACalculator<rhocount, xcount, ycount, RealT>;
-    bicubicDotProductGPU(const gridDomain<RealT> &g, functionGrid<rhocount, xcount, ycount, RealT> &f)
+    explicit bicubicDotProductGPU(functionGrid<rhocount, xcount, ycount, RealT> &f)
         : vcl_sparse_matrix(xcount * ycount * rhocount, xcount * ycount * rhocount * 16) {
-        Eigen::SparseMatrix<RealT, Eigen::RowMajor> BCSparseOperator = bicubicDotProductCPU<rhocount, xcount, ycount, RealT>::assembleFastBCCalc(g, f);
+        Eigen::SparseMatrix<RealT, Eigen::RowMajor> BCSparseOperator = bicubicDotProductCPU<rhocount, xcount, ycount, RealT>::assembleFastBCCalc(f);
         viennacl::copy(BCSparseOperator, vcl_sparse_matrix);
         typename functionGrid<rhocount, xcount, ycount, RealT>::bicubicParameterGrid b = functionGrid<rhocount, xcount, ycount, RealT>::setupBicubicGrid(f);
         //gpu_source.resize(b.data.size());
@@ -1503,23 +1572,21 @@ class bicubicDotProductGPU
         //gpu_source.clear();
         //gpu_target.clear();
         //        std::cout << "no fail 1" << std::endl;
-        auto garbage = this->calculate(f);  //call to initialize compute kernel maybe?
+        //auto garbage = this->calculate(f);  //call to initialize compute kernel maybe?
+        //TODO(orebas): the above may or not be a virtual function called in a constructor.  those are bad. google it.
         viennacl::backend::finish();
-    };
-    ~bicubicDotProductGPU(){
-
     };
 
     static std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
-    create(const gridDomain<RealT> &g, functionGrid<rhocount, xcount, ycount, RealT> &f) {
-        return std::make_unique<bicubicDotProductGPU>(g, f);
+    create(functionGrid<rhocount, xcount, ycount, RealT> &f) {
+        return std::make_unique<bicubicDotProductGPU>(f);
     }
     std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>> clone() {
         return std::make_unique<bicubicDotProductGPU>(*this);
     } /*maybe disable this functionality */
 
     functionGrid<rhocount, xcount, ycount, RealT> calculate(
-        functionGrid<rhocount, xcount, ycount, RealT> &f) {
+        functionGrid<rhocount, xcount, ycount, RealT> &f) override {
         functionGrid<rhocount, xcount, ycount, RealT> m =
             f;
 
@@ -1554,29 +1621,28 @@ class linearDotProductGPU
 
    public:
     friend class GACalculator<rhocount, xcount, ycount, RealT>;
-    linearDotProductGPU(const gridDomain<RealT> &g, functionGrid<rhocount, xcount, ycount, RealT> &f)
+    explicit linearDotProductGPU(functionGrid<rhocount, xcount, ycount, RealT> &f)
         : vcl_sparse_matrix(xcount * ycount * rhocount, xcount * ycount * rhocount) {
-        Eigen::SparseMatrix<RealT, Eigen::RowMajor> GASparseOperator = linearDotProductCPU<rhocount, xcount, ycount, RealT>::assembleFastGACalc(g, f);
+        Eigen::SparseMatrix<RealT, Eigen::RowMajor> GASparseOperator = linearDotProductCPU<rhocount, xcount, ycount, RealT>::assembleFastGACalc(f);
         viennacl::copy(GASparseOperator, vcl_sparse_matrix);
         //typename functionGrid<rhocount, xcount, ycount, RealT>::linearParameterGrid b = functionGrid<rhocount, xcount, ycount, RealT>::setuplinearGrid(f);
         //std::cout << "no fail 1" << std::endl;
-        auto garbage = this->calculate(f);  //call to initialize compute kernel maybe?
-        viennacl::backend::finish();
-    };
-    ~linearDotProductGPU(){
+        //auto garbage = this->calculate(f);  //call to initialize compute kernel maybe?
+        //TODO(orebas): virtual function call in a constructor is bad.
 
+        viennacl::backend::finish();
     };
 
     static std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
-    create(const gridDomain<RealT> &g, functionGrid<rhocount, xcount, ycount, RealT> &f) {
-        return std::make_unique<linearDotProductGPU>(g, f);
+    create(functionGrid<rhocount, xcount, ycount, RealT> &f) {
+        return std::make_unique<linearDotProductGPU>(f);
     }
     std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>> clone() {
         return std::make_unique<linearDotProductGPU>(*this);
     } /*maybe disable this functionality */
 
     functionGrid<rhocount, xcount, ycount, RealT> calculate(
-        functionGrid<rhocount, xcount, ycount, RealT> &f) {
+        functionGrid<rhocount, xcount, ycount, RealT> &f) override {
         functionGrid<rhocount, xcount, ycount, RealT> m =
             f;
 
@@ -1606,29 +1672,32 @@ template <int rhocount, int xcount, int ycount, class RealT, int padcount>
 std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
 GACalculator<rhocount, xcount, ycount, RealT, padcount>::Factory::newCalculator(
     calculatorType c, const gridDomain<RealT> &g, functionGrid<rhocount, xcount, ycount, RealT> &f) {
-    if (c == calculatorType::linearCPU)
-        return linearCPUCalculator<rhocount, xcount, ycount, RealT>::create();
-    else if (c == calculatorType::bicubicCPU)
-        return bicubicCPUCalculator<rhocount, xcount, ycount, RealT>::create();
-    else if (c == calculatorType::DCTCPUCalculator)
-        return DCTCPUCalculator<rhocount, xcount, ycount, RealT>::create(g);
-    else if (c == calculatorType::DCTCPUCalculator2)
-        return DCTCPUCalculator2<rhocount, xcount, ycount, RealT>::create(g);
-    else if (c == calculatorType::linearDotProductCPU)
-        return linearDotProductCPU<rhocount, xcount, ycount, RealT>::create(g, f);
-    else if (c == calculatorType::bicubicDotProductCPU)
-        return bicubicDotProductCPU<rhocount, xcount, ycount, RealT>::create(g, f);
-    else if (c == calculatorType::DCTCPUPaddedCalculator2)
-        return DCTCPUPaddedCalculator<rhocount, xcount, ycount, padcount, RealT>::create(g);
-    else if (c == calculatorType::bicubicDotProductGPU)
-        return bicubicDotProductGPU<rhocount, xcount, ycount, RealT>::create(g, f);
-    else if (c == calculatorType::linearDotProductGPU)
-        return linearDotProductGPU<rhocount, xcount, ycount, RealT>::create(g, f);
-    else if (c == calculatorType::chebCPUDense)
-        return chebCPUDense<rhocount, xcount, ycount, RealT>::create(g);
+    switch (c) {
+        case (calculatorType::linearCPU):
+            return linearCPUCalculator<rhocount, xcount, ycount, RealT>::create();
+        case (calculatorType::bicubicCPU):
+            return bicubicCPUCalculator<rhocount, xcount, ycount, RealT>::create();
+        case (calculatorType::DCTCPUCalculator):
+            assert(0);
+            //return DCTCPUCalculator<rhocount, xcount, ycount, RealT>::create(g);
+        case (calculatorType::DCTCPUCalculator2):
+            return DCTCPUCalculator2<rhocount, xcount, ycount, RealT>::create(g);
+        case (calculatorType::linearDotProductCPU):
+            return linearDotProductCPU<rhocount, xcount, ycount, RealT>::create(f);
+        case (calculatorType::bicubicDotProductCPU):
+            return bicubicDotProductCPU<rhocount, xcount, ycount, RealT>::create(f);
+        case (calculatorType::DCTCPUPaddedCalculator2):
+            return DCTCPUPaddedCalculator<rhocount, xcount, ycount, padcount, RealT>::create(g);
+        case (calculatorType::bicubicDotProductGPU):
+            return bicubicDotProductGPU<rhocount, xcount, ycount, RealT>::create(f);
+        case (calculatorType::linearDotProductGPU):
+            return linearDotProductGPU<rhocount, xcount, ycount, RealT>::create(f);
+        case (calculatorType::chebCPUDense):
+            return chebCPUDense<rhocount, xcount, ycount, RealT>::create(g);
 
-    else
-        return linearCPUCalculator<rhocount, xcount, ycount, RealT>::create();
+        default:
+            return linearCPUCalculator<rhocount, xcount, ycount, RealT>::create();
+    }
 }
 
 }  // namespace OOGA

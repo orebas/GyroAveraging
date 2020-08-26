@@ -29,5 +29,8 @@ Home-Asan: GyroAverage.cpp ga.h gautils.h
 
 all: GyroAverage-OpenCL GyroAverage-CPU GyroAverage-CUDA
 
+#lint: GyroAverage.cpp ga.h gautils.h
+#	clang-tidy --checks=*,-readability-magic-numbers,-readability-isolate-declaration,-cppcoreguidelines-avoid-magic-numbers,-modernize-use-trailing-return-type  GyroAverage.cpp --extra-arg=-I. --header-filter=gautils.h
+
 clean:
 	rm -rf GyroAverage-OpenCL GyroAverage-CPU GyroAverage-CUDA GyroAverage-Home GyroAverage.cu ga.cu

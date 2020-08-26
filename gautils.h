@@ -31,12 +31,12 @@ struct measure {
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start);
 
         auto start2 = std::chrono::steady_clock::now();
-        int iters = 1000 / (duration.count() + 1);
-        iters = std::max(1, iters);
-        iters = std::min(iters, 10000);
-        for (int i = 0; i < iters; ++i)
+        long iters = 1000 / (duration.count() + 1);
+        iters = std::max(1L, iters);
+        iters = std::min(iters, 10000L);
+        for (long i = 0; i < iters; ++i) {
             func(std::forward<Args>(args)...);
-
+        }
         auto duration2 = std::chrono::duration_cast<TimeT>(std::chrono::steady_clock::now() - start2);
         return duration2.count() / iters;
     }
@@ -47,7 +47,7 @@ struct indexedPoint {
     RealT xvalue = 0;
     RealT yvalue = 0;
     RealT s = 0;  // from 0 to 2*Pi only please.
-    indexedPoint(RealT x = 0, RealT y = 0, RealT row = 0)
+    explicit indexedPoint(RealT x = 0, RealT y = 0, RealT row = 0)
         : xvalue(x), yvalue(y), s(row) {}
 };
 
@@ -60,7 +60,7 @@ inline void integrand(const RealT rho, const RealT xc, const RealT yc,
 
 template <class RealT = double>
 std::array<RealT, 4> arcIntegral(RealT rho, RealT xc, RealT yc, RealT s0, RealT s1) {
-    std::array<RealT, 4> coeffs;
+    std::array<RealT, 4> coeffs = {};
     RealT coss1 = std::cos(s1), coss0 = std::cos(s0), sins0 = std::sin(s0),
           sins1 = std::sin(s1);
     coeffs[0] = s1 - s0;
@@ -84,10 +84,14 @@ double inline DCTBasisFunction(double p, double q, int i, int j, int N) {
            std::cos(pi * (2 * j + 1) * q / (2.0 * N));
 }
 
-double inline DCTBasisFunction2(double p, double q, double i, double j, int N) {  //TODO MODIFY FOR NONSQUARE (N should be two paramters)
+double inline DCTBasisFunction2(double p, double q, double i, double j, int N) {  //TODO(orebas) MODIFY FOR NONSQUARE (N should be two paramters)
     double a = 2, b = 2;
-    if (p == 0) a = 1;
-    if (q == 0) b = 1;
+    if (p == 0) {
+        a = 1;
+    }
+    if (q == 0) {
+        b = 1;
+    }
     return a * b *
            std::cos(pi * (2 * i + 1) * p / (2.0 * N)) *
            std::cos(pi * (2 * j + 1) * q / (2.0 * N));
@@ -95,12 +99,20 @@ double inline DCTBasisFunction2(double p, double q, double i, double j, int N) {
 
 double inline chebBasisFunction(int p, int q, double x, double y, int N) {
     double a = 1, b = 1;
-    if (p == 0) a = 0.5;
-    if (q == 0) b = 0.5;
-    if (p == N - 1) a = 0.5;
-    if (q == N - 1) b = 0.5;
+    if (p == 0) {
+        a = 0.5;
+    }
+    if (q == 0) {
+        b = 0.5;
+    }
+    if (p == N - 1) {
+        a = 0.5;
+    }
+    if (q == N - 1) {
+        b = 0.5;
+    }
     return a * b * boost::math::chebyshev_t(p, -x) * boost::math::chebyshev_t(q, -y);
-};  // namespace OOGA
+}  // namespace OOGA
 
 void inline arcIntegralBicubic(
     std::array<double, 16> &coeffs,  // this function is being left in double,
@@ -163,7 +175,6 @@ class Array3d {
    public:
     std::vector<T> data;
 
-   public:
     Array3d() : data(w * h * d, 0) {}
 
     inline T &at(int x, int y, int z) { return data[x * h * d + y * d + z]; }
@@ -186,7 +197,6 @@ class Array4d {
    public:
     std::vector<T> data;
 
-   public:
     Array4d() : data(w * h * d * l, 0) {}
 
     inline T &at(int x, int y, int z, int t) {
@@ -234,9 +244,10 @@ std::vector<RealT> LinearSpacedArray(RealT a, RealT b, int N) {
     RealT h = (b - a) / static_cast<RealT>(N - 1);
     std::vector<RealT> xs(N);
     auto x = xs.begin();
-    RealT val;
-    for (val = a; x != xs.end(); ++x, val += h) {
+    RealT val = a;
+    for (; x != xs.end(); ++x) {
         *x = val;
+        val += h;
     }
     return xs;
 }
@@ -244,7 +255,7 @@ std::vector<RealT> LinearSpacedArray(RealT a, RealT b, int N) {
 template <class RealT = double>
 struct sparseOffset {  // no constructor.
     int target, source;
-    RealT coeffs[4];
+    std::array<RealT, 4> coeffs;
 };
 
 template <class RealT = double>
@@ -253,8 +264,8 @@ struct LTOffset {
     RealT coeff;
 };
 
-std::array<double, 4> operator+(const std::array<double, 4> &l, const std::array<double, 4> &r) {
-    std::array<double, 4> ret;
+inline std::array<double, 4> operator+(const std::array<double, 4> &l, const std::array<double, 4> &r) {
+    std::array<double, 4> ret = {};
     ret[0] = l[0] + r[0];
     ret[1] = l[1] + r[1];
     ret[2] = l[2] + r[2];
@@ -262,8 +273,8 @@ std::array<double, 4> operator+(const std::array<double, 4> &l, const std::array
     return ret;
 }
 
-std::array<float, 4> operator+(const std::array<float, 4> &l, const std::array<float, 4> &r) {
-    std::array<float, 4> ret;
+inline std::array<float, 4> operator+(const std::array<float, 4> &l, const std::array<float, 4> &r) {
+    std::array<float, 4> ret = {};
     ret[0] = l[0] + r[0];
     ret[1] = l[1] + r[1];
     ret[2] = l[2] + r[2];
@@ -272,5 +283,21 @@ std::array<float, 4> operator+(const std::array<float, 4> &l, const std::array<f
 }
 
 }  // namespace OOGA
+
+constexpr int inline mymax(int a, int b) {
+    if (a > b) {
+        return a;
+    }
+    return b;
+}
+
+template <class RealT = double>
+std::vector<RealT> chebPoints(int N) {
+    std::vector<RealT> xs(N);
+    for (size_t i = 0; i < xs.size(); ++i) {
+        xs[i] = -1 * std::cos(i * OOGA::pi / (N - 1));
+    }
+    return xs;
+}
 
 #endif  //GYROAVERGING_UTILS_H
