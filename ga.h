@@ -446,7 +446,8 @@ class fftw_wrapper_double_2d {
 
     fftw_wrapper_double_2d<rhocount, xcount, ycount> &operator=(const fftw_wrapper_double_2d<rhocount, xcount, ycount> &other) = delete;
 
-    fftw_wrapper_double_2d<rhocount, xcount, ycount> &operator=(fftw_wrapper_double_2d<rhocount, xcount, ycount> &&other) noexcept {
+    fftw_wrapper_double_2d<rhocount, xcount, ycount> &operator=(fftw_wrapper_double_2d<rhocount, xcount, ycount> &&other) = delete;
+    /*noexcept {
         if (&other != this) {
             fftw_free(fftin);
             fftw_free(fftout);
@@ -456,7 +457,7 @@ class fftw_wrapper_double_2d {
             plan = other.plan;
         }
         return *this;
-    }
+    }*/
 
     void execute(const functionGrid<rhocount, xcount, ycount, double> &in, functionGrid<rhocount, xcount, ycount, double> *out) {
         std::copy(in.gridValues.data.begin(), in.gridValues.data.begin() + xcount * ycount * rhocount, fftin);
@@ -1177,43 +1178,53 @@ class chebCPUDense
     }
 
     void fastFill(const gridDomain<RealT> &g) {
+        //#pragma omp parallel for  //this breaks the code, resulting in a double free.  I think it's because creating plans is not thread-safe.
         for (int rho_iter = 0; rho_iter < rhocount; ++rho_iter) {
             denseGAMatrix[rho_iter].resize(xcount * ycount, xcount * ycount);
             denseGAMatrix[rho_iter].setZero();
-            std::vector<RealT> rhoset;
-            std::vector<RealT> xset;
-            std::vector<RealT> yset;
+        }
+        std::vector<RealT> rhoset;
+        std::vector<RealT> xset;
+        std::vector<RealT> yset;
 
-            rhoset = LinearSpacedArray<RealT>(g.rhomin, g.rhomax, rhocount);
-            xset = LinearSpacedArray<RealT>(g.xmin, g.xmax, xcount);
-            yset = LinearSpacedArray<RealT>(g.ymin, g.ymax, ycount);
+        rhoset = LinearSpacedArray<RealT>(g.rhomin, g.rhomax, rhocount);
+        xset = LinearSpacedArray<RealT>(g.xmin, g.xmax, xcount);
+        yset = LinearSpacedArray<RealT>(g.ymin, g.ymax, ycount);
+
+        std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>> calc;
+
+        std::vector<std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>> calcset;
+        for (int p = 0; p < xcount; ++p) {
             functionGrid<rhocount, xcount, ycount> f(rhoset, xset, yset);
-            auto res = f;
+            calcset.emplace_back(GACalculator<rhocount, xcount, ycount, RealT, xcount / 2>::Factory::newCalculator(OOGA::calculatorType::DCTCPUPaddedCalculator2, g, f));
+            if (calcset.back() == nullptr) {
+                std::cout << "ERROR" << std::endl;
+                exit(0);
+            }
+        }
+#pragma omp parallel for  //same as above this breaks the code
+        for (int p = 0; p < xcount; ++p) {
+            functionGrid<rhocount, xcount, ycount> f(rhoset, xset, yset);
+            //auto calc = GACalculator<rhocount, xcount, ycount, RealT, xcount / 2>::Factory::newCalculator(OOGA::calculatorType::DCTCPUPaddedCalculator2, g, f);
+            for (int q = 0; q < ycount; ++q) {
+                auto basistest = [p, q, g](RealT row, RealT ex, RealT why) -> RealT {
+                    return row * 0 + chebBasisFunction(p, q, ex, why, xcount);
+                };
 
-            std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>> calc;
-            calc = GACalculator<rhocount, xcount, ycount, RealT, xcount / 2>::Factory::newCalculator(OOGA::calculatorType::DCTCPUPaddedCalculator2, g, f);
-            for (int p = 0; p < xcount; ++p) {
-                for (int q = 0; q < ycount; ++q) {
-                    auto basistest = [p, q, g](RealT row, RealT ex, RealT why) -> RealT {
-                        return row * 0 + chebBasisFunction(p, q, ex, why, xcount);
-                    };
-
-                    f.fill(basistest);
-                    res = calc->calculate(f);
-                    //std::cout << p << " " << q << " " << std::endl;
-                    //res.csvPrinter(0);
-                    //std::cout << std::endl;
-                    //f.fillAlmostExactGA(basistest);
-                    //f.csvPrinter(0);
+                f.fill(basistest);
+                auto res = calcset[p]->calculate(f);
+                for (int rho_iter = 0; rho_iter < rhocount; ++rho_iter) {
                     Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>> m(res.gridValues.data.data() + rho_iter * xcount * ycount);
-                    denseGAMatrix[rho_iter].row(ycount * p + q) = m;  //TODO(orebas) NOT FINISHED REDO THIS LINE
+                    denseGAMatrix[rho_iter].col(ycount * p + q) = m;  //TODO(orebas) NOT FINISHED REDO THIS LINE
                 }
             }
-            denseGAMatrix[rho_iter].transposeInPlace();
-            //std::cout << testMatrix << std::endl
-            //          << denseGAMatrix[rho_iter] << std::endl;
-            //std::cout << "Norm diff is :" << (testMatrix - denseGAMatrix[rho_iter]).norm() << std::endl;
         }
+        /*for (int rho_iter = 0; rho_iter < rhocount; ++rho_iter) {
+            denseGAMatrix[rho_iter].transposeInPlace();
+        }*/
+        //std::cout << testMatrix << std::endl
+        //          << denseGAMatrix[rho_iter] << std::endl;
+        //std::cout << "Norm diff is :" << (testMatrix - denseGAMatrix[rho_iter]).norm() << std::endl;
     }
 
     explicit chebCPUDense(const gridDomain<RealT> &g) {

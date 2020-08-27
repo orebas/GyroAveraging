@@ -230,39 +230,38 @@ int main() {
     };
 
     auto res1 = testRun<8, rhocount, double, true>(chebCalclist, testfunc2, g);
-    std::cout << res1 << std::endl;
+    std::cout << res1;
     res1 = testRun<16, rhocount, double, true>(chebCalclist, testfunc2, g);
-    std::cout << res1 << std::endl;
+    std::cout << res1;
 
     res1 = testRun<32, rhocount, double, true>(chebCalclist, testfunc2, g);
-    std::cout << res1 << std::endl;
+    std::cout << res1;
 
     res1 = testRun<64, rhocount, double, true>(chebCalclist, testfunc2, g);
-    std::cout << res1 << std::endl;
+    std::cout << res1;
 
-    /* res1 = testRun<128, rhocount, double, true>(chebCalclist, testfunc2, g);
+    res1 = testRun<128, rhocount, double, true>(chebCalclist, testfunc2, g);
     std::cout << res1 << std::endl;
-
+    /*
     res1 = testRun<256, rhocount, double, true>(chebCalclist, testfunc2, g);
     std::cout << res1 << std::endl;
 */
 
     res1 = testRun<8, rhocount, double>(calclist, testfunc2, g);
-    std::cout << res1 << std::endl;
+    std::cout << res1;
 
     res1 = testRun<16, rhocount, double>(calclist, testfunc2, g);
-    std::cout << res1 << std::endl;
+    std::cout << res1;
 
     res1 = testRun<32, rhocount, double>(calclist, testfunc2, g);
-    std::cout << res1 << std::endl;
+    std::cout << res1;
 
     res1 = testRun<64, rhocount, double>(calclist, testfunc2, g);
-    std::cout << res1 << std::endl;
+    std::cout << res1;
 
-    /*
     res1 = testRun<128, rhocount, double>(calclist, testfunc2, g);
     std::cout << res1 << std::endl;
-
+    /*
 
     res1 = testRun<256, rhocount, double>(calclist, ezfunc, g);
     std::cout << res1 << std::endl;
