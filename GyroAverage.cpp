@@ -178,7 +178,7 @@ int main() {
     g.xmin = g.ymin = mainxyMin;
     g.xmax = g.ymax = mainxyMax;
     constexpr int xcount = 16, ycount = 16,
-                  rhocount = 30;  // bump up to 64x64x35 later or 128x128x35
+                  rhocount = 3;  // bump up to 64x64x35 later or 128x128x35
     constexpr mainReal A = 24;
     constexpr mainReal B = 1.1;
     constexpr mainReal Normalizer = 50.0;
@@ -207,6 +207,7 @@ int main() {
 
     std::vector<OOGA::calculatorType> chebCalclist;
     chebCalclist.push_back(OOGA::calculatorType::chebCPUDense);
+    chebCalclist.push_back(OOGA::calculatorType::chebGPUDense);
     //constexpr mainReal padtest = xcount * mainRhoMax / std::abs(mainxyMax - mainxyMin);
     //constexpr int padcount = mymax(8, 4 + static_cast<int>(std::ceil(padtest)));
 
@@ -240,9 +241,9 @@ int main() {
     res1 = testRun<64, rhocount, double, true>(chebCalclist, testfunc2, g);
     std::cout << res1;
 
-    res1 = testRun<128, rhocount, double, true>(chebCalclist, testfunc2, g);
+    /*res1 = testRun<128, rhocount, double, true>(chebCalclist, testfunc2, g);
     std::cout << res1 << std::endl;
-    /*
+    
     res1 = testRun<256, rhocount, double, true>(chebCalclist, testfunc2, g);
     std::cout << res1 << std::endl;
 */
