@@ -114,10 +114,10 @@ double inline chebBasisFunction(int p, int q, double x, double y, int N) {
     return a * b * boost::math::chebyshev_t(p, -x) * boost::math::chebyshev_t(q, -y);
 }  // namespace OOGA
 
-void inline arcIntegralBicubic(
+/*void inline arcIntegralBicubic(
     std::array<double, 16> &coeffs,  // this function is being left in double,
                                      // intentionally, for now
-    double rho, double xc, double yc, double s0, double s1);
+    double rho, double xc, double yc, double s0, double s1);*/
 
 template <typename TFunc, class RealT = double>
 RealT TanhSinhIntegrate(RealT x, RealT y, TFunc f) {
@@ -149,6 +149,8 @@ inline RealT TrapezoidIntegrate(RealT x, RealT y, TFunc f) {
     //boost::math::quadrature::tanh_sinh<RealT> integrator;
     //return integrator.integrate(f, x, y);  //TODO REPLACE
 }
+
+
 
 template <typename T>
 std::ostream &operator<<(std::ostream &out, const std::vector<T> &v) {

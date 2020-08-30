@@ -1,4 +1,5 @@
-
+//TODO(orebas): triangular cheb matrices
+//TODO(orebas): harder functions (franke, runge, etc)
 
 // file foobar.h:
 #ifndef GYROAVERAGING_GA_H
@@ -21,8 +22,9 @@
 
 namespace OOGA {
 
-template <class RealT = double>
+//template <class RealT = double>
 struct gridDomain {
+    using RealT = double;
     RealT xmin = 0, xmax = 0, ymin = 0, ymax = 0, rhomin = 0, rhomax = 0;
 };
 //TODO(orebas): I think we should have two seperate classes that compose with functionGrid, one for equispaced and one for cheb
@@ -171,15 +173,14 @@ class functionGrid {
                 }
                 return f(rhoset[i], ex, why);
             };
-            RealT result = TrapezoidIntegrate(0.0, 2 * pi, new_f) / (2 * pi);
+            RealT result = TrapezoidIntegrate(0.0, 2 * pi, new_f) / (2 * pi);  //we can use trapezoid here too.
             return result;
         });
     }
 
     template <typename TFunc1>
-    void fillTrapezoidInterp(
-        TFunc1 f) {  // this calls interp2d. gridValues must be
-                     // filled, but we don't need setupInterpGrid.
+    void fillTrapezoidInterp(TFunc1 f) {  // this calls interp2d. gridValues must be
+                                          // filled, but we don't need setupInterpGrid.
         fillbyindex([&](int i, int j, int k) -> RealT {
             RealT xc = xset[j];
             RealT yc = yset[k];
@@ -294,8 +295,7 @@ class functionGrid {
 
                     // temp1 = X.fullPivLu().inverse(); //this line crashes on
                     // my home machine without optimization turned on. temp2 =
-                    // Y.fullPivLu().inverse(); // we should take out the Eigen
-                    // dependency methinks.  TODO
+                    // Y.fullPivLu().inverse();
 
                     A = X.inverse() * RHS * Y.inverse();
                     for (int t = 0; t < 16; ++t) {
@@ -397,34 +397,24 @@ class functionGrid {
         }
         return derivs;
     }
-    // void setupInterpGrid();
-    // void setupDerivsGrid();  // make accuracy a variable later
-    // void setupBicubicGrid();
-    // void setupBicubicGrid2();
-    // void assembleFastGACalc(void);
-
-    // void assembleFastBCCalc(void);
-    // void fastLTCalcOffset();
-    // void fastBCCalcOffset();
     std::array<RealT, 4> arcIntegral(RealT rho, RealT xc, RealT yc, RealT s0,
                                      RealT s1);
-    // std::array<RealT, 16> arcIntegralBicubic(RealT rho, RealT xc, RealT yc,
-    // RealT s0, RealT s1);
-
-    // RealT interp2d(int rhoindex, const RealT x, const RealT y);
-    // RealT interpNaiveBicubic(int rhoindex, const RealT x, const RealT y);
-    // RealT interpNaiveBicubic2(int rhoindex, const RealT x, const RealT y);
-
-    // friend void testInterpImprovement();
 };
 
-template <int rhocount, int xcount, int ycount>
-class fftw_wrapper_double_2d {
+template <int rhocount, int xcount, int ycount, class RealT>
+class fftw_wrapper_2d {
    public:
-    double *fftin;
-    double *fftout;
-    fftw_wrapper_double_2d() = delete;
-    explicit fftw_wrapper_double_2d(fftw_r2r_kind t) {
+    BOOST_STATIC_ASSERT(sizeof(RealT) == 0);
+};
+//specialization for double
+template <int rhocount, int xcount, int ycount>
+class fftw_wrapper_2d<rhocount, xcount, ycount, double> {
+   public:
+    using RealT = double;
+    RealT *fftin;
+    RealT *fftout;
+    fftw_wrapper_2d() = delete;
+    explicit fftw_wrapper_2d(fftw_r2r_kind t) {
         int rank = 2;
         int n[] = {xcount, ycount};
         int howmany = rhocount;
@@ -434,34 +424,22 @@ class fftw_wrapper_double_2d {
         int ostride = 1;
         fftw_r2r_kind type[] = {t, t};
 
-        fftin = static_cast<double *>(fftw_malloc(rhocount * xcount * ycount * sizeof(double)));
-        fftout = static_cast<double *>(fftw_malloc(rhocount * xcount * ycount * sizeof(double)));
+        fftin = static_cast<RealT *>(fftw_malloc(rhocount * xcount * ycount * sizeof(RealT)));
+        fftout = static_cast<RealT *>(fftw_malloc(rhocount * xcount * ycount * sizeof(RealT)));
         plan = fftw_plan_many_r2r(rank, static_cast<int *>(n), howmany, fftin, static_cast<int *>(n), istride, idist, fftout, static_cast<int *>(n), ostride, odist, static_cast<fftw_r2r_kind *>(type), FFTW_MEASURE);
     }
 
-    fftw_wrapper_double_2d(const fftw_wrapper_double_2d<rhocount, xcount, ycount> &other) = delete;
-    fftw_wrapper_double_2d(fftw_wrapper_double_2d<rhocount, xcount, ycount> &&other) noexcept
+    fftw_wrapper_2d(const fftw_wrapper_2d<rhocount, xcount, ycount, RealT> &other) = delete;
+    fftw_wrapper_2d(fftw_wrapper_2d<rhocount, xcount, ycount, RealT> &&other) noexcept
         : fftin{other.fftin}, fftout{other.fftout}, plan{other.plan} {
         other.fftin = nullptr;
         other.fftout = nullptr;
     }
 
-    fftw_wrapper_double_2d<rhocount, xcount, ycount> &operator=(const fftw_wrapper_double_2d<rhocount, xcount, ycount> &other) = delete;
+    fftw_wrapper_2d<rhocount, xcount, ycount, RealT> &operator=(const fftw_wrapper_2d<rhocount, xcount, ycount, RealT> &other) = delete;
 
-    fftw_wrapper_double_2d<rhocount, xcount, ycount> &operator=(fftw_wrapper_double_2d<rhocount, xcount, ycount> &&other) = delete;
-    /*noexcept {
-        if (&other != this) {
-            fftw_free(fftin);
-            fftw_free(fftout);
-            fftw_destroy_plan(plan);
-            fftin = other.fftin;
-            fftout = other.fftout;
-            plan = other.plan;
-        }
-        return *this;
-    }*/
-
-    void execute(const functionGrid<rhocount, xcount, ycount, double> &in, functionGrid<rhocount, xcount, ycount, double> *out) {
+    fftw_wrapper_2d<rhocount, xcount, ycount, RealT> &operator=(fftw_wrapper_2d<rhocount, xcount, ycount, RealT> &&other) = delete;
+    void execute(const functionGrid<rhocount, xcount, ycount, RealT> &in, functionGrid<rhocount, xcount, ycount, RealT> *out) {
         std::copy(in.gridValues.data.begin(), in.gridValues.data.begin() + xcount * ycount * rhocount, fftin);
         fftw_execute(plan);
         std::copy(fftout, fftout + rhocount * xcount * ycount, out->gridValues.data.begin());
@@ -470,7 +448,7 @@ class fftw_wrapper_double_2d {
     void execute() {
         fftw_execute(plan);
     }
-    ~fftw_wrapper_double_2d() {
+    ~fftw_wrapper_2d() {
         fftw_free(fftin);
         fftw_free(fftout);
         fftw_destroy_plan(plan);
@@ -478,6 +456,58 @@ class fftw_wrapper_double_2d {
 
    private:
     fftw_plan plan;
+};
+
+//specialization for float (fp32)
+template <int rhocount, int xcount, int ycount>
+class fftw_wrapper_2d<rhocount, xcount, ycount, float> {
+   public:
+    using RealT = float;
+    RealT *fftin;
+    RealT *fftout;
+    fftw_wrapper_2d() = delete;
+    explicit fftw_wrapper_2d(fftwf_r2r_kind t) {
+        int rank = 2;
+        int n[] = {xcount, ycount};
+        int howmany = rhocount;
+        int idist = xcount * ycount;
+        int odist = xcount * ycount;
+        int istride = 1;
+        int ostride = 1;
+        fftw_r2r_kind type[] = {t, t};
+
+        fftin = static_cast<RealT *>(fftwf_malloc(rhocount * xcount * ycount * sizeof(RealT)));
+        fftout = static_cast<RealT *>(fftwf_malloc(rhocount * xcount * ycount * sizeof(RealT)));
+        plan = fftwf_plan_many_r2r(rank, static_cast<int *>(n), howmany, fftin, static_cast<int *>(n), istride, idist, fftout, static_cast<int *>(n), ostride, odist, static_cast<fftw_r2r_kind *>(type), FFTW_MEASURE);
+    }
+
+    fftw_wrapper_2d(const fftw_wrapper_2d<rhocount, xcount, ycount, RealT> &other) = delete;
+    fftw_wrapper_2d(fftw_wrapper_2d<rhocount, xcount, ycount, RealT> &&other) noexcept
+        : fftin{other.fftin}, fftout{other.fftout}, plan{other.plan} {
+        other.fftin = nullptr;
+        other.fftout = nullptr;
+    }
+
+    fftw_wrapper_2d<rhocount, xcount, ycount, RealT> &operator=(const fftw_wrapper_2d<rhocount, xcount, ycount, RealT> &other) = delete;
+
+    fftw_wrapper_2d<rhocount, xcount, ycount, RealT> &operator=(fftw_wrapper_2d<rhocount, xcount, ycount, RealT> &&other) = delete;
+    void execute(const functionGrid<rhocount, xcount, ycount, RealT> &in, functionGrid<rhocount, xcount, ycount, RealT> *out) {
+        std::copy(in.gridValues.data.begin(), in.gridValues.data.begin() + xcount * ycount * rhocount, fftin);
+        fftwf_execute(plan);
+        std::copy(fftout, fftout + rhocount * xcount * ycount, out->gridValues.data.begin());
+    }
+
+    void execute() {
+        fftwf_execute(plan);
+    }
+    ~fftw_wrapper_2d() {
+        fftwf_free(fftin);
+        fftwf_free(fftout);
+        fftwf_destroy_plan(plan);
+    };
+
+   private:
+    fftwf_plan plan;
 };
 
 /* GACalculator API
@@ -533,7 +563,7 @@ class GACalculator {
    public:
     struct Factory {
         static std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
-        newCalculator(calculatorType c, const gridDomain<RealT> &g, functionGrid<rhocount, xcount, ycount, RealT> &f);
+        newCalculator(calculatorType c, const gridDomain &g, functionGrid<rhocount, xcount, ycount, RealT> &f);
     };
     virtual ~GACalculator() = default;
     GACalculator() = default;
@@ -924,18 +954,18 @@ class biquadCPUCalculator
 /*
 // FFT - we sort of abandoned this; it only computes the first rhoset[0].
 //also the initialization is VERY slow.
-template <int rhocount, int xcount, int ycount, class RealT = double>
+template <int rhocount, int xcount, int ycount, class RealT = RealT>
 class DCTCPUCalculator
     : public GACalculator<rhocount, xcount, ycount, RealT> {
    private:
-    double *fftin, *fftout;
+    RealT *fftin, *fftout;
     fftw_plan plan;
-    Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> denseGAMatrix;
+    Eigen::Matrix<RealT, Eigen::Dynamic, Eigen::Dynamic> denseGAMatrix;
 
    public:
     friend class GACalculator<rhocount, xcount, ycount, RealT>;
 
-    void slowTruncFill(const gridDomain<RealT> &g) {
+    void slowTruncFill(const gridDomain &g) {
         denseGAMatrix.resize(xcount * ycount, xcount * ycount);
         denseGAMatrix.setZero();
         std::vector<RealT> rhoset;
@@ -951,13 +981,13 @@ class DCTCPUCalculator
                 functionGrid<rhocount, xcount, ycount> f(rhoset, xset, yset);
                 for (int q = 0; q < ycount; ++q) {
                     auto basistest = [p, q, g](RealT row, RealT ex, RealT why) -> RealT {
-                        double xint = (ex - g.xmin) / (g.xmax - g.xmin) * (xcount - 1);
-                        double yint = (why - g.ymin) / (g.ymax - g.ymin) * (ycount - 1);
+                        RealT xint = (ex - g.xmin) / (g.xmax - g.xmin) * (xcount - 1);
+                        RealT yint = (why - g.ymin) / (g.ymax - g.ymin) * (ycount - 1);
                         return row * 0.0 + DCTBasisFunction2(p, q, xint, yint, xcount);
                     };
 
                     f.fillTruncatedAlmostExactGA(basistest);
-                    Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>> m(f.gridValues.data.data());
+                    Eigen::Map<Eigen::Matrix<RealT, xcount * ycount, 1>> m(f.gridValues.data.data());
                     denseGAMatrix.row(ycount * p + q) = m;  //TODO(orebas) NOT FINISHED REDO THIS LINE
                 }
             }
@@ -966,7 +996,7 @@ class DCTCPUCalculator
         //std::cout << "dense matrix: \n " << denseGAMatrix << std::endl;
     }
 
-    void fastFill(const gridDomain<RealT> &g) {
+    void fastFill(const gridDomain &g) {
         denseGAMatrix.resize(xcount * ycount, xcount * ycount);
         denseGAMatrix.setZero();
         std::vector<RealT> rhoset;
@@ -982,10 +1012,10 @@ class DCTCPUCalculator
                 functionGrid<rhocount, xcount, ycount> f(rhoset, xset, yset);
                 for (int q = 0; q < ycount; ++q) {
                     auto besseltest = [p, q, g](RealT row, RealT ex, RealT why) {
-                        constexpr double N = xcount;
-                        double xint = (ex - g.xmin) / (g.xmax - g.xmin) * (xcount - 1);
-                        double yint = (why - g.ymin) / (g.ymax - g.ymin) * (ycount - 1);
-                        double ap = 2, bq = 2;
+                        constexpr RealT N = xcount;
+                        RealT xint = (ex - g.xmin) / (g.xmax - g.xmin) * (xcount - 1);
+                        RealT yint = (why - g.ymin) / (g.ymax - g.ymin) * (ycount - 1);
+                        RealT ap = 2, bq = 2;
                         if (p == 0) {
                             ap = 1;
                         }
@@ -993,16 +1023,16 @@ class DCTCPUCalculator
                             bq = 1;
                         }
 
-                        double a = pi * p * (2.0 * xint * (2 - 1) + 1) / (2.0 * N);  //change "2" to "N"
-                        double c = pi * q * (2.0 * yint * (2 - 1) + 1) / (2.0 * N);
-                        double d = pi * p * row * (N - 1) / (N * (g.xmax - g.xmin));
-                        double b = -pi * q * row * (N - 1) / (N * (g.ymax - g.ymin));
-                        double j = boost::math::cyl_bessel_j(0, std::sqrt(b * b + d * d));
+                        RealT a = pi * p * (2.0 * xint * (2 - 1) + 1) / (2.0 * N);  //change "2" to "N"
+                        RealT c = pi * q * (2.0 * yint * (2 - 1) + 1) / (2.0 * N);
+                        RealT d = pi * p * row * (N - 1) / (N * (g.xmax - g.xmin));
+                        RealT b = -pi * q * row * (N - 1) / (N * (g.ymax - g.ymin));
+                        RealT j = boost::math::cyl_bessel_j(0, std::sqrt(b * b + d * d));
                         return ap * bq * std::cos(a) * std::cos(c) * j;
                     };
 
                     f.fill(besseltest);
-                    Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>> m(f.gridValues.data.data());
+                    Eigen::Map<Eigen::Matrix<RealT, xcount * ycount, 1>> m(f.gridValues.data.data());
                     denseGAMatrix.row(ycount * p + q) = m;  //TODO(orebas) NOT FINISHED REDO THIS LINE
                 }
             }
@@ -1011,16 +1041,16 @@ class DCTCPUCalculator
         //std::cout << "dense matrix: \n " << denseGAMatrix << std::endl;
     }
 
-    explicit DCTCPUCalculator(const gridDomain<RealT> &g) {
-        fftin = (double *)fftw_malloc(xcount * ycount * sizeof(double));
-        fftout = (double *)fftw_malloc(xcount * ycount * sizeof(double));
+    explicit DCTCPUCalculator(const gridDomain &g) {
+        fftin = (RealT *)fftw_malloc(xcount * ycount * sizeof(RealT));
+        fftout = (RealT *)fftw_malloc(xcount * ycount * sizeof(RealT));
         plan = fftw_plan_r2r_2d(xcount, ycount, fftin, fftout, FFTW_REDFT10, FFTW_REDFT10, FFTW_MEASURE);  //Forward DCT
 
         fastFill(g);
     }
 
-    void DCTTest(const gridDomain<RealT> &g) {
-        Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> tm, testm;  //"true matrix" vs "test matrix"
+    void DCTTest(const gridDomain &g) {
+        Eigen::Matrix<RealT, Eigen::Dynamic, Eigen::Dynamic> tm, testm;  //"true matrix" vs "test matrix"
 
         tm.resize(xcount * ycount, xcount * ycount);
         tm.setZero();
@@ -1041,16 +1071,16 @@ class DCTCPUCalculator
 
             for (int q = 0; q < ycount; ++q) {
                 auto basistest = [p, q, g](RealT row, RealT ex, RealT why) -> RealT {
-                    double xint = (ex - g.xmin) / (g.xmax - g.xmin) * (xcount - 1);
-                    double yint = (why - g.ymin) / (g.ymax - g.ymin) * (ycount - 1);
+                    RealT xint = (ex - g.xmin) / (g.xmax - g.xmin) * (xcount - 1);
+                    RealT yint = (why - g.ymin) / (g.ymax - g.ymin) * (ycount - 1);
                     return row * 0 + DCTBasisFunction2(p, q, xint, yint, xcount);
                 };
 
                 auto besseltest = [p, q, g](RealT row, RealT ex, RealT why) {
-                    constexpr double N = xcount;
-                    double xint = (ex - g.xmin) / (g.xmax - g.xmin) * (xcount - 1);
-                    double yint = (why - g.ymin) / (g.ymax - g.ymin) * (ycount - 1);
-                    double ap = 2, bq = 2;
+                    constexpr RealT N = xcount;
+                    RealT xint = (ex - g.xmin) / (g.xmax - g.xmin) * (xcount - 1);
+                    RealT yint = (why - g.ymin) / (g.ymax - g.ymin) * (ycount - 1);
+                    RealT ap = 2, bq = 2;
                     if (p == 0) {
                         ap = 1;
                     }
@@ -1058,20 +1088,20 @@ class DCTCPUCalculator
                         bq = 1;
                     }
 
-                    double a = pi * p * (2.0 * xint * (2 - 1) + 1) / (2.0 * N);  //change "2" to "N"
-                    double c = pi * q * (2.0 * yint * (2 - 1) + 1) / (2.0 * N);
+                    RealT a = pi * p * (2.0 * xint * (2 - 1) + 1) / (2.0 * N);  //change "2" to "N"
+                    RealT c = pi * q * (2.0 * yint * (2 - 1) + 1) / (2.0 * N);
 
-                    double d = pi * p * row * (N - 1) / (N * (g.xmax - g.xmin));
-                    double b = -pi * q * row * (N - 1) / (N * (g.ymax - g.ymin));
-                    double j = boost::math::cyl_bessel_j(0, std::sqrt(b * b + d * d));
+                    RealT d = pi * p * row * (N - 1) / (N * (g.xmax - g.xmin));
+                    RealT b = -pi * q * row * (N - 1) / (N * (g.ymax - g.ymin));
+                    RealT j = boost::math::cyl_bessel_j(0, std::sqrt(b * b + d * d));
                     return ap * bq * std::cos(a) * std::cos(c) * j;
                 };
 
                 //f.fillTruncatedAlmostExactGA(basistest);  //test impact of truncation later.
                 f.fillAlmostExactGA(basistest);
                 ftest.fill(besseltest);
-                Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>> m(f.gridValues.data.data());
-                Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>> m2(ftest.gridValues.data.data());
+                Eigen::Map<Eigen::Matrix<RealT, xcount * ycount, 1>> m(f.gridValues.data.data());
+                Eigen::Map<Eigen::Matrix<RealT, xcount * ycount, 1>> m2(ftest.gridValues.data.data());
 
                 tm.row(ycount * p + q) = m;
                 testm.row(ycount * p + q) = m2;
@@ -1099,7 +1129,7 @@ class DCTCPUCalculator
     fftw_destroy_plan(plan);
 }
 static std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
-create(const gridDomain<RealT> &g) {
+create(const gridDomain &g) {
     return std::make_unique<DCTCPUCalculator>(g);
 }
 
@@ -1111,11 +1141,11 @@ functionGrid<rhocount, xcount, ycount, RealT> calculate(
 
     std::copy(f.gridValues.data.begin(), f.gridValues.data.begin() + xcount * ycount, fftin);
     fftw_execute(plan);
-    Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>> X(fftout);
+    Eigen::Map<Eigen::Matrix<RealT, xcount * ycount, 1>> X(fftout);
     //std::cout << "FFT result: \n " << X << std::endl;
     X *= (1.0 / (xcount * ycount * 4));
 
-    Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>>
+    Eigen::Map<Eigen::Matrix<RealT, xcount * ycount, 1>>
         b(m.gridValues.data.data());
     b = denseGAMatrix * X;
     //std::cout << std::endl
@@ -1131,28 +1161,28 @@ template <int rhocount, int xcount, int ycount, class RealT = double>
 class DCTCPUCalculator2
     : public GACalculator<rhocount, xcount, ycount, RealT> {
    private:
-    gridDomain<RealT> g;
-    Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> denseGAMatrix;
+    gridDomain g;
+    Eigen::Matrix<RealT, Eigen::Dynamic, Eigen::Dynamic> denseGAMatrix;
 
-    fftw_wrapper_double_2d<rhocount, xcount, ycount> plan = fftw_wrapper_double_2d<rhocount, xcount, ycount>(FFTW_REDFT10);
-    fftw_wrapper_double_2d<rhocount, xcount, ycount> plan_inv = fftw_wrapper_double_2d<rhocount, xcount, ycount>(FFTW_REDFT01);
+    fftw_wrapper_2d<rhocount, xcount, ycount, RealT> plan = fftw_wrapper_2d<rhocount, xcount, ycount, RealT>(FFTW_REDFT10);
+    fftw_wrapper_2d<rhocount, xcount, ycount, RealT> plan_inv = fftw_wrapper_2d<rhocount, xcount, ycount, RealT>(FFTW_REDFT01);
 
    public:
     friend class GACalculator<rhocount, xcount, ycount, RealT>;
-    std::shared_ptr<std::vector<double>> besselVals = nullptr;
+    std::shared_ptr<std::vector<RealT>> besselVals = nullptr;
 
-    explicit DCTCPUCalculator2(const gridDomain<RealT> &gd, std::shared_ptr<std::vector<double>> besselbuff = nullptr) {
+    explicit DCTCPUCalculator2(const gridDomain &gd, std::shared_ptr<std::vector<RealT>> besselbuff = nullptr) {
         g = gd;
         if (besselbuff != nullptr) {
             besselVals = besselbuff;
         } else {
-            besselVals = std::make_shared<std::vector<double>>(rhocount * xcount * ycount, 0);
+            besselVals = std::make_shared<std::vector<RealT>>(rhocount * xcount * ycount, 0);
             auto rhoset = LinearSpacedArray(g.rhomin, g.rhomax, rhocount);
             for (int r = 0; r < rhocount; r++) {
                 for (int p = 0; p < xcount; ++p) {
                     for (int q = 0; q < ycount; ++q) {
-                        constexpr double Nx = xcount;
-                        constexpr double Ny = ycount;
+                        constexpr RealT Nx = xcount;
+                        constexpr RealT Ny = ycount;
                         double d = pi * p * rhoset[r] * (Nx - 1) / (Nx * (g.xmax - g.xmin));
                         double b = -pi * q * rhoset[r] * (Ny - 1) / (Ny * (g.ymax - g.ymin));
                         double j = boost::math::cyl_bessel_j(0, std::sqrt(b * b + d * d));
@@ -1164,7 +1194,7 @@ class DCTCPUCalculator2
     }
 
     static std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
-    create(const gridDomain<RealT> &g) {
+    create(const gridDomain &g) {
         return std::make_unique<DCTCPUCalculator2>(g);
     }
 
@@ -1191,7 +1221,7 @@ template <int rhocount, int xcount, int ycount, int padcount = 0, class RealT = 
 class DCTCPUPaddedCalculator
     : public GACalculator<rhocount, xcount, ycount, RealT> {
    private:
-    gridDomain<RealT> paddedg;
+    gridDomain paddedg;
 
     std::vector<RealT> xnew;
     std::vector<RealT> ynew;
@@ -1201,22 +1231,22 @@ class DCTCPUPaddedCalculator
     friend class GACalculator<rhocount, xcount, ycount, RealT>;
     std::unique_ptr<DCTCPUCalculator2<rhocount, xcount + padcount * 2, ycount + padcount * 2, RealT>> dctCalc;
 
-    explicit DCTCPUPaddedCalculator(const gridDomain<RealT> &g, functionGrid<rhocount, xcount, ycount, RealT> &f, std::shared_ptr<std::vector<double>> besselbuff = nullptr) {
+    explicit DCTCPUPaddedCalculator(const gridDomain &g, functionGrid<rhocount, xcount, ycount, RealT> &f, std::shared_ptr<std::vector<RealT>> besselbuff = nullptr) {
         paddedg = g;
-        double deltax = (g.xmax - g.xmin) / (xcount - 1.0);
-        double deltay = (g.ymax - g.ymin) / (ycount - 1.0);
+        RealT deltax = (g.xmax - g.xmin) / (xcount - 1.0);
+        RealT deltay = (g.ymax - g.ymin) / (ycount - 1.0);
         paddedg.xmin = g.xmin - deltax * padcount;
         paddedg.xmax = g.xmax + deltax * padcount;
         paddedg.ymin = g.xmin - deltay * padcount;
         paddedg.ymax = g.xmax + deltay * padcount;
         dctCalc = std::make_unique<DCTCPUCalculator2<rhocount, xcount + padcount * 2, ycount + padcount * 2, RealT>>(paddedg, besselbuff);
 
-        double xdelta = f.xset[1] - f.xset[0];
-        double ydelta = f.yset[1] - f.yset[0];
-        double xmax = f.xset.back();
-        double ymax = f.yset.back();
-        double xmin = f.xset[0];
-        double ymin = f.yset[0];
+        RealT xdelta = f.xset[1] - f.xset[0];
+        RealT ydelta = f.yset[1] - f.yset[0];
+        RealT xmax = f.xset.back();
+        RealT ymax = f.yset.back();
+        RealT xmin = f.xset[0];
+        RealT ymin = f.yset[0];
         xnew = LinearSpacedArray(xmin - xdelta * padcount, xmin - xdelta, padcount);
         ynew = LinearSpacedArray(ymin - ydelta * padcount, ymin - ydelta, padcount);
 
@@ -1232,7 +1262,7 @@ class DCTCPUPaddedCalculator
     }
 
     static std::unique_ptr<DCTCPUPaddedCalculator<rhocount, xcount, ycount, padcount, RealT>>
-    create(const gridDomain<RealT> &g, functionGrid<rhocount, xcount, ycount, RealT> &f, std::shared_ptr<std::vector<double>> besselbuff = nullptr) {
+    create(const gridDomain &g, functionGrid<rhocount, xcount, ycount, RealT> &f, std::shared_ptr<std::vector<RealT>> besselbuff = nullptr) {
         return std::make_unique<DCTCPUPaddedCalculator>(g, f, besselbuff);
     }
 
@@ -1267,13 +1297,13 @@ template <int rhocount, int xcount, int ycount, class RealT = double>
 class chebCPUDense
     : public GACalculator<rhocount, xcount, ycount, RealT> {
    private:
-    fftw_wrapper_double_2d<rhocount, xcount, ycount> plan = fftw_wrapper_double_2d<rhocount, xcount, ycount>(FFTW_REDFT00);
-    std::array<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>, rhocount> denseGAMatrix;
+    fftw_wrapper_2d<rhocount, xcount, ycount, RealT> plan = fftw_wrapper_2d<rhocount, xcount, ycount, RealT>(FFTW_REDFT00);
+    std::array<Eigen::Matrix<RealT, Eigen::Dynamic, Eigen::Dynamic>, rhocount> denseGAMatrix;
 
    public:
     friend class GACalculator<rhocount, xcount, ycount, RealT>;
 
-    /* void slowTruncFill(const gridDomain<RealT> &g) {
+    /* void slowTruncFill(const gridDomain &g) {
         for (int rho_iter = 0; rho_iter < rhocount; ++rho_iter) {
             denseGAMatrix[rho_iter].resize(xcount * ycount, xcount * ycount);
             denseGAMatrix[rho_iter].setZero();
@@ -1294,7 +1324,7 @@ class chebCPUDense
                         };
 
                         f.fillTruncatedAlmostExactGA(basistest);
-                        Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>> m(f.gridValues.data.data());
+                        Eigen::Map<Eigen::Matrix<RealT, xcount * ycount, 1>> m(f.gridValues.data.data());
                         denseGAMatrix[rho_iter].row(ycount * p + q) = m;  //TODO(orebas) NOT FINISHED REDO THIS LINE
                     }
                 }
@@ -1304,7 +1334,7 @@ class chebCPUDense
         }
     }*/
 
-    void static fastFill(const gridDomain<RealT> &g, std::array<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>, rhocount> &dgma) {
+    void static fastFill(const gridDomain &g, std::array<Eigen::Matrix<RealT, Eigen::Dynamic, Eigen::Dynamic>, rhocount> &dgma) {
         for (int rho_iter = 0; rho_iter < rhocount; ++rho_iter) {
             dgma[rho_iter].resize(xcount * ycount, xcount * ycount);
             dgma[rho_iter].setZero();
@@ -1317,7 +1347,7 @@ class chebCPUDense
         xset = LinearSpacedArray<RealT>(g.xmin, g.xmax, xcount);
         yset = LinearSpacedArray<RealT>(g.ymin, g.ymax, ycount);
 
-        functionGrid<rhocount, xcount, ycount> f(rhoset, xset, yset);
+        functionGrid<rhocount, xcount, ycount, RealT> f(rhoset, xset, yset);
         std::vector<std::unique_ptr<DCTCPUPaddedCalculator<rhocount, xcount, ycount, xcount / 2, RealT>>> calcset;
 
         calcset.emplace_back(DCTCPUPaddedCalculator<rhocount, xcount, ycount, xcount / 2, RealT>::create(g, f));
@@ -1331,7 +1361,7 @@ class chebCPUDense
         }
 #pragma omp parallel for  //same as above this breaks the code
         for (int p = 0; p < xcount; ++p) {
-            functionGrid<rhocount, xcount, ycount> f(rhoset, xset, yset);
+            functionGrid<rhocount, xcount, ycount, RealT> f(rhoset, xset, yset);
             for (int q = 0; q < ycount; ++q) {
                 auto basistest = [p, q, g](RealT row, RealT ex, RealT why) -> RealT {
                     return row * 0 + chebBasisFunction(p, q, ex, why, xcount);
@@ -1340,20 +1370,20 @@ class chebCPUDense
                 f.fill(basistest);
                 auto res = calcset[omp_get_thread_num()]->calculate(f);  //this is  FFT + IFFT.
                 for (int rho_iter = 0; rho_iter < rhocount; ++rho_iter) {
-                    Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>> m(res.gridValues.data.data() + rho_iter * xcount * ycount);
+                    Eigen::Map<Eigen::Matrix<RealT, xcount * ycount, 1>> m(res.gridValues.data.data() + rho_iter * xcount * ycount);
                     dgma[rho_iter].col(ycount * p + q) = m;  //TODO(orebas) NOT FINISHED REDO THIS LINE
                 }
             }
         }
     }
 
-    explicit chebCPUDense(const gridDomain<RealT> &g) {
+    explicit chebCPUDense(const gridDomain &g) {
         //slowTruncFill(g);
         fastFill(g, denseGAMatrix);
     }
 
     static std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
-    create(const gridDomain<RealT> &g) {
+    create(const gridDomain &g) {
         return std::make_unique<chebCPUDense>(g);
     }
 
@@ -1364,10 +1394,10 @@ class chebCPUDense
         std::copy(f.gridValues.data.begin(), f.gridValues.data.begin() + rhocount * xcount * ycount, plan.fftin);
         plan.execute();
         for (int rho_iter = 0; rho_iter < rhocount; ++rho_iter) {
-            Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>> X(plan.fftout + rho_iter * xcount * ycount);
+            Eigen::Map<Eigen::Matrix<RealT, xcount * ycount, 1>> X(plan.fftout + rho_iter * xcount * ycount);
             X *= (1.0 / ((xcount - 1) * (ycount - 1)));
 
-            Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>> b(m.gridValues.data.data() + rho_iter * xcount * ycount);
+            Eigen::Map<Eigen::Matrix<RealT, xcount * ycount, 1>> b(m.gridValues.data.data() + rho_iter * xcount * ycount);
             b = denseGAMatrix[rho_iter] * X;
             //std::cout << std::endl
             //         << b << std::endl;
@@ -1384,7 +1414,7 @@ template <int rhocount, int xcount, int ycount, class RealT = double>
 class chebGPUDense
     : public GACalculator<rhocount, xcount, ycount, RealT> {
    private:
-    fftw_wrapper_double_2d<rhocount, xcount, ycount> plan = fftw_wrapper_double_2d<rhocount, xcount, ycount>(FFTW_REDFT00);
+    fftw_wrapper_2d<rhocount, xcount, ycount, RealT> plan = fftw_wrapper_2d<rhocount, xcount, ycount, RealT>(FFTW_REDFT00);
     std::vector<viennacl::matrix<RealT>> GPUMatrices;
     viennacl::vector<RealT> GPUSource;
     viennacl::vector<RealT> GPUTarget;
@@ -1392,11 +1422,11 @@ class chebGPUDense
    public:
     friend class GACalculator<rhocount, xcount, ycount, RealT>;
 
-    explicit chebGPUDense(const gridDomain<RealT> &g)
+    explicit chebGPUDense(const gridDomain &g)
         : GPUMatrices(rhocount, viennacl::matrix<RealT>(xcount * ycount, xcount * ycount)),
           GPUSource(xcount * ycount),
           GPUTarget(xcount * ycount) {
-        std::array<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>, rhocount> denseGAMatrix;
+        std::array<Eigen::Matrix<RealT, Eigen::Dynamic, Eigen::Dynamic>, rhocount> denseGAMatrix;
         OOGA::chebCPUDense<rhocount, xcount, ycount, RealT>::fastFill(g, denseGAMatrix);
 
         for (size_t r = 0; r < GPUMatrices.size(); ++r) {
@@ -1407,7 +1437,7 @@ class chebGPUDense
     }
 
     static std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
-    create(const gridDomain<RealT> &g) {
+    create(const gridDomain &g) {
         return std::make_unique<chebGPUDense>(g);
     }
 
@@ -1418,7 +1448,7 @@ class chebGPUDense
         std::copy(f.gridValues.data.begin(), f.gridValues.data.begin() + rhocount * xcount * ycount, plan.fftin);
         plan.execute();
         for (int rho_iter = 0; rho_iter < rhocount; ++rho_iter) {
-            Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>> X(plan.fftout + rho_iter * xcount * ycount);
+            Eigen::Map<Eigen::Matrix<RealT, xcount * ycount, 1>> X(plan.fftout + rho_iter * xcount * ycount);
             X *= (1.0 / ((xcount - 1) * (ycount - 1)));
             viennacl::copy(plan.fftout + rho_iter * xcount * ycount, plan.fftout + (rho_iter + 1) * xcount * ycount, GPUSource.begin());
             viennacl::backend::finish();
@@ -1426,7 +1456,7 @@ class chebGPUDense
 
             viennacl::backend::finish();
 
-            //Eigen::Map<Eigen::Matrix<double, xcount * ycount, 1>> b(m.gridValues.data.data() + rho_iter * xcount * ycount);
+            //Eigen::Map<Eigen::Matrix<RealT, xcount * ycount, 1>> b(m.gridValues.data.data() + rho_iter * xcount * ycount);
             copy(GPUTarget.begin(), GPUTarget.end(), m.gridValues.data.data() + rho_iter * xcount * ycount);
 
             //b = denseGAMatrix[rho_iter] * X;
@@ -1436,6 +1466,153 @@ class chebGPUDense
 };
 
 //chebGPU
+
+template <class RealT = double>
+void inline arcIntegralBicubic(
+    std::array<RealT, 16> &coeffs,  // this function is being left in double,
+                                    // intentionally, for now
+    RealT rho, RealT xc, RealT yc, RealT s0, RealT s1) {
+    // we are going to write down indefinite integrals of (xc + rho*sin(x))^i
+    // (xc-rho*cos(x))^j
+    // it seems like in c++, we can't make a 2d-array of lambdas that bind (rho,
+    // xc, yc)
+    // without paying a performance penalty.
+    // The below is not meant to be so human readable.  It was generated partly
+    // by mathematica.
+
+    // crazy late-night thought - can this whole thing be constexpr?
+    const RealT c = xc;
+    const RealT d = yc;
+    const RealT r = rho;
+    const RealT r2 = rho * rho;
+    const RealT r3 = r2 * rho;
+    const RealT r4 = r2 * r2;
+    const RealT r5 = r3 * r2;
+
+    const RealT c2 = c * c;
+    const RealT c3 = c2 * c;
+
+    const RealT d2 = d * d;
+    const RealT d3 = d2 * d;
+
+    using std::cos;
+    using std::sin;
+
+#define f00(x) ((x))
+
+#define f10(x) (c * (x)-r * cos((x)))
+
+#define f20(x) (c2 * (x)-2 * c * r * cos((x)) + r2 * (x) / 2 - r2 * sin(2 * (x)) / 4)
+
+#define f30(x)                                                                     \
+    ((1.0 / 12.0) * (3 * c * (4 * c2 * (x) + 6 * r2 * (x)-3 * r2 * sin(2 * (x))) - \
+                     9 * r * (4 * c2 + r2) * cos((x)) + r3 * cos(3 * (x))))
+
+#define f01(x) (d * (x)-r * sin((x)))
+
+#define f11(x) \
+    (c * d * (x)-c * r * sin((x)) - d * r * cos((x)) + r2 * cos((x)) * cos((x)) / 2.0)
+
+#define f21(x)                                                                 \
+    ((1.0 / 12.0) *                                                            \
+     (12.0 * c2 * d * (x)-12 * c2 * r * sin((x)) - 24 * c * d * r * cos((x)) + \
+      6 * c * r2 * cos(2 * (x)) + 6 * d * r2 * (x)-3 * d * r2 * sin(2 * (x)) - \
+      3 * r3 * sin((x)) + r3 * sin(3 * (x))))
+
+#define f31(x)                                                                     \
+    ((1.0 / 96.0) * (48 * c * d * (x) * (2 * c2 + 3 * r2) -                        \
+                     72 * d * r * (4 * c2 + r2) * cos((x)) -                       \
+                     24 * c * r * (4 * c2 + 3 * r2) * sin((x)) +                   \
+                     12 * r2 * (6 * c2 + r2) * cos(2 * (x)) -                      \
+                     72 * c * d * r2 * sin(2 * (x)) + 24 * c * r3 * sin(3 * (x)) + \
+                     8 * d * r3 * cos(3 * (x)) - 3 * r4 * cos(4 * (x))))
+
+#define f02(x) \
+    ((1.0 / 2.0) * ((x) * (2 * d2 + r2) + r * sin((x)) * (r * cos((x)) - 4 * d)))
+
+#define f12(x)                                                       \
+    ((1.0 / 12.0) *                                                  \
+     (6 * c * (x) * (2 * d2 + r2) - 24 * c * d * r * sin((x)) +      \
+      3 * c * r2 * sin(2 * (x)) - 3 * r * (4 * d2 + r2) * cos((x)) + \
+      6 * d * r2 * cos(2 * (x)) + r3 * (-1.0 * cos(3 * (x)))))
+
+#define f22(x)                                                                     \
+    ((1.0 / 96.0) * (24 * r2 * (c2 - d2) * sin(2 * (x)) +                          \
+                     12 * (x) * (4 * c2 * (2 * d2 + r2) + 4 * d2 * r2 + r4) -      \
+                     48 * d * r * (4 * c2 + r2) * sin((x)) -                       \
+                     48 * c * r * (4 * d2 + r2) * cos((x)) +                       \
+                     96 * c * d * r2 * cos(2 * (x)) - 16 * c * r3 * cos(3 * (x)) + \
+                     16 * d * r3 * sin(3 * (x)) - 3 * r4 * sin(4 * (x))))
+
+#define f32(x)                                                           \
+    ((1.0 / 480.0) *                                                     \
+     (120 * c * r2 * (c2 - 3 * d2) * sin(2 * (x)) +                      \
+      60 * c * (x) * (4 * c2 * (2 * d2 + r2) + 3 * (4 * d2 * r2 + r4)) - \
+      60 * r * cos((x)) * (6 * c2 * (4 * d2 + r2) + 6 * d2 * r2 + r4) -  \
+      10 * r3 * cos(3 * (x)) * (12 * c2 - 4 * d2 + r2) -                 \
+      240 * c * d * r * (4 * c2 + 3 * r2) * sin((x)) +                   \
+      120 * d * r2 * (6 * c2 + r2) * cos(2 * (x)) +                      \
+      240 * c * d * r3 * sin(3 * (x)) - 45 * c * r4 * sin(4 * (x)) -     \
+      30 * d * r4 * cos(4 * (x)) + 6 * r5 * cos(5 * (x))))
+
+#define f03(x)                                                             \
+    ((1.0 / 12.0) *                                                        \
+     (12 * d3 * (x)-9 * r * (4 * d2 + r2) * sin((x)) + 18 * d * r2 * (x) + \
+      9 * d * r2 * sin(2 * (x)) - r3 * sin(3 * (x))))
+
+#define f13(x)                                                                 \
+    ((1.0 / 96.0) *                                                            \
+     (48 * c * d * (x) * (2 * d2 + 3 * r2) -                                   \
+      72 * c * r * (4 * d2 + r2) * sin((x)) + 72 * c * d * r2 * sin(2 * (x)) - \
+      8 * c * r3 * sin(3 * (x)) + 12 * r2 * (6 * d2 + r2) * cos(2 * (x)) -     \
+      24 * d * r * (4 * d2 + 3 * r2) * cos((x)) - 24 * d * r3 * cos(3 * (x)) + \
+      3 * r4 * cos(4 * (x))))
+
+#define f23(x)                                                                                                                                                \
+    ((1.0 / 480.0) *                                                                                                                                          \
+     (480 * c2 * d3 * (x)-1440 * c2 * d2 * r * sin((x)) +                                                                                                     \
+      720 * c2 * d * r2 * (x) + 360 * c2 * d * r2 * sin(2 * (x)) -                                                                                            \
+      360 * c2 * r3 * sin((x)) - 40 * c2 * r3 * sin(3 * (x)) +                                                                                                \
+      120 * c * r2 * (6 * d2 + r2) * cos(2 * (x)) -                                                                                                           \
+      240 * c * d * r * (4 * d2 + 3 * r2) * cos((x)) -                                                                                                        \
+      240 * c * d * r3 * cos(3 * (x)) + 30 * c * r4 * cos(4 * (x)) +                                                                                          \
+      240 * d3 * r2 * (x)-120 * d3 * r2 * sin(2 * (x)) -                                                                                                      \
+      360 * d2 * r3 * sin((x)) + 120 * d2 * r3 * sin(3 * (x)) + 180 * d * r4 * (x)-45 * d * r4 * sin(4 * (x)) - 60 * r5 * sin((x)) + 10 * r5 * sin(3 * (x)) + \
+      6 * r5 * sin(5 * (x))))
+
+#define f33(x)                                                               \
+    ((1.0 / 960.0) *                                                         \
+     (960 * c3 * d3 * (x)-2880 * c3 * d2 * r * sin((x)) +                    \
+      1440 * c3 * d * r2 * (x) + 720 * c3 * d * r2 * sin(2 * (x)) -          \
+      720 * c3 * r3 * sin((x)) - 80 * c3 * r3 * sin(3 * (x)) +               \
+      45 * r2 * cos(2 * (x)) * (8 * c2 * (6 * d2 + r2) + 8 * d2 * r2 + r4) - \
+      360 * d * r * cos((x)) * (c2 * (8 * d2 + 6 * r2) + 2 * d2 * r2 + r4) - \
+      720 * c2 * d * r3 * cos(3 * (x)) + 90 * c2 * r4 * cos(4 * (x)) +       \
+      1440 * c * d3 * r2 * (x)-720 * c * d3 * r2 * sin(2 * (x)) -            \
+      2160 * c * d2 * r3 * sin((x)) + 720 * c * d2 * r3 * sin(3 * (x)) +     \
+      1080 * c * d * r4 * (x)-270 * c * d * r4 * sin(4 * (x)) -              \
+      360 * c * r5 * sin((x)) + 60 * c * r5 * sin(3 * (x)) +                 \
+      36 * c * r5 * sin(5 * (x)) + 80 * d3 * r3 * cos(3 * (x)) -             \
+      90 * d2 * r4 * cos(4 * (x)) - 60 * d * r5 * cos(3 * (x)) +             \
+      36 * d * r5 * cos(5 * (x)) - 5 * r5 * r * cos(6 * (x))))
+
+    coeffs[0 * 4 + 0] = f00(s1) - f00(s0);
+    coeffs[0 * 4 + 1] = f10(s1) - f10(s0);
+    coeffs[0 * 4 + 2] = f20(s1) - f20(s0);
+    coeffs[0 * 4 + 3] = f30(s1) - f30(s0);
+    coeffs[1 * 4 + 0] = f01(s1) - f01(s0);
+    coeffs[1 * 4 + 1] = f11(s1) - f11(s0);
+    coeffs[1 * 4 + 2] = f21(s1) - f21(s0);
+    coeffs[1 * 4 + 3] = f31(s1) - f31(s0);
+    coeffs[2 * 4 + 0] = f02(s1) - f02(s0);
+    coeffs[2 * 4 + 1] = f12(s1) - f12(s0);
+    coeffs[2 * 4 + 2] = f22(s1) - f22(s0);
+    coeffs[2 * 4 + 3] = f32(s1) - f32(s0);
+    coeffs[3 * 4 + 0] = f03(s1) - f03(s0);
+    coeffs[3 * 4 + 1] = f13(s1) - f13(s0);
+    coeffs[3 * 4 + 2] = f23(s1) - f23(s0);
+    coeffs[3 * 4 + 3] = f33(s1) - f33(s0);
+}
 
 //FFTPADDED
 
@@ -1701,7 +1878,7 @@ class linearDotProductGPU
 template <int rhocount, int xcount, int ycount, class RealT, int padcount>
 std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
 GACalculator<rhocount, xcount, ycount, RealT, padcount>::Factory::newCalculator(
-    calculatorType c, const gridDomain<RealT> &g, functionGrid<rhocount, xcount, ycount, RealT> &f) {
+    calculatorType c, const gridDomain &g, functionGrid<rhocount, xcount, ycount, RealT> &f) {
     switch (c) {
         case (calculatorType::linearCPU):
             return linearCPUCalculator<rhocount, xcount, ycount, RealT>::create();

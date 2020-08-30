@@ -64,32 +64,34 @@
 
 #include "ga.h"
 
+template <class RealT = double>
 struct resultsRecord {
     OOGA::calculatorType type = OOGA::calculatorType::linearCPU;
     int N = 0;
-    std ::vector<double> error;
-    std::vector<double> rhoset;
+    std ::vector<RealT> error;
+    std::vector<RealT> rhoset;
     double initTime = 0;
     double calcTime = 0;
     int bits = 0;
-    friend std::ostream& operator<<(std::ostream& output, const resultsRecord& r) {
+    friend std::ostream& operator<<(std::ostream& output, const resultsRecord<RealT>& r) {
         auto nameMap = OOGA::calculatorNameMap();
         output << nameMap[r.type] << ";"
                << r.N << ";"
-               << r.initTime << ";"
+               << r.initTime / 1000 << ";"
                << r.calcTime << ";"
-
-               << r.bits << ";";
+               << 1e9 / r.calcTime << ";"
+               << r.bits << "; "
+               << *std::max_element(r.error.begin(), r.error.end()) << ";";
         for (auto e : r.error) {
-            output << " " << e;
+            output << ";" << e;
         }
         output << ";";
-
         return output;
     }
 };
 
-std::ostream& operator<<(std::ostream& output, const std::vector<resultsRecord>& r) {
+template <class RealT = double>
+std::ostream& operator<<(std::ostream& output, const std::vector<resultsRecord<RealT>>& r) {
     for (const auto& e : r) {
         std::cout << e << std::endl;
     }
@@ -97,13 +99,10 @@ std::ostream& operator<<(std::ostream& output, const std::vector<resultsRecord>&
 }
 
 template <int N, int rhocount, class RealT, bool cheb = false, typename TFunc1>
-std::vector<resultsRecord> testRun(const std::vector<OOGA::calculatorType>& calclist, TFunc1 testfunc, OOGA::gridDomain<RealT>& g) {
-    using OOGA::functionGrid;
-    using OOGA::GACalculator;
-    using OOGA::gridDomain;
-    using OOGA::LinearSpacedArray;
-    using OOGA::measure;
-    std::vector<resultsRecord> runResults;
+std::vector<resultsRecord<RealT>> testRun(const std::vector<OOGA::calculatorType>& calclist, TFunc1 testfunc, OOGA::gridDomain& g) {
+    using OOGA::functionGrid, OOGA::GACalculator, OOGA::gridDomain, OOGA::LinearSpacedArray, OOGA::measure;
+
+    std::vector<resultsRecord<RealT>> runResults;
     constexpr int xcount = N;
     constexpr int ycount = N;
     std::vector<RealT> rhoset;
@@ -122,12 +121,12 @@ std::vector<resultsRecord> testRun(const std::vector<OOGA::calculatorType>& calc
     lin_xset = LinearSpacedArray<RealT>(g.xmin, g.xmax, xcount);
     lin_yset = LinearSpacedArray<RealT>(g.ymin, g.ymax, ycount);
 
-    functionGrid<rhocount, xcount, ycount>
+    functionGrid<rhocount, xcount, ycount, RealT>
         f(rhoset, xset, yset),
         exact(rhoset, lin_xset, lin_yset), result(rhoset, lin_xset, lin_yset);
 
     std::vector<std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>> calcset;
-    exact.fillAlmostExactGA(testfunc);
+    exact.fillTruncatedAlmostExactGA(testfunc);
 
     for (size_t i = 0; i < calclist.size(); ++i) {
         auto func = [&](int j) -> void { calcset.emplace_back(GACalculator<rhocount, xcount, ycount, RealT, N>::Factory::newCalculator(calclist[j], g, exact)); };
@@ -139,10 +138,10 @@ std::vector<resultsRecord> testRun(const std::vector<OOGA::calculatorType>& calc
         };
         double calcTime = measure<std::chrono::nanoseconds>::execution2(func2);
         result = (calcset.back()->calculate(f));
-        resultsRecord r;
+        resultsRecord<RealT> r;
         r.type = calclist[i];
         r.N = N;
-        r.rhoset = rhoset;
+        r.rhoset = std::vector(rhoset.begin(), rhoset.end());
         r.initTime = initTime;
         r.calcTime = calcTime;
         r.bits = sizeof(RealT);
@@ -162,23 +161,19 @@ int main() {
     //fftw_cleanup();
     //cd return 0;
     //using namespace OOGA;
-    using OOGA::chebBasisFunction;
-    using OOGA::functionGrid;
-    using OOGA::GACalculator;
-    using OOGA::gridDomain;
-    using OOGA::LinearSpacedArray;
+    using OOGA::chebBasisFunction, OOGA::functionGrid, OOGA::GACalculator, OOGA::gridDomain, OOGA::LinearSpacedArray;
     using mainReal = double;
     constexpr mainReal mainRhoMin = 0.25 / 4.0;  //used to be 0.25/4
-    constexpr mainReal mainRhoMax = 3.55 / 4.0;  //used to be 3/4
+    constexpr mainReal mainRhoMax = 3.25 / 4.0;  //used to be 3/4
     constexpr mainReal mainxyMin = -1;
     constexpr mainReal mainxyMax = 1;
-    gridDomain<mainReal> g;
+    gridDomain g;
     g.rhomax = mainRhoMax;
     g.rhomin = mainRhoMin;
     g.xmin = g.ymin = mainxyMin;
     g.xmax = g.ymax = mainxyMax;
     constexpr int xcount = 16, ycount = 16,
-                  rhocount = 3;  // bump up to 64x64x35 later or 128x128x35
+                  rhocount = 30;  // bump up to 64x64x35 later or 128x128x35
     constexpr mainReal A = 24;
     constexpr mainReal B = 1.1;
     constexpr mainReal Normalizer = 50.0;
@@ -214,59 +209,73 @@ int main() {
     auto testfunc2 = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
         return Normalizer * exp(-A * (ex * ex + why * why)) * exp(-B * row * row);
     };
-    auto testfunc2_analytic = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
+    /*auto testfunc2_analytic = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
         return Normalizer * exp(-B * row * row) * exp(-A * (ex * ex + why * why + row * row)) *
                boost::math::cyl_bessel_i(0, 2 * A * row * std::sqrt(ex * ex + why * why));
-    };
+    };*/
 
-    auto ezfunc_old = [xcount](mainReal row, mainReal ex, mainReal why) -> mainReal {
+    /*auto ezfunc_old = [xcount](mainReal row, mainReal ex, mainReal why) -> mainReal {
         return row * 0 + (1 - ex * ex) * (1 - why * why) * chebBasisFunction(2, 2, ex, why, xcount);
-    };
-    auto ezfunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
+    };*/
+    /*auto ezfunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
         mainReal temp = row * 0 + 25.0 * ex * ex + 25.0 * why * why;
         if (temp >= 25) {
             return 0;
         }
         return (30 * std::exp(1 / (temp / 25.0 - 1.0)));
-    };
+    };*/
 
     auto res1 = testRun<8, rhocount, double, true>(chebCalclist, testfunc2, g);
     std::cout << res1;
     res1 = testRun<16, rhocount, double, true>(chebCalclist, testfunc2, g);
     std::cout << res1;
-
     res1 = testRun<32, rhocount, double, true>(chebCalclist, testfunc2, g);
     std::cout << res1;
-
+    res1 = testRun<48, rhocount, double, true>(chebCalclist, testfunc2, g);
+    std::cout << res1;
     res1 = testRun<64, rhocount, double, true>(chebCalclist, testfunc2, g);
     std::cout << res1;
-
-    /*res1 = testRun<128, rhocount, double, true>(chebCalclist, testfunc2, g);
-    std::cout << res1 << std::endl;
-    
-    res1 = testRun<256, rhocount, double, true>(chebCalclist, testfunc2, g);
-    std::cout << res1 << std::endl;
-*/
+    res1 = testRun<96, rhocount, double, true>(chebCalclist, testfunc2, g);
+    std::cout << res1;
 
     res1 = testRun<8, rhocount, double>(calclist, testfunc2, g);
     std::cout << res1;
-
     res1 = testRun<16, rhocount, double>(calclist, testfunc2, g);
     std::cout << res1;
-
     res1 = testRun<32, rhocount, double>(calclist, testfunc2, g);
     std::cout << res1;
-
+    res1 = testRun<48, rhocount, double>(calclist, testfunc2, g);
+    std::cout << res1;
     res1 = testRun<64, rhocount, double>(calclist, testfunc2, g);
     std::cout << res1;
+    res1 = testRun<96, rhocount, double>(calclist, testfunc2, g);
+    std::cout << res1;
 
-    res1 = testRun<128, rhocount, double>(calclist, testfunc2, g);
-    std::cout << res1 << std::endl;
-    /*
+    auto res2 = testRun<8, rhocount, float, true>(chebCalclist, testfunc2, g);
+    std::cout << res2;
+    res2 = testRun<16, rhocount, float, true>(chebCalclist, testfunc2, g);
+    std::cout << res2;
+    res2 = testRun<32, rhocount, float, true>(chebCalclist, testfunc2, g);
+    std::cout << res2;
+    res2 = testRun<48, rhocount, float, true>(chebCalclist, testfunc2, g);
+    std::cout << res2;
+    res2 = testRun<64, rhocount, float, true>(chebCalclist, testfunc2, g);
+    std::cout << res2;
+    res2 = testRun<96, rhocount, float, true>(chebCalclist, testfunc2, g);
+    std::cout << res2;
 
-    res1 = testRun<256, rhocount, double>(calclist, ezfunc, g);
-    std::cout << res1 << std::endl;
-*/
+    res2 = testRun<8, rhocount, float>(calclist, testfunc2, g);
+    std::cout << res2;
+    res2 = testRun<16, rhocount, float>(calclist, testfunc2, g);
+    std::cout << res2;
+    res2 = testRun<32, rhocount, float>(calclist, testfunc2, g);
+    std::cout << res2;
+    res2 = testRun<48, rhocount, float>(calclist, testfunc2, g);
+    std::cout << res2;
+    res2 = testRun<64, rhocount, float>(calclist, testfunc2, g);
+    std::cout << res2;
+    res2 = testRun<96, rhocount, float>(calclist, testfunc2, g);
+    std::cout << res2;
 
     fftw_cleanup();
 }
@@ -279,7 +288,7 @@ void fft_testing() {
     using OOGA::LinearSpacedArray;
     typedef double mainReal;
 
-    gridDomain<mainReal> g;
+    gridDomain g;
     g.rhomax = 0.25;
     g.rhomin = 1.55;
     g.xmin = g.ymin = -2;
@@ -354,7 +363,7 @@ void chebDevel() {
     constexpr mainReal mainRhoMax = 3.0 / 4.0;
     constexpr mainReal mainxyMin = -1;
     constexpr mainReal mainxyMax = 1;
-    gridDomain<mainReal> g;
+    gridDomain g;
     g.rhomax = mainRhoMax;
     g.rhomin = mainRhoMin;
     g.xmin = g.ymin = mainxyMin;
@@ -372,8 +381,6 @@ void chebDevel() {
     xset = chebPoints(xcount);
     yset = chebPoints(ycount);
 
-    /* std::cout << xset << std::endl
-              << yset << std::endl;*/
     functionGrid<rhocount, xcount, ycount> f(rhoset, xset, yset);
     functionGrid<rhocount, xcount, ycount> exact(rhoset, xset, yset);
     functionGrid<rhocount, xcount, ycount> m(rhoset, xset, yset);
@@ -385,7 +392,7 @@ void chebDevel() {
     };
 
     f.fill(testfunc2);
-    OOGA::fftw_wrapper_double_2d<rhocount, xcount, ycount> plan(FFTW_REDFT00);
+    OOGA::fftw_wrapper_2d<rhocount, xcount, ycount, mainReal> plan(FFTW_REDFT00);
 
     for (int p = 0; p < xcount; p++) {
         for (int q = 0; q < ycount; q++) {
@@ -408,12 +415,6 @@ void chebDevel() {
             }
 
             std::cout << p << " " << q << " " << m.maxNormDiff(exact.gridValues, 0) << std::endl;
-
-            /* exact.csvPrinter(0);
-            std::cout << std::endl;
-
-            m.csvPrinter(0);
-            std::cout << std::endl;*/
         }
     }
 }
@@ -437,152 +438,6 @@ void testArcIntegralBicubic() {
                       << "\n";
         }
     }
-}
-
-void inline arcIntegralBicubic(
-    std::array<double, 16>& coeffs,  // this function is being left in double,
-                                     // intentionally, for now
-    double rho, double xc, double yc, double s0, double s1) {
-    // we are going to write down indefinite integrals of (xc + rho*sin(x))^i
-    // (xc-rho*cos(x))^j
-    // it seems like in c++, we can't make a 2d-array of lambdas that bind (rho,
-    // xc, yc)
-    // without paying a performance penalty.
-    // The below is not meant to be so human readable.  It was generated partly
-    // by mathematica.
-
-    // crazy late-night thought - can this whole thing be constexpr?
-    const double c = xc;
-    const double d = yc;
-    const double r = rho;
-    const double r2 = rho * rho;
-    const double r3 = r2 * rho;
-    const double r4 = r2 * r2;
-    const double r5 = r3 * r2;
-
-    const double c2 = c * c;
-    const double c3 = c2 * c;
-
-    const double d2 = d * d;
-    const double d3 = d2 * d;
-
-    using std::cos;
-    using std::sin;
-
-#define f00(x) ((x))
-
-#define f10(x) (c * (x)-r * cos((x)))
-
-#define f20(x) (c2 * (x)-2 * c * r * cos((x)) + r2 * (x) / 2 - r2 * sin(2 * (x)) / 4)
-
-#define f30(x)                                                                     \
-    ((1.0 / 12.0) * (3 * c * (4 * c2 * (x) + 6 * r2 * (x)-3 * r2 * sin(2 * (x))) - \
-                     9 * r * (4 * c2 + r2) * cos((x)) + r3 * cos(3 * (x))))
-
-#define f01(x) (d * (x)-r * sin((x)))
-
-#define f11(x) \
-    (c * d * (x)-c * r * sin((x)) - d * r * cos((x)) + r2 * cos((x)) * cos((x)) / 2.0)
-
-#define f21(x)                                                                 \
-    ((1.0 / 12.0) *                                                            \
-     (12.0 * c2 * d * (x)-12 * c2 * r * sin((x)) - 24 * c * d * r * cos((x)) + \
-      6 * c * r2 * cos(2 * (x)) + 6 * d * r2 * (x)-3 * d * r2 * sin(2 * (x)) - \
-      3 * r3 * sin((x)) + r3 * sin(3 * (x))))
-
-#define f31(x)                                                                     \
-    ((1.0 / 96.0) * (48 * c * d * (x) * (2 * c2 + 3 * r2) -                        \
-                     72 * d * r * (4 * c2 + r2) * cos((x)) -                       \
-                     24 * c * r * (4 * c2 + 3 * r2) * sin((x)) +                   \
-                     12 * r2 * (6 * c2 + r2) * cos(2 * (x)) -                      \
-                     72 * c * d * r2 * sin(2 * (x)) + 24 * c * r3 * sin(3 * (x)) + \
-                     8 * d * r3 * cos(3 * (x)) - 3 * r4 * cos(4 * (x))))
-
-#define f02(x) \
-    ((1.0 / 2.0) * ((x) * (2 * d2 + r2) + r * sin((x)) * (r * cos((x)) - 4 * d)))
-
-#define f12(x)                                                       \
-    ((1.0 / 12.0) *                                                  \
-     (6 * c * (x) * (2 * d2 + r2) - 24 * c * d * r * sin((x)) +      \
-      3 * c * r2 * sin(2 * (x)) - 3 * r * (4 * d2 + r2) * cos((x)) + \
-      6 * d * r2 * cos(2 * (x)) + r3 * (-1.0 * cos(3 * (x)))))
-
-#define f22(x)                                                                     \
-    ((1.0 / 96.0) * (24 * r2 * (c2 - d2) * sin(2 * (x)) +                          \
-                     12 * (x) * (4 * c2 * (2 * d2 + r2) + 4 * d2 * r2 + r4) -      \
-                     48 * d * r * (4 * c2 + r2) * sin((x)) -                       \
-                     48 * c * r * (4 * d2 + r2) * cos((x)) +                       \
-                     96 * c * d * r2 * cos(2 * (x)) - 16 * c * r3 * cos(3 * (x)) + \
-                     16 * d * r3 * sin(3 * (x)) - 3 * r4 * sin(4 * (x))))
-
-#define f32(x)                                                           \
-    ((1.0 / 480.0) *                                                     \
-     (120 * c * r2 * (c2 - 3 * d2) * sin(2 * (x)) +                      \
-      60 * c * (x) * (4 * c2 * (2 * d2 + r2) + 3 * (4 * d2 * r2 + r4)) - \
-      60 * r * cos((x)) * (6 * c2 * (4 * d2 + r2) + 6 * d2 * r2 + r4) -  \
-      10 * r3 * cos(3 * (x)) * (12 * c2 - 4 * d2 + r2) -                 \
-      240 * c * d * r * (4 * c2 + 3 * r2) * sin((x)) +                   \
-      120 * d * r2 * (6 * c2 + r2) * cos(2 * (x)) +                      \
-      240 * c * d * r3 * sin(3 * (x)) - 45 * c * r4 * sin(4 * (x)) -     \
-      30 * d * r4 * cos(4 * (x)) + 6 * r5 * cos(5 * (x))))
-
-#define f03(x)                                                             \
-    ((1.0 / 12.0) *                                                        \
-     (12 * d3 * (x)-9 * r * (4 * d2 + r2) * sin((x)) + 18 * d * r2 * (x) + \
-      9 * d * r2 * sin(2 * (x)) - r3 * sin(3 * (x))))
-
-#define f13(x)                                                                 \
-    ((1.0 / 96.0) *                                                            \
-     (48 * c * d * (x) * (2 * d2 + 3 * r2) -                                   \
-      72 * c * r * (4 * d2 + r2) * sin((x)) + 72 * c * d * r2 * sin(2 * (x)) - \
-      8 * c * r3 * sin(3 * (x)) + 12 * r2 * (6 * d2 + r2) * cos(2 * (x)) -     \
-      24 * d * r * (4 * d2 + 3 * r2) * cos((x)) - 24 * d * r3 * cos(3 * (x)) + \
-      3 * r4 * cos(4 * (x))))
-
-#define f23(x)                                                                                                                                                \
-    ((1.0 / 480.0) *                                                                                                                                          \
-     (480 * c2 * d3 * (x)-1440 * c2 * d2 * r * sin((x)) +                                                                                                     \
-      720 * c2 * d * r2 * (x) + 360 * c2 * d * r2 * sin(2 * (x)) -                                                                                            \
-      360 * c2 * r3 * sin((x)) - 40 * c2 * r3 * sin(3 * (x)) +                                                                                                \
-      120 * c * r2 * (6 * d2 + r2) * cos(2 * (x)) -                                                                                                           \
-      240 * c * d * r * (4 * d2 + 3 * r2) * cos((x)) -                                                                                                        \
-      240 * c * d * r3 * cos(3 * (x)) + 30 * c * r4 * cos(4 * (x)) +                                                                                          \
-      240 * d3 * r2 * (x)-120 * d3 * r2 * sin(2 * (x)) -                                                                                                      \
-      360 * d2 * r3 * sin((x)) + 120 * d2 * r3 * sin(3 * (x)) + 180 * d * r4 * (x)-45 * d * r4 * sin(4 * (x)) - 60 * r5 * sin((x)) + 10 * r5 * sin(3 * (x)) + \
-      6 * r5 * sin(5 * (x))))
-
-#define f33(x)                                                               \
-    ((1.0 / 960.0) *                                                         \
-     (960 * c3 * d3 * (x)-2880 * c3 * d2 * r * sin((x)) +                    \
-      1440 * c3 * d * r2 * (x) + 720 * c3 * d * r2 * sin(2 * (x)) -          \
-      720 * c3 * r3 * sin((x)) - 80 * c3 * r3 * sin(3 * (x)) +               \
-      45 * r2 * cos(2 * (x)) * (8 * c2 * (6 * d2 + r2) + 8 * d2 * r2 + r4) - \
-      360 * d * r * cos((x)) * (c2 * (8 * d2 + 6 * r2) + 2 * d2 * r2 + r4) - \
-      720 * c2 * d * r3 * cos(3 * (x)) + 90 * c2 * r4 * cos(4 * (x)) +       \
-      1440 * c * d3 * r2 * (x)-720 * c * d3 * r2 * sin(2 * (x)) -            \
-      2160 * c * d2 * r3 * sin((x)) + 720 * c * d2 * r3 * sin(3 * (x)) +     \
-      1080 * c * d * r4 * (x)-270 * c * d * r4 * sin(4 * (x)) -              \
-      360 * c * r5 * sin((x)) + 60 * c * r5 * sin(3 * (x)) +                 \
-      36 * c * r5 * sin(5 * (x)) + 80 * d3 * r3 * cos(3 * (x)) -             \
-      90 * d2 * r4 * cos(4 * (x)) - 60 * d * r5 * cos(3 * (x)) +             \
-      36 * d * r5 * cos(5 * (x)) - 5 * r5 * r * cos(6 * (x))))
-
-    coeffs[0 * 4 + 0] = f00(s1) - f00(s0);
-    coeffs[0 * 4 + 1] = f10(s1) - f10(s0);
-    coeffs[0 * 4 + 2] = f20(s1) - f20(s0);
-    coeffs[0 * 4 + 3] = f30(s1) - f30(s0);
-    coeffs[1 * 4 + 0] = f01(s1) - f01(s0);
-    coeffs[1 * 4 + 1] = f11(s1) - f11(s0);
-    coeffs[1 * 4 + 2] = f21(s1) - f21(s0);
-    coeffs[1 * 4 + 3] = f31(s1) - f31(s0);
-    coeffs[2 * 4 + 0] = f02(s1) - f02(s0);
-    coeffs[2 * 4 + 1] = f12(s1) - f12(s0);
-    coeffs[2 * 4 + 2] = f22(s1) - f22(s0);
-    coeffs[2 * 4 + 3] = f32(s1) - f32(s0);
-    coeffs[3 * 4 + 0] = f03(s1) - f03(s0);
-    coeffs[3 * 4 + 1] = f13(s1) - f13(s0);
-    coeffs[3 * 4 + 2] = f23(s1) - f23(s0);
-    coeffs[3 * 4 + 3] = f33(s1) - f33(s0);
 }
 
 }  // namespace OOGA
