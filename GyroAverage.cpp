@@ -163,8 +163,8 @@ int main() {
     //using namespace OOGA;
     using OOGA::chebBasisFunction, OOGA::functionGrid, OOGA::GACalculator, OOGA::gridDomain, OOGA::LinearSpacedArray;
     using mainReal = double;
-    constexpr mainReal mainRhoMin = 0.25 / 4.0;  //used to be 0.25/4
-    constexpr mainReal mainRhoMax = 3.25 / 4.0;  //used to be 3/4
+    constexpr mainReal mainRhoMin = 0.0 / 4.0;  //used to be 0.25/4
+    constexpr mainReal mainRhoMax = 3.45 / 4.0;  //used to be 3/4
     constexpr mainReal mainxyMin = -1;
     constexpr mainReal mainxyMax = 1;
     gridDomain g;
@@ -173,7 +173,7 @@ int main() {
     g.xmin = g.ymin = mainxyMin;
     g.xmax = g.ymax = mainxyMax;
     constexpr int xcount = 16, ycount = 16,
-                  rhocount = 30;  // bump up to 64x64x35 later or 128x128x35
+                  rhocount = 20;  // bump up to 64x64x35 later or 128x128x35
     constexpr mainReal A = 24;
     constexpr mainReal B = 1.1;
     constexpr mainReal Normalizer = 50.0;
@@ -235,8 +235,8 @@ int main() {
     std::cout << res1;
     res1 = testRun<64, rhocount, double, true>(chebCalclist, testfunc2, g);
     std::cout << res1;
-    res1 = testRun<96, rhocount, double, true>(chebCalclist, testfunc2, g);
-    std::cout << res1;
+    //    res1 = testRun<96, rhocount, double, true>(chebCalclist, testfunc2, g);
+    //std::cout << res1;
 
     res1 = testRun<8, rhocount, double>(calclist, testfunc2, g);
     std::cout << res1;
