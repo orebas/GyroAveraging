@@ -1,16 +1,15 @@
 //TODO(orebas): triangular cheb matrices
 //TODO(orebas): harder functions (franke, runge, etc)
+//TODO(orebas):  clean up header dependencies
 
-// file foobar.h:
 #ifndef GYROAVERAGING_GA_H
 #define GYROAVERAGING_GA_H
-// ... declarations ...
 
 #include <omp.h>
 
 #include <algorithm>
 #include <array>
-#include <boost/math/special_functions/bessel.hpp>  //remove when you remove testing code.
+#include <boost/math/special_functions/bessel.hpp>
 #include <cassert>
 #include <cmath>
 #include <iostream>
@@ -22,11 +21,16 @@
 
 namespace OOGA {
 
+//Below defines our domain of integration.  It used to be templated, but this didn't add much.
 //template <class RealT = double>
 struct gridDomain {
     using RealT = double;
     RealT xmin = 0, xmax = 0, ymin = 0, ymax = 0, rhomin = 0, rhomax = 0;
 };
+
+//The below class holds function values without reference to the function itself.  It contains the code for calculating finite differences,
+// bicubic coefficients, for filling in a grid from lambas, and for taking norms (and norm diffs).  This object is the main input into the various GA calculators.
+
 //TODO(orebas): I think we should have two seperate classes that compose with functionGrid, one for equispaced and one for cheb
 //also they should just take griddomain as constructor (and xcount,ycount).  no need to take arbitrary grid points.
 template <int rhocount, int xcount, int ycount, class RealT = double>
@@ -138,7 +142,7 @@ class functionGrid {
     }
     template <typename TFunc1>
     void fillAlmostExactGA(TFunc1 f) {                   // f is only used to fill the rho=0 case
-        fillbyindex([&](int i, int j, int k) -> RealT {  // adaptive trapezoid rule on actual input function.
+        fillbyindex([&](int i, int j, int k) -> RealT {  // calculates GA by adaptive trapezoid rule on actual input function.
             RealT xc = xset[j];
             RealT yc = yset[k];
             if (rhoset[i] == 0) {
@@ -155,8 +159,8 @@ class functionGrid {
     }
 
     template <typename TFunc1>
-    void fillTruncatedAlmostExactGA(TFunc1 f) {
-        fillbyindex([&](int i, int j, int k) -> RealT {
+    void fillTruncatedAlmostExactGA(TFunc1 f) {          //calculates GA by adaptive trapezoid rule on actual intput function
+        fillbyindex([&](int i, int j, int k) -> RealT {  //but hard truncates to 0 outside of defined domain
             RealT xc = xset[j];
             RealT yc = yset[k];
             if (rhoset[i] == 0) {
@@ -264,7 +268,7 @@ class functionGrid {
         yn = yc - rho * std::cos(gamma);
     }
 
-    static bicubicParameterGrid setupBicubicGrid(
+    static bicubicParameterGrid setupBicubicGrid(  //this calculates bicubic interpolation parameters
         const functionGrid<rhocount, xcount, ycount, RealT> &f) {
         using Eigen::Matrix;
 
@@ -307,8 +311,8 @@ class functionGrid {
         return b;
     }
 
-    derivsGrid calcDerivsGrid() const {
-        RealT ydenom = yset[1] - yset[0];
+    derivsGrid calcDerivsGrid() const {    //this calculates finite difference derivative estimates.
+        RealT ydenom = yset[1] - yset[0];  //see e.g. http://www.holoborodko.com/pavel/2014/11/04/computing-mixed-derivatives-by-finite-differences/
         RealT xdenom = xset[1] - xset[0];
         const fullgrid &g = gridValues;
         derivsGrid derivs;
@@ -401,6 +405,8 @@ class functionGrid {
                                      RealT s1);
 };
 
+// below code creates an RAII framework for FFTW.  Right now we have only specialized for float and double
+// and only handle the cases we need.
 template <int rhocount, int xcount, int ycount, class RealT>
 class fftw_wrapper_2d {
    public:
@@ -518,6 +524,12 @@ Short Description
 Long Description
 Destroy/Free
 */
+
+//Below is some prelim code before we define the main gyroaverage calculators.
+//First, the below enums represent the calculators we have implemeneted so far.
+//We also have a map from this enum to short descriptions of each calculator, formatted
+//for printing tables.
+
 enum class calculatorType { linearCPU,
                             linearDotProductCPU,
                             bicubicCPU,
@@ -557,6 +569,20 @@ inline std::map<OOGA::calculatorType, std::string> calculatorNameMap() {
 
     return nameMap;
 }
+
+//The below abstract base class defines the interfaces for our calculators.
+//TODO(orebas): The interface design is broken, as right now we can pass chebyshev grids
+//to equispaced calculators and vice versa; this should be a compile time error (i.e. a type problem).
+
+//to use this, you call
+//auto calculator = OOGA::GACalculator<rhocount, xcount, ycount, RealT, N>::Factory::newCalculator(calculatorType, gridDomain, functionGrid))
+//then you build a functionGrid of the appropriate size, and you call
+// auto result = calculator->calculate(f);
+
+//each of the calculators, when constructed, generally siezes whatever resources they need, which includes
+// (often) a lot of memory, including GPU memory where appropriate.
+//Right now we don't check or catch memory allocation failures.  However destruction is
+// RAII-style and we have tested for memory leaks.
 
 template <int rhocount, int xcount, int ycount, class RealT = double, int padcount = 0>
 class GACalculator {
@@ -785,7 +811,7 @@ class linearDotProductCPU
     functionGrid<rhocount, xcount, ycount, RealT> calculate(
         functionGrid<rhocount, xcount, ycount, RealT> &f) override {
         functionGrid<rhocount, xcount, ycount, RealT> m =
-            f;  // do we need to write a copy constructor?
+            f;
 
         m.clearGrid();
         Eigen::Map<Eigen::Matrix<RealT, rhocount * xcount * ycount, 1>> source(
@@ -833,7 +859,7 @@ class bicubicCPUCalculator
 
     functionGrid<rhocount, xcount, ycount, RealT> calculate(
         functionGrid<rhocount, xcount, ycount, RealT> &f) override {
-        functionGrid<rhocount, xcount, ycount, RealT> m = f;  // do we need to write a copy constructor?
+        functionGrid<rhocount, xcount, ycount, RealT> m = f;
         typename functionGrid<rhocount, xcount, ycount, RealT>::bicubicParameterGrid b = functionGrid<rhocount, xcount, ycount, RealT>::setupBicubicGrid(f);
         m.fillbyindex([&](int i, int j, int k) -> RealT {
             RealT xc = f.xset[j];
@@ -853,106 +879,14 @@ class bicubicCPUCalculator
 };
 
 /* BELOW IS NOT FUNCTIONAL, dont call it. so far it's mostly copied from bicubic.  I may abandon this. */
-template <int rhocount, int xcount, int ycount, class RealT = double>
-class biquadCPUCalculator
-    : public GACalculator<rhocount, xcount, ycount, RealT> {
-    typename functionGrid<rhocount, xcount, ycount, RealT>::biquadParameterGrid biquadParamaters;
+//Here we had coded the beginnings of a biquadratic calculator.  the idea is to match
+// on each patch the values at the corners (the nodes) as well as finite difference estimates for
+// "outward" derivatives at the midpoint of each edge, and  a single value as the mixed derivative
+// at the midpoint of the rectangle.
 
-   public:
-    friend class GACalculator<rhocount, xcount, ycount, RealT>;
-    static std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>>
-    create() {
-        return std::make_unique<biquadCPUCalculator>();
-    }
-
-    typename functionGrid<rhocount, xcount, ycount, RealT>::biquadParameterGrid setupBiquadGrid(
-        const functionGrid<rhocount, xcount, ycount, RealT> &f) {
-        //using namespace Eigen;
-        using Eigen::Matrix;
-        auto d = f.calcDerivsGrid();
-        typename functionGrid<rhocount, xcount, ycount, RealT>::biquadParameterGrid b;
-        for (int i = 0; i < rhocount; i++) {
-            // we explicitly rely on parameters being initialized to 0,
-            // including the top and right sides.
-            for (int j = 0; j < xcount - 1; j++) {
-                for (int k = 0; k < ycount - 1; k++) {
-                    RealT x0 = f.xset[j], x1 = f.xset[j + 1];
-                    RealT y0 = f.yset[k], y1 = f.yset[k + 1];
-                    Matrix<RealT, 4, 4> X, Y, RHS, A, temp1, temp2;
-
-                    RHS << d(i, j, k, 0), d(i, j, k + 1, 0), d(i, j, k, 2),
-                        d(i, j, k + 1, 2), d(i, j + 1, k, 0),
-                        d(i, j + 1, k + 1, 0), d(i, j + 1, k, 2),
-                        d(i, j + 1, k + 1, 2), d(i, j, k, 1), d(i, j, k + 1, 1),
-                        d(i, j, k, 3), d(i, j, k + 1, 3), d(i, j + 1, k, 1),
-                        d(i, j + 1, k + 1, 1), d(i, j + 1, k, 3),
-                        d(i, j + 1, k + 1, 3);
-                    X << 1, x0, x0 * x0, x0 * x0 * x0, 1, x1, x1 * x1,
-                        x1 * x1 * x1, 0, 1, 2 * x0, 3 * x0 * x0, 0, 1, 2 * x1,
-                        3 * x1 * x1;
-                    Y << 1, 1, 0, 0, y0, y1, 1, 1, y0 * y0, y1 * y1, 2 * y0,
-                        2 * y1, y0 * y0 * y0, y1 * y1 * y1, 3 * y0 * y0,
-                        3 * y1 * y1;
-
-                    // temp1 = X.fullPivLu().inverse(); //this line crashes on
-                    // my home machine without optimization turned on. temp2 =
-                    // Y.fullPivLu().inverse(); // we should take out the Eigen
-                    // dependency methinks.  TODO
-
-                    A = X.inverse() * RHS * Y.inverse();
-                    for (int t = 0; t < 16; ++t) {
-                        b(i, j, k, t) = A(t % 4, t / 4);
-                    }
-                }
-            }
-        }
-        return b;
-    }
-
-    RealT interpNaiveBiquad(const functionGrid<rhocount, xcount, ycount, RealT> &f,
-                            const typename functionGrid<rhocount, xcount, ycount, RealT>::biquadParameterGrid &b,
-                            int rhoindex, const RealT x, const RealT y) const {
-        assert((rhoindex >= 0) && (rhoindex < f.rhocount));
-        if ((x <= f.xset[0]) || (y <= f.yset[0]) || (x >= f.xset.back()) ||
-            (y >= f.yset.back())) {
-            return 0;
-        }
-        int xindex = 0, yindex = 0;
-        RealT result = 0;
-        f.interpIndexSearch(x, y, xindex, yindex);
-        std::array<RealT, 4> xns = {1, x, x * x};
-        std::array<RealT, 4> yns = {1, y, y * y};
-        for (int i = 0; i <= 3; ++i) {
-            for (int j = 0; j <= 3; ++j) {
-                result += b(rhoindex, xindex, yindex, j * 3 + i) *
-                          xns[i] * yns[j];
-            }
-        }
-        return result;
-    }
-
-    functionGrid<rhocount, xcount, ycount, RealT> calculate(
-        functionGrid<rhocount, xcount, ycount, RealT> &f) {
-        functionGrid<rhocount, xcount, ycount, RealT> m = f;  // do we need to write a copy constructor?
-        typename functionGrid<rhocount, xcount, ycount, RealT>::biquadParameterGrid b = this->setupBiquadGrid(f);
-        m.fillbyindex([&](int i, int j, int k) -> RealT {
-            RealT xc = f.xset[j];
-            RealT yc = f.yset[k];
-            if (f.rhoset[i] == 0) {
-                return f.gridValues(i, j, k);
-            }
-            auto new_f = [&](RealT x) -> RealT {
-                return this->interpNaiveBiquad(f, b, i, xc + f.rhoset[i] * std::sin(x),
-                                               yc - f.rhoset[i] * std::cos(x));
-            };
-            RealT result = TrapezoidIntegrate(0.0, 2 * pi, new_f) / (2 * pi);
-            return result;
-        });
-        return m;
-    }
-};
 /*
-// FFT - we sort of abandoned this; it only computes the first rhoset[0].
+// FFT - The below is abandoned code.; it only computes the first rhoset[0].
+//We are keeping it because the function DCTTest should be part of a testing framework.
 //also the initialization is VERY slow.
 template <int rhocount, int xcount, int ycount, class RealT = RealT>
 class DCTCPUCalculator
@@ -1156,6 +1090,7 @@ functionGrid<rhocount, xcount, ycount, RealT> calculate(
 */
 
 //FFT
+
 //FFT2
 template <int rhocount, int xcount, int ycount, class RealT = double>
 class DCTCPUCalculator2
@@ -1200,7 +1135,7 @@ class DCTCPUCalculator2
 
     functionGrid<rhocount, xcount, ycount, RealT> calculate(
         functionGrid<rhocount, xcount, ycount, RealT> &f) override {
-        functionGrid<rhocount, xcount, ycount, RealT> m = f;  // do we need to write a copy constructor?
+        functionGrid<rhocount, xcount, ycount, RealT> m = f;
 
         std::copy(f.gridValues.data.begin(), f.gridValues.data.begin() + xcount * ycount * rhocount, plan.fftin);
         plan.execute();
@@ -1387,10 +1322,10 @@ class chebCPUDense
         return std::make_unique<chebCPUDense>(g);
     }
 
+    // TODO(orebas):there are some unecessary copies and allocating in the below.
     functionGrid<rhocount, xcount, ycount, RealT> calculate(
         functionGrid<rhocount, xcount, ycount, RealT> &f) override {
-        functionGrid<rhocount, xcount, ycount, RealT> m = f;  // do we need to write a copy constructor?
-
+        functionGrid<rhocount, xcount, ycount, RealT> m = f;
         std::copy(f.gridValues.data.begin(), f.gridValues.data.begin() + rhocount * xcount * ycount, plan.fftin);
         plan.execute();
         for (int rho_iter = 0; rho_iter < rhocount; ++rho_iter) {
@@ -1399,8 +1334,6 @@ class chebCPUDense
 
             Eigen::Map<Eigen::Matrix<RealT, xcount * ycount, 1>> b(m.gridValues.data.data() + rho_iter * xcount * ycount);
             b = denseGAMatrix[rho_iter] * X;
-            //std::cout << std::endl
-            //         << b << std::endl;
         }
         return m;
     }
@@ -1456,10 +1389,7 @@ class chebGPUDense
 
             viennacl::backend::finish();
 
-            //Eigen::Map<Eigen::Matrix<RealT, xcount * ycount, 1>> b(m.gridValues.data.data() + rho_iter * xcount * ycount);
             copy(GPUTarget.begin(), GPUTarget.end(), m.gridValues.data.data() + rho_iter * xcount * ycount);
-
-            //b = denseGAMatrix[rho_iter] * X;
         }
         return m;
     }
@@ -1758,8 +1688,7 @@ class bicubicDotProductCPU
     functionGrid<rhocount, xcount, ycount, RealT> calculate(
         functionGrid<rhocount, xcount, ycount, RealT> &f) override {
         functionGrid<rhocount, xcount, ycount, RealT> m =
-            f;  // do we need to write a copy constructor?
-
+            f;
         m.clearGrid();
         typename functionGrid<rhocount, xcount, ycount, RealT>::bicubicParameterGrid b = functionGrid<rhocount, xcount, ycount, RealT>::setupBicubicGrid(f);
 
@@ -1777,8 +1706,6 @@ class bicubicDotProductGPU
     : public GACalculator<rhocount, xcount, ycount, RealT> {
    private:
     viennacl::compressed_matrix<RealT> vcl_sparse_matrix;
-    //viennacl::vector<RealT> gpu_source;
-    //viennacl::vector<RealT> gpu_target;
 
    public:
     friend class GACalculator<rhocount, xcount, ycount, RealT>;
@@ -1853,19 +1780,12 @@ class linearDotProductGPU
         functionGrid<rhocount, xcount, ycount, RealT> m =
             f;
 
-        //        m.clearGrid();
-        //typename functionGrid<rhocount, xcount, ycount, RealT>::linearParameterGrid b = functionGrid<rhocount, xcount, ycount, RealT>::setuplinearGrid(f);
         viennacl::vector<RealT> gpu_source(f.gridValues.data.size());
         viennacl::copy(f.gridValues.data.begin(), f.gridValues.data.end(), gpu_source.begin());
 
-        //std::cout << "no fail 2" << std::endl;
         viennacl::backend::finish();
-        //viennacl::copy(m.gridValues.data.begin(), m.gridValues.data.end(), gpu_target.begin());
-        //viennacl::backend::finish();
-        // this is garbage data, I just want to make sure  it's allocated.
         viennacl::vector<RealT> gpu_target = viennacl::linalg::prod(vcl_sparse_matrix, gpu_source);
 
-        //std::cout << "no fail 3" << std::endl;
         viennacl::backend::finish();
         viennacl::copy(gpu_target.begin(), gpu_target.end(),
                        m.gridValues.data.begin());
