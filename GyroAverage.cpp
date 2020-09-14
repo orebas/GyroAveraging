@@ -17,13 +17,8 @@
 #include <math_constants.h>
 #endif
 
-#include <algorithm>
+/*#include <algorithm>
 #include <array>
-#include <boost/math/quadrature/tanh_sinh.hpp>
-#include <boost/math/quadrature/trapezoidal.hpp>
-#include <boost/math/special_functions/bessel.hpp>
-#include <boost/math/special_functions/chebyshev_transform.hpp>
-#include <boost/math/special_functions/next.hpp>
 #include <boost/numeric/ublas/lu.hpp>
 #include <boost/numeric/ublas/matrix_sparse.hpp>
 #include <boost/numeric/ublas/operation_sparse.hpp>
@@ -31,7 +26,6 @@
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/vector_proxy.hpp>
 
-#include "viennacl/compressed_matrix.hpp"
 #include "viennacl/coordinate_matrix.hpp"
 #include "viennacl/ell_matrix.hpp"
 #include "viennacl/hyb_matrix.hpp"
@@ -49,44 +43,48 @@
 #include <boost/math/quadrature/trapezoidal.hpp>
 #include <boost/math/special_functions/bessel.hpp>
 //#include <boost/timer/timer.hpp>
-#include <fftw3.h>
+
 #include <omp.h>
 
-#include <cassert>
-#include <cmath>
-#include <eigen3/Eigen/Eigen>
-#include <iomanip>
-#include <iostream>
-#include <iterator>
-#include <limits>
+//#include <cassert>
+//#include <cmath>
+//#include <iomanip>
+//#include <iostream>
+//#include <iterator>
+//#include <limits>
 #include <map>
 #include <vector>
-
+*/
 #include "ga.h"
 
 template <class RealT = double>
 struct resultsRecord {
     OOGA::calculatorType type = OOGA::calculatorType::linearCPU;
     int N = 0;
-    std ::vector<RealT> error;
     std::vector<RealT> rhoset;
     double initTime = 0;
     double calcTime = 0;
     int bits = 0;
+    std ::vector<RealT> error;
     friend std::ostream& operator<<(std::ostream& output, const resultsRecord<RealT>& r) {
         auto nameMap = OOGA::calculatorNameMap();
-        output << nameMap[r.type] << ";"
-               << r.N << ";"
-               << r.initTime / 1000 << ";"
-               << r.calcTime << ";"
-               << 1e9 / r.calcTime << ";"
-               << r.bits << "; "
-               << *std::max_element(r.error.begin(), r.error.end()) << ";";
+        output << nameMap[r.type] << ","
+               << r.N << ","
+               << r.initTime / 1000 << ","
+               << r.calcTime << ","
+               << 1e9 / r.calcTime << ","
+               << r.bits << ", "
+               << *std::max_element(r.error.begin(), r.error.end()) << ",";
         for (auto e : r.error) {
-            output << ";" << e;
+            output << "," << e;
         }
-        output << ";";
+        output << ",";
         return output;
+    }
+    //std::string header() {
+    //}
+    resultsRecord(OOGA::calculatorType t_i, int N_i, std ::vector<RealT> rhoset_i, double initTime_i, double calcTime_i, int bits_i)
+        : type(t_i), N(N_i), rhoset(rhoset_i), initTime(initTime_i), calcTime(calcTime_i), bits(bits_i), error(rhoset_i) {
     }
 };
 
@@ -138,14 +136,7 @@ std::vector<resultsRecord<RealT>> testRun(const std::vector<OOGA::calculatorType
         };
         double calcTime = measure<std::chrono::nanoseconds>::execution2(func2);
         result = (calcset.back()->calculate(f));
-        resultsRecord<RealT> r;
-        r.type = calclist[i];
-        r.N = N;
-        r.rhoset = std::vector(rhoset.begin(), rhoset.end());
-        r.initTime = initTime;
-        r.calcTime = calcTime;
-        r.bits = sizeof(RealT);
-        r.error = rhoset;
+        resultsRecord<RealT> r(calclist[i], N, std::vector<RealT>(rhoset.begin(), rhoset.end()), initTime, calcTime, sizeof(RealT));
         for (int k = 0; k < rhocount; ++k) {
             r.error[k] = exact.maxNormDiff(result.gridValues, k) / exact.maxNorm(k);
         }
@@ -153,6 +144,55 @@ std::vector<resultsRecord<RealT>> testRun(const std::vector<OOGA::calculatorType
         calcset.back().reset(nullptr);
     }
     return runResults;
+}
+
+template <int N, int MaxN, int rhocount, class RealT, bool cheb = false, typename TFunc1>
+std::vector<resultsRecord<RealT>> testRunRecursive(const std::vector<OOGA::calculatorType>& calclist, TFunc1 testfunc, OOGA::gridDomain& g) {
+    bool fail = false;
+    std::vector<resultsRecord<RealT>> result, resultNext;  //10 is a magic number.  compile-time though.
+    std::vector<resultsRecord<RealT>> fullResult;
+    using OOGA::functionGrid, OOGA::GACalculator, OOGA::gridDomain, OOGA::LinearSpacedArray, OOGA::measure;
+    if constexpr (N > MaxN) {
+        return result;
+    } else {
+        try {
+            std::cout << "running " << N << " " << rhocount << std::endl;
+            result = testRun<N, rhocount, RealT, cheb, TFunc1>(calclist, testfunc, g);
+            fullResult.insert(fullResult.end(), result.begin(), result.end());
+            result = testRun<N + 4, rhocount, RealT, cheb, TFunc1>(calclist, testfunc, g);
+            fullResult.insert(fullResult.end(), result.begin(), result.end());
+            result = testRun<N + 8, rhocount, RealT, cheb, TFunc1>(calclist, testfunc, g);
+            fullResult.insert(fullResult.end(), result.begin(), result.end());
+            result = testRun<N + 12, rhocount, RealT, cheb, TFunc1>(calclist, testfunc, g);
+            fullResult.insert(fullResult.end(), result.begin(), result.end());
+            result = testRun<N + 16, rhocount, RealT, cheb, TFunc1>(calclist, testfunc, g);
+            fullResult.insert(fullResult.end(), result.begin(), result.end());
+            result = testRun<N + 20, rhocount, RealT, cheb, TFunc1>(calclist, testfunc, g);
+            fullResult.insert(fullResult.end(), result.begin(), result.end());
+            result = testRun<N + 24, rhocount, RealT, cheb, TFunc1>(calclist, testfunc, g);
+            fullResult.insert(fullResult.end(), result.begin(), result.end());
+            result = testRun<N + 28, rhocount, RealT, cheb, TFunc1>(calclist, testfunc, g);
+            fullResult.insert(fullResult.end(), result.begin(), result.end());
+            result = testRun<N + 32, rhocount, RealT, cheb, TFunc1>(calclist, testfunc, g);
+            fullResult.insert(fullResult.end(), result.begin(), result.end());
+            result = testRun<N + 36, rhocount, RealT, cheb, TFunc1>(calclist, testfunc, g);
+            fullResult.insert(fullResult.end(), result.begin(), result.end());
+
+        } catch (std::exception& e) {
+            fail = true;
+            std::cout << "Exception1" << std::endl;
+        }
+        if constexpr (N < MaxN) {
+            if (!fail)
+                try {
+                    resultNext = testRunRecursive<N + 40, MaxN, rhocount, RealT, cheb, TFunc1>(calclist, testfunc, g);
+                } catch (std::exception& e) {
+                    std::cout << "Exception2" << std::endl;
+                }
+        }
+        fullResult.insert(result.end(), resultNext.begin(), resultNext.end());
+        return fullResult;
+    }
 }
 
 int main() {
@@ -163,7 +203,7 @@ int main() {
     //using namespace OOGA;
     using OOGA::chebBasisFunction, OOGA::functionGrid, OOGA::GACalculator, OOGA::gridDomain, OOGA::LinearSpacedArray;
     using mainReal = double;
-    constexpr mainReal mainRhoMin = 0.0 / 4.0;  //used to be 0.25/4
+    constexpr mainReal mainRhoMin = 0.0 / 4.0;   //used to be 0.25/4
     constexpr mainReal mainRhoMax = 3.45 / 4.0;  //used to be 3/4
     constexpr mainReal mainxyMin = -1;
     constexpr mainReal mainxyMax = 1;
@@ -225,7 +265,25 @@ int main() {
         return (30 * std::exp(1 / (temp / 25.0 - 1.0)));
     };*/
 
-    auto res1 = testRun<8, rhocount, double, true>(chebCalclist, testfunc2, g);
+    for (auto& cal_i : calclist) {
+        std::vector<OOGA::calculatorType> one_item_list;
+        one_item_list.push_back(cal_i);
+        auto res = testRunRecursive<8, 192, rhocount, double>(one_item_list, testfunc2, g);
+        std::cout << res << std::endl;
+        auto res2 = testRunRecursive<8, 192, rhocount, float>(one_item_list, testfunc2, g);
+        std::cout << res2 << std::endl;
+    }
+
+    for (auto& cal_i : chebCalclist) {
+        std::vector<OOGA::calculatorType> one_item_list;
+        one_item_list.push_back(cal_i);
+        auto res = testRunRecursive<8, 192, rhocount, double, true>(one_item_list, testfunc2, g);
+        std::cout << res << std::endl;
+        auto res_2 = testRunRecursive<8, 192, rhocount, float, true>(one_item_list, testfunc2, g);
+        std::cout << res_2 << std::endl;
+    }
+
+    /*auto res1 = testRun<8, rhocount, double, true>(chebCalclist, testfunc2, g);
     std::cout << res1;
     res1 = testRun<16, rhocount, double, true>(chebCalclist, testfunc2, g);
     std::cout << res1;
@@ -275,7 +333,7 @@ int main() {
     res2 = testRun<64, rhocount, float>(calclist, testfunc2, g);
     std::cout << res2;
     res2 = testRun<96, rhocount, float>(calclist, testfunc2, g);
-    std::cout << res2;
+    std::cout << res2;*/
 
     fftw_cleanup();
 }
@@ -418,26 +476,3 @@ void chebDevel() {
         }
     }
 }
-
-namespace OOGA {
-
-template <class RealT = double>
-void testArcIntegralBicubic() {
-    constexpr RealT r = 0.3, s0 = 0.6, s1 = 2.2, xc = -0.2, yc = -1.4;
-    std::array<RealT, 16> coeffs;
-    arcIntegralBicubic(coeffs, r, xc, yc, s0, s1);
-    for (int i = 0; i <= 3; ++i) {
-        for (int j = 0; j <= 3; ++j) {
-            auto f = [i, j](RealT x) -> RealT {
-                return std::pow(xc + r * std::sin(x), i) *
-                       std::pow(yc - r * std::cos(x), j);
-            };
-            RealT res = TanhSinhIntegrate(s0, s1, f);
-            std::cout << i << "\t" << j << "\t" << res << "\t"
-                      << coeffs[j * 4 + i] << "\t" << res - coeffs[j * 4 + i]
-                      << "\n";
-        }
-    }
-}
-
-}  // namespace OOGA

@@ -5,17 +5,25 @@
 #ifndef GYROAVERAGING_GA_H
 #define GYROAVERAGING_GA_H
 
+#include <fftw3.h>
 #include <omp.h>
 
-#include <algorithm>
-#include <array>
 #include <boost/math/special_functions/bessel.hpp>
+#include <boost/math/special_functions/chebyshev_transform.hpp>
+#include <boost/math/special_functions/next.hpp>
+#include <eigen3/Eigen/Eigen>
+#include <exception>
+#include <iostream>
+#include <new>
+
+#include "viennacl/compressed_matrix.hpp"
+/*#include <algorithm>
+#include <array>
 #include <cassert>
 #include <cmath>
-#include <iostream>
 #include <iterator>
 #include <string>
-#include <vector>
+#include <vector>*/
 
 #include "gautils.h"
 
@@ -431,7 +439,15 @@ class fftw_wrapper_2d<rhocount, xcount, ycount, double> {
         fftw_r2r_kind type[] = {t, t};
 
         fftin = static_cast<RealT *>(fftw_malloc(rhocount * xcount * ycount * sizeof(RealT)));
+        if (fftin == nullptr) {
+            throw std::bad_alloc();
+        }
         fftout = static_cast<RealT *>(fftw_malloc(rhocount * xcount * ycount * sizeof(RealT)));
+        if (fftout == nullptr) {
+            fftw_free(fftin);
+            throw std::bad_alloc();
+        }
+
         plan = fftw_plan_many_r2r(rank, static_cast<int *>(n), howmany, fftin, static_cast<int *>(n), istride, idist, fftout, static_cast<int *>(n), ostride, odist, static_cast<fftw_r2r_kind *>(type), FFTW_MEASURE);
     }
 
@@ -545,27 +561,27 @@ enum class calculatorType { linearCPU,
 inline std::map<OOGA::calculatorType, std::string> calculatorNameMap() {
     std::map<OOGA::calculatorType, std::string> nameMap;
     nameMap[OOGA::calculatorType::linearCPU] =
-        "linear interp, trapezoid rule, CPU ";
+        "linear interp; trapezoid rule; CPU ";
     nameMap[OOGA::calculatorType::linearDotProductCPU] =
-        "linear interp, CPU Sparse Matrix   ";
+        "linear interp; CPU Sparse Matrix   ";
     nameMap[OOGA::calculatorType::bicubicCPU] =
-        "bicubic interp, trapezoid rule, CPU";
+        "bicubic interp; trapezoid rule; CPU";
     nameMap[OOGA::calculatorType::bicubicDotProductCPU] =
-        "bicubic interp, CPU Sparse Matrix  ";
+        "bicubic interp; CPU Sparse Matrix  ";
     nameMap[OOGA::calculatorType::DCTCPUCalculator] =
-        "Very slow fourier Method - deprecated";
+        "Very slow fourier Method ; deprecated";
     nameMap[OOGA::calculatorType::DCTCPUCalculator2] =
         "DCT+Bessel+IDCT                    ";
     nameMap[OOGA::calculatorType::DCTCPUPaddedCalculator2] =
-        "DCT+Bessel+IDCT, on padded grid    ";
+        "DCT+Bessel+IDCT; on padded grid    ";
     nameMap[OOGA::calculatorType::bicubicDotProductGPU] =
-        "bicubic interp, GPU Sparse Matrix  ";
+        "bicubic interp; GPU Sparse Matrix  ";
     nameMap[OOGA::calculatorType::linearDotProductGPU] =
-        "linear interp, GPU Sparse Matrix   ";
+        "linear interp; GPU Sparse Matrix   ";
     nameMap[OOGA::calculatorType::chebCPUDense] =
-        "chebyshev interp, CPU Dense Matrix ";
+        "chebyshev interp; CPU Dense Matrix ";
     nameMap[OOGA::calculatorType::chebGPUDense] =
-        "chebyshev interp, GPU Dense Matrix ";
+        "chebyshev interp; GPU Dense Matrix ";
 
     return nameMap;
 }
@@ -1826,6 +1842,29 @@ GACalculator<rhocount, xcount, ycount, RealT, padcount>::Factory::newCalculator(
 
         default:
             return linearCPUCalculator<rhocount, xcount, ycount, RealT>::create();
+    }
+}
+
+}  // namespace OOGA
+
+namespace OOGA {
+
+template <class RealT = double>
+void testArcIntegralBicubic() {
+    constexpr RealT r = 0.3, s0 = 0.6, s1 = 2.2, xc = -0.2, yc = -1.4;
+    std::array<RealT, 16> coeffs;
+    arcIntegralBicubic(coeffs, r, xc, yc, s0, s1);
+    for (int i = 0; i <= 3; ++i) {
+        for (int j = 0; j <= 3; ++j) {
+            auto f = [i, j](RealT x) -> RealT {
+                return std::pow(xc + r * std::sin(x), i) *
+                       std::pow(yc - r * std::cos(x), j);
+            };
+            RealT res = TanhSinhIntegrate(s0, s1, f);
+            std::cout << i << "\t" << j << "\t" << res << "\t"
+                      << coeffs[j * 4 + i] << "\t" << res - coeffs[j * 4 + i]
+                      << "\n";
+        }
     }
 }
 

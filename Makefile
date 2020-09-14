@@ -26,6 +26,9 @@ Home-Debug: GyroAverage.cpp ga.h gautils.h
 Home-Asan: GyroAverage.cpp ga.h gautils.h
 	$(CPP) GyroAverage.cpp  -std=c++2a -Wall   -ggdb -O1   -fopenmp -I. -fsanitize=address -fno-omit-frame-pointer -o GyroAverage-Home   -lm -lfftw3 -lfftw3f -lasan 
 
+GyroAverage-Home-Clang: GyroAverage.cpp ga.h gautils.h
+	clang++ GyroAverage.cpp  -std=c++2a -Wall -g -pg  -O3  -I. -fopenmp -march=native -o GyroAverage-Home-Clang   -lm -lfftw3 -lfftw3f -lstdc++
+
 
 all: GyroAverage-OpenCL GyroAverage-CPU GyroAverage-CUDA
 

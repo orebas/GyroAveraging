@@ -3,8 +3,11 @@
 #ifndef GYROAVERAGING_UTILS_H
 #define GYROAVERAGING_UTILS_H
 
+#include <boost/math/quadrature/tanh_sinh.hpp>
+#include <boost/math/quadrature/trapezoidal.hpp>
+#include <boost/math/special_functions/bessel.hpp>
+#include <boost/math/special_functions/next.hpp>
 #include <chrono>
-
 namespace OOGA {
 
 template <typename TimeT = std::chrono::milliseconds>
@@ -149,8 +152,6 @@ inline RealT TrapezoidIntegrate(RealT x, RealT y, TFunc f) {
     //boost::math::quadrature::tanh_sinh<RealT> integrator;
     //return integrator.integrate(f, x, y);  //TODO REPLACE
 }
-
-
 
 template <typename T>
 std::ostream &operator<<(std::ostream &out, const std::vector<T> &v) {
