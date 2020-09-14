@@ -97,7 +97,54 @@ std::ostream& operator<<(std::ostream& output, const std::vector<resultsRecord<R
 }
 
 template <int N, int rhocount, class RealT, bool cheb = false, typename TFunc1>
-std::vector<resultsRecord<RealT>> testRun(const std::vector<OOGA::calculatorType>& calclist, TFunc1 testfunc, OOGA::gridDomain& g) {
+resultsRecord<RealT> testRun(OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomain& g) {
+    using OOGA::functionGrid, OOGA::GACalculator, OOGA::gridDomain, OOGA::LinearSpacedArray, OOGA::measure;
+
+    constexpr int xcount = N;
+    constexpr int ycount = N;
+    std::vector<RealT> rhoset;
+    std::vector<RealT> xset, lin_xset, lin_yset;
+    std::vector<RealT> yset;
+
+    rhoset = LinearSpacedArray<RealT>(g.rhomin, g.rhomax, rhocount);
+    if (!cheb) {
+        xset = LinearSpacedArray<RealT>(g.xmin, g.xmax, xcount);
+        yset = LinearSpacedArray<RealT>(g.ymin, g.ymax, ycount);
+    } else {
+        xset = chebPoints<RealT>(xcount);
+        yset = chebPoints<RealT>(ycount);
+    }
+
+    lin_xset = LinearSpacedArray<RealT>(g.xmin, g.xmax, xcount);
+    lin_yset = LinearSpacedArray<RealT>(g.ymin, g.ymax, ycount);
+
+    functionGrid<rhocount, xcount, ycount, RealT>
+        f(rhoset, xset, yset),
+        exact(rhoset, lin_xset, lin_yset), result(rhoset, lin_xset, lin_yset);
+
+    std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>> calculator;
+    exact.fillTruncatedAlmostExactGA(testfunc);
+
+    auto func = [&]() -> void { calculator = (GACalculator<rhocount, xcount, ycount, RealT, N>::Factory::newCalculator(calcType, g, exact)); };
+    double initTime = measure<std::chrono::milliseconds>::execution(func);
+    f.fill(testfunc);
+    auto& b = f;
+    auto func2 = [&]() -> void {
+        calculator->calculate(b);
+    };
+    double calcTime = measure<std::chrono::nanoseconds>::execution2(func2);
+    result = (calculator->calculate(f));
+    resultsRecord<RealT> runResults(calcType, N, std::vector<RealT>(rhoset.begin(), rhoset.end()), initTime, calcTime, sizeof(RealT));
+    for (int k = 0; k < rhocount; ++k) {
+        runResults.error[k] = exact.maxNormDiff(result.gridValues, k) / exact.maxNorm(k);
+    }
+    calculator.reset(nullptr);
+    std::cout << runResults << std::endl;
+    return runResults;
+}
+
+/*template <int N, int rhocount, class RealT, bool cheb = false, typename TFunc1>
+std::vector<resultsRecord<RealT>> testRunMultiple(const std::vector<OOGA::calculatorType>& calclist, TFunc1 testfunc, OOGA::gridDomain& g) {
     using OOGA::functionGrid, OOGA::GACalculator, OOGA::gridDomain, OOGA::LinearSpacedArray, OOGA::measure;
 
     std::vector<resultsRecord<RealT>> runResults;
@@ -144,13 +191,84 @@ std::vector<resultsRecord<RealT>> testRun(const std::vector<OOGA::calculatorType
         calcset.back().reset(nullptr);
     }
     return runResults;
+}*/
+
+template <int rhocount, class RealT, bool cheb = false, typename TFunc1>
+void testRunList(OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomain& g) {
+    try {
+        testRun<8, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<12, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<16, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<20, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<24, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<28, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<32, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<36, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<40, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<44, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<48, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<52, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<56, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<60, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<64, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<68, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<72, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<76, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<80, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<84, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<88, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<92, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<96, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<100, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<104, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<108, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<112, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<116, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<120, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<124, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<128, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<132, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<136, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<140, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<144, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<148, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<152, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<156, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<160, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<164, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<168, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<172, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<176, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<180, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<184, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<188, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<192, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<196, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<200, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<204, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<208, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<212, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<216, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<220, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<224, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<228, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<232, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<236, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<240, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<244, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<248, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<252, rhocount, RealT, cheb>(calcType, testfunc, g);
+        testRun<256, rhocount, RealT, cheb>(calcType, testfunc, g);
+
+    } catch (std::exception& e) {
+        std::cout << "Finished a list." << std::endl;
+    }
 }
 
-template <int N, int MaxN, int rhocount, class RealT, bool cheb = false, typename TFunc1>
+/*template <int N, int MaxN, int rhocount, class RealT, bool cheb = false, typename TFunc1>
 std::vector<resultsRecord<RealT>> testRunRecursive(const std::vector<OOGA::calculatorType>& calclist, TFunc1 testfunc, OOGA::gridDomain& g) {
     bool fail = false;
-    std::vector<resultsRecord<RealT>> result, resultNext;  //10 is a magic number.  compile-time though.
-    std::vector<resultsRecord<RealT>> fullResult;
+    std::vector<resultsRecord<RealT>> result;
     using OOGA::functionGrid, OOGA::GACalculator, OOGA::gridDomain, OOGA::LinearSpacedArray, OOGA::measure;
     if constexpr (N > MaxN) {
         return result;
@@ -164,19 +282,6 @@ std::vector<resultsRecord<RealT>> testRunRecursive(const std::vector<OOGA::calcu
             result = testRun<N + 8, rhocount, RealT, cheb, TFunc1>(calclist, testfunc, g);
             fullResult.insert(fullResult.end(), result.begin(), result.end());
             result = testRun<N + 12, rhocount, RealT, cheb, TFunc1>(calclist, testfunc, g);
-            fullResult.insert(fullResult.end(), result.begin(), result.end());
-            result = testRun<N + 16, rhocount, RealT, cheb, TFunc1>(calclist, testfunc, g);
-            fullResult.insert(fullResult.end(), result.begin(), result.end());
-            result = testRun<N + 20, rhocount, RealT, cheb, TFunc1>(calclist, testfunc, g);
-            fullResult.insert(fullResult.end(), result.begin(), result.end());
-            result = testRun<N + 24, rhocount, RealT, cheb, TFunc1>(calclist, testfunc, g);
-            fullResult.insert(fullResult.end(), result.begin(), result.end());
-            result = testRun<N + 28, rhocount, RealT, cheb, TFunc1>(calclist, testfunc, g);
-            fullResult.insert(fullResult.end(), result.begin(), result.end());
-            result = testRun<N + 32, rhocount, RealT, cheb, TFunc1>(calclist, testfunc, g);
-            fullResult.insert(fullResult.end(), result.begin(), result.end());
-            result = testRun<N + 36, rhocount, RealT, cheb, TFunc1>(calclist, testfunc, g);
-            fullResult.insert(fullResult.end(), result.begin(), result.end());
 
         } catch (std::exception& e) {
             fail = true;
@@ -193,7 +298,7 @@ std::vector<resultsRecord<RealT>> testRunRecursive(const std::vector<OOGA::calcu
         fullResult.insert(result.end(), resultNext.begin(), resultNext.end());
         return fullResult;
     }
-}
+}*/
 
 int main() {
     //fft_testing();
@@ -213,7 +318,7 @@ int main() {
     g.xmin = g.ymin = mainxyMin;
     g.xmax = g.ymax = mainxyMax;
     constexpr int xcount = 16, ycount = 16,
-                  rhocount = 20;  // bump up to 64x64x35 later or 128x128x35
+                  rhocount = 3;  // bump up to 64x64x35 later or 128x128x35
     constexpr mainReal A = 24;
     constexpr mainReal B = 1.1;
     constexpr mainReal Normalizer = 50.0;
@@ -266,21 +371,13 @@ int main() {
     };*/
 
     for (auto& cal_i : calclist) {
-        std::vector<OOGA::calculatorType> one_item_list;
-        one_item_list.push_back(cal_i);
-        auto res = testRunRecursive<8, 192, rhocount, double>(one_item_list, testfunc2, g);
-        std::cout << res << std::endl;
-        auto res2 = testRunRecursive<8, 192, rhocount, float>(one_item_list, testfunc2, g);
-        std::cout << res2 << std::endl;
+        testRunList<rhocount, double>(cal_i, testfunc2, g);
+        //testRunList<rhocount, float>(cal_i, testfunc2, g);
     }
 
     for (auto& cal_i : chebCalclist) {
-        std::vector<OOGA::calculatorType> one_item_list;
-        one_item_list.push_back(cal_i);
-        auto res = testRunRecursive<8, 192, rhocount, double, true>(one_item_list, testfunc2, g);
-        std::cout << res << std::endl;
-        auto res_2 = testRunRecursive<8, 192, rhocount, float, true>(one_item_list, testfunc2, g);
-        std::cout << res_2 << std::endl;
+        testRunList<rhocount, double, true>(cal_i, testfunc2, g);
+        //testRunList<rhocount, float, true>(cal_i, testfunc2, g);
     }
 
     /*auto res1 = testRun<8, rhocount, double, true>(chebCalclist, testfunc2, g);
