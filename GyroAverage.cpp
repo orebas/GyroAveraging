@@ -354,6 +354,19 @@ int main() {
     auto testfunc2 = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
         return Normalizer * exp(-A * (ex * ex + why * why)) * exp(-B * row * row);
     };
+
+    auto hardfunc = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
+        auto dist = ex * ex + why * why;
+        auto hard = exp(dist) * pow(
+                                    (1.0d / cosh(4.0d * sin(40.0d * dist))),
+                                    exp(dist));
+        hard += exp(ex) *
+                pow((1.0d / cosh(4.0d * sin(40.0d * ex))), exp(ex));
+        if (why + ex / 2.0d < 00.0d) hard += 1.5d;
+        hard *= (1.0d - ex * ex);
+        hard *= (1.0d - why * why);
+        return hard;
+    };
     /*auto testfunc2_analytic = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
         return Normalizer * exp(-B * row * row) * exp(-A * (ex * ex + why * why + row * row)) *
                boost::math::cyl_bessel_i(0, 2 * A * row * std::sqrt(ex * ex + why * why));
@@ -369,14 +382,14 @@ int main() {
         }
         return (30 * std::exp(1 / (temp / 25.0 - 1.0)));
     };*/
-
+    std::cout << "Calculator,N,Init time (s), Calc.time(s), Calc.Freq(hz), Bytes, MaxError, FirstBlank, Err1, Err2, Err3, Blank" << std::endl;
     for (auto& cal_i : calclist) {
-      //testRunList<rhocount, double>(cal_i, testfunc2, g);
+        testRunList<rhocount, double>(cal_i, hardfunc, g);
         //testRunList<rhocount, float>(cal_i, testfunc2, g);
     }
 
     for (auto& cal_i : chebCalclist) {
-        testRunList<rhocount, double, true>(cal_i, testfunc2, g);
+        testRunList<rhocount, double, true>(cal_i, hardfunc, g);
         //testRunList<rhocount, float, true>(cal_i, testfunc2, g);
     }
 
