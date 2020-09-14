@@ -346,7 +346,7 @@ int main() {
     calclist.push_back(OOGA::calculatorType::DCTCPUPaddedCalculator2);
 
     std::vector<OOGA::calculatorType> chebCalclist;
-    chebCalclist.push_back(OOGA::calculatorType::chebCPUDense);
+    //chebCalclist.push_back(OOGA::calculatorType::chebCPUDense);
     chebCalclist.push_back(OOGA::calculatorType::chebGPUDense);
     //constexpr mainReal padtest = xcount * mainRhoMax / std::abs(mainxyMax - mainxyMin);
     //constexpr int padcount = mymax(8, 4 + static_cast<int>(std::ceil(padtest)));
@@ -371,7 +371,7 @@ int main() {
     };*/
 
     for (auto& cal_i : calclist) {
-        testRunList<rhocount, double>(cal_i, testfunc2, g);
+      //testRunList<rhocount, double>(cal_i, testfunc2, g);
         //testRunList<rhocount, float>(cal_i, testfunc2, g);
     }
 
