@@ -97,8 +97,44 @@ std::ostream& operator<<(std::ostream& output, const std::vector<resultsRecord<R
 }
 
 template <class RealT, typename TFunc1>
+resultsRecord<RealT> testConvergence(TFunc1 testfunc, OOGA::gridDomain& g, int rhocount) {
+    using OOGA::functionGrid;
+    using OOGA::GACalculator;
+    using OOGA::gridDomain;
+    using OOGA::LinearSpacedArray;
+    using OOGA::measure;
+
+    for (int N = 8; N < 1024; N++) {
+        int xcount = N;
+        int ycount = N;
+        std::vector<RealT> rhoset;
+        std::vector<RealT> cheb_xset, lin_xset, lin_yset;
+        std::vector<RealT> cheb_yset;
+
+        rhoset = LinearSpacedArray<RealT>(g.rhomin, g.rhomax, rhocount);
+        cheb_xset = chebPoints<RealT>(xcount);
+        cheb_yset = chebPoints<RealT>(ycount);
+        lin_xset = LinearSpacedArray<RealT>(g.xmin, g.xmax, xcount);
+        lin_yset = LinearSpacedArray<RealT>(g.ymin, g.ymax, ycount);
+
+        functionGrid<RealT>
+            f(rhoset, lin_xset, lin_yset), f_cheb(rhoset, cheb_xset, cheb_yset), exact(rhoset, lin_xset, lin_yset), result(rhoset, lin_xset, lin_yset);
+
+        exact.fillTruncatedAlmostExactGA(testfunc);
+        // NOT DONE
+    }
+    std::vector<RealT> rhoset;
+    std::vector<RealT> xset, lin_xset, lin_yset;
+    std::vector<RealT> yset;
+}
+
+template <class RealT, typename TFunc1>
 resultsRecord<RealT> testRun(OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomain& g, int N, int rhocount, bool cheb = false) {
-    using OOGA::functionGrid, OOGA::GACalculator, OOGA::gridDomain, OOGA::LinearSpacedArray, OOGA::measure;
+    using OOGA::functionGrid;
+    using OOGA::GACalculator;
+    using OOGA::gridDomain;
+    using OOGA::LinearSpacedArray;
+    using OOGA::measure;
 
     int xcount = N;
     int ycount = N;
@@ -198,8 +234,8 @@ void testRunList(OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomai
     try {
         for (int i = 4; i < 8192; i *= 2) {
             auto r = testRun<RealT>(calcType, testfunc, g, i, rhocount, cheb);
-     
- r = testRun<RealT>(calcType, testfunc, g, (i / 2 * 3), rhocount, cheb);
+
+            r = testRun<RealT>(calcType, testfunc, g, (i / 2 * 3), rhocount, cheb);
             if (r.initTime > 1000000 || r.calcTime > 1e13)
                 break;
         }

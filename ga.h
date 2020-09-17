@@ -82,6 +82,7 @@ class functionGrid {
     }
 
     void clearGrid() {
+#pragma omp parallel for collapse(3)
         for (auto i = 0; i < rhocount; i++) {
             for (auto j = 0; j < xcount; j++) {
                 for (auto k = 0; k < ycount; k++) {
@@ -133,7 +134,7 @@ class functionGrid {
     // below fills a grid, given a function of rho, x, and y
     template <typename TFunc>
     void fill(TFunc f) {
-#pragma omp parallel for
+#pragma omp parallel for collapse(3)
         for (auto i = 0; i < rhocount; i++) {
             for (auto j = 0; j < xcount; j++) {
                 for (auto k = 0; k < ycount; k++) {
@@ -145,7 +146,7 @@ class functionGrid {
     // below fills a grid, given a function of i,j,k
     template <typename TFunc>
     void fillbyindex(TFunc f) {
-#pragma omp parallel for
+#pragma omp parallel for collapse(3)
         for (int i = 0; i < rhocount; i++) {
             for (int j = 0; j < xcount; j++) {
                 for (int k = 0; k < ycount; k++) {
@@ -284,6 +285,8 @@ class functionGrid {
 
         auto d = f.calcDerivsGrid();
         bicubicParameterGrid b(f.rhocount, f.xcount, f.ycount, 16);
+
+#pragma omp parallel for collapse(3)
         for (int i = 0; i < f.rhocount; i++) {
             // we explicitly rely on parameters being initialized to 0,
             // including the top and right sides.
@@ -326,6 +329,8 @@ class functionGrid {
         RealT xdenom = xset[1] - xset[0];
         const fullgrid &g = gridValues;
         derivsGrid derivs(rhocount, xcount, ycount, 4);
+
+#pragma omp parallel for
         for (int i = 0; i < rhocount; i++) {
             for (int j = 0; j < xcount; j++) {
                 for (int k = 0; k < ycount; k++) {
@@ -676,7 +681,7 @@ class linearDotProductCPU
         LTOffsetTensor.setZero();
         std::vector<std::vector<Eigen::Triplet<RealT>>>
             TripletVecVec(f.rhocount);
-#pragma omp parallel for
+#pragma omp parallel for  //todo:  can we collapse(3)
         for (auto i = 0; i < f.rhocount; i++) {
             for (auto j = 0; j < f.xcount; j++) {
                 for (auto k = 0; k < f.ycount; k++) {
@@ -1141,6 +1146,8 @@ class DCTCPUCalculator2
         } else {
             besselVals = std::make_shared<std::vector<RealT>>(f.rhoset.size() * f.xset.size() * f.yset.size(), 0);
             auto rhoset = LinearSpacedArray(g.rhomin, g.rhomax, f.rhoset.size());
+
+#pragma omp parallel for collapse(3)
             for (int r = 0; r < f.rhocount; r++) {
                 for (int p = 0; p < f.xcount; ++p) {
                     for (int q = 0; q < f.ycount; ++q) {
@@ -1233,6 +1240,8 @@ class DCTCPUPaddedCalculator
         functionGrid<RealT> m = f;
 
         paddedf.value().clearGrid();
+
+#pragma omp parallel for collapse(3)
         for (int i = 0; i < f.rhocount; ++i) {
             for (int j = 0; j < f.xcount; ++j) {
                 for (int k = 0; k < f.ycount; ++k) {
@@ -1241,6 +1250,8 @@ class DCTCPUPaddedCalculator
             }
         }
         auto paddedf2 = dctCalc->calculate(paddedf.value());
+
+#pragma omp parallel for collapse(3)
         for (int i = 0; i < f.rhocount; ++i) {
             for (int j = 0; j < f.xcount; ++j) {
                 for (int k = 0; k < f.ycount; ++k) {
