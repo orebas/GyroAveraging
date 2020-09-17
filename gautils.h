@@ -34,9 +34,9 @@ struct measure {
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start);
 
         auto start2 = std::chrono::steady_clock::now();
-        long iters = 1000 / (duration.count() + 1);
+        long iters = 1000.0 / (duration.count() + 1);
         iters = std::max(1L, iters);
-        iters = std::min(iters, 10000L);
+        iters = std::min(iters, 50L);
         for (long i = 0; i < iters; ++i) {
             func(std::forward<Args>(args)...);
         }
@@ -173,12 +173,17 @@ std::ostream &operator<<(std::ostream &out, const std::array<T, s> &v) {
     return out;
 }
 
-template <int w, int h, int d, class T = double>
+template <class T = double>
 class Array3d {
+   private:
+    int w;
+    int h;
+    int d;
+
    public:
     std::vector<T> data;
 
-    Array3d() : data(w * h * d, 0) {}
+    Array3d(int width, int height, int depth) : w(width), h(height), d(depth), data(w * h * d, 0) {}
 
     inline T &at(int x, int y, int z) { return data[x * h * d + y * d + z]; }
 
@@ -193,14 +198,23 @@ class Array3d {
     inline T operator()(int x, int y, int z) const {
         return data[x * h * d + y * d + z];
     }
+    inline int width() { return w; }
+    inline int height() { return h; }
+    inline int depth() { return d; }
 };
 
-template <int w, int h, int d, int l, class T = double>
+template <class T = double>
 class Array4d {
+   private:
+    int w;
+    int h;
+    int d;
+    int l;
+
    public:
     std::vector<T> data;
 
-    Array4d() : data(w * h * d * l, 0) {}
+    Array4d(int r, int s, int t, int u) : w(r), h(s), d(t), l(u), data(w * h * d * l, 0) {}
 
     inline T &at(int x, int y, int z, int t) {
         return data[x * h * d * l + y * d * l + z * l + t];
@@ -218,7 +232,7 @@ class Array4d {
         return data[x * h * d * l + y * d * l + z * l + t];
     }
 
-    inline static int internalRef(int x, int y, int z, int t) {
+    inline int internalRef(int x, int y, int z, int t) {
         return x * h * d * l + y * d * l + z * l + t;
     }
 };

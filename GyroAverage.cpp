@@ -96,12 +96,12 @@ std::ostream& operator<<(std::ostream& output, const std::vector<resultsRecord<R
     return output;
 }
 
-template <int N, int rhocount, class RealT, bool cheb = false, typename TFunc1>
-resultsRecord<RealT> testRun(OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomain& g) {
+template <class RealT, typename TFunc1>
+resultsRecord<RealT> testRun(OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomain& g, int N, int rhocount, bool cheb = false) {
     using OOGA::functionGrid, OOGA::GACalculator, OOGA::gridDomain, OOGA::LinearSpacedArray, OOGA::measure;
 
-    constexpr int xcount = N;
-    constexpr int ycount = N;
+    int xcount = N;
+    int ycount = N;
     std::vector<RealT> rhoset;
     std::vector<RealT> xset, lin_xset, lin_yset;
     std::vector<RealT> yset;
@@ -118,14 +118,14 @@ resultsRecord<RealT> testRun(OOGA::calculatorType calcType, TFunc1 testfunc, OOG
     lin_xset = LinearSpacedArray<RealT>(g.xmin, g.xmax, xcount);
     lin_yset = LinearSpacedArray<RealT>(g.ymin, g.ymax, ycount);
 
-    functionGrid<rhocount, xcount, ycount, RealT>
+    functionGrid<RealT>
         f(rhoset, xset, yset),
         exact(rhoset, lin_xset, lin_yset), result(rhoset, lin_xset, lin_yset);
 
-    std::unique_ptr<GACalculator<rhocount, xcount, ycount, RealT>> calculator;
+    std::unique_ptr<GACalculator<RealT>> calculator;
     exact.fillTruncatedAlmostExactGA(testfunc);
 
-    auto func = [&]() -> void { calculator = (GACalculator<rhocount, xcount, ycount, RealT, N>::Factory::newCalculator(calcType, g, exact)); };
+    auto func = [&]() -> void { calculator = (GACalculator<RealT>::Factory::newCalculator(calcType, g, exact, xcount / 2)); };
     double initTime = measure<std::chrono::milliseconds>::execution(func);
     f.fill(testfunc);
     auto& b = f;
@@ -193,72 +193,15 @@ std::vector<resultsRecord<RealT>> testRunMultiple(const std::vector<OOGA::calcul
     return runResults;
 }*/
 
-template <int rhocount, class RealT, bool cheb = false, typename TFunc1>
-void testRunList(OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomain& g) {
+template <int rhocount, class RealT, typename TFunc1>
+void testRunList(OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomain& g, bool cheb = false) {
     try {
-        testRun<8, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<12, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<16, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<20, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<24, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<28, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<32, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<36, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<40, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<44, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<48, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<52, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<56, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<60, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<64, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<68, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<72, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<76, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<80, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<84, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<88, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<92, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<96, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<100, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<104, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<108, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<112, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<116, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<120, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<124, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<128, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<132, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<136, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<140, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<144, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<148, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<152, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<156, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<160, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<164, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<168, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<172, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<176, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<180, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<184, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<188, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<192, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<196, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<200, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<204, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<208, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<212, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<216, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<220, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<224, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<228, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<232, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<236, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<240, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<244, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<248, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<252, rhocount, RealT, cheb>(calcType, testfunc, g);
-        testRun<256, rhocount, RealT, cheb>(calcType, testfunc, g);
+        for (int i = 4; i < 8192; i *= 4) {
+            auto r = testRun<RealT>(calcType, testfunc, g, i, rhocount, cheb);
+            auto r = testRun<RealT>(calcType, testfunc, g, (i / 2 * 3), rhocount, cheb);
+            if (r.initTime > 1000000 || r.calcTime > 1e13)
+                break;
+        }
 
     } catch (std::exception& e) {
         std::cout << "Finished a list." << std::endl;
@@ -306,12 +249,18 @@ int main() {
     //fftw_cleanup();
     //cd return 0;
     //using namespace OOGA;
-    using OOGA::chebBasisFunction, OOGA::functionGrid, OOGA::GACalculator, OOGA::gridDomain, OOGA::LinearSpacedArray;
+    using OOGA::chebBasisFunction;
+    using OOGA::functionGrid, OOGA::GACalculator;
+    using OOGA::gridDomain;
+    using OOGA::LinearSpacedArray;
+
     using mainReal = double;
-    constexpr mainReal mainRhoMin = 0.0 / 4.0;   //used to be 0.25/4
+
+    constexpr mainReal mainRhoMin = 0.05 / 4.0;  //used to be 0.25/4
     constexpr mainReal mainRhoMax = 3.45 / 4.0;  //used to be 3/4
     constexpr mainReal mainxyMin = -1;
     constexpr mainReal mainxyMax = 1;
+
     gridDomain g;
     g.rhomax = mainRhoMax;
     g.rhomin = mainRhoMin;
@@ -331,17 +280,17 @@ int main() {
     xset = LinearSpacedArray<mainReal>(g.xmin, g.xmax, xcount);
     yset = LinearSpacedArray<mainReal>(g.ymin, g.ymax, ycount);
 
-    functionGrid<rhocount, xcount, ycount> f(rhoset, xset, yset),
+    functionGrid<mainReal> f(rhoset, xset, yset),
         exact(rhoset, xset, yset);
 
-    std::vector<std::unique_ptr<GACalculator<rhocount, xcount, ycount, mainReal>>> calcset;
+    std::vector<std::unique_ptr<GACalculator<mainReal>>> calcset;
     std::vector<OOGA::calculatorType> calclist;
-    calclist.push_back(OOGA::calculatorType::linearCPU);
+    //calclist.push_back(OOGA::calculatorType::linearCPU);
     calclist.push_back(OOGA::calculatorType::linearDotProductCPU);
-    calclist.push_back(OOGA::calculatorType::linearDotProductGPU);
+    //calclist.push_back(OOGA::calculatorType::linearDotProductGPU);
     calclist.push_back(OOGA::calculatorType::bicubicCPU);
     calclist.push_back(OOGA::calculatorType::bicubicDotProductCPU);
-    calclist.push_back(OOGA::calculatorType::bicubicDotProductGPU);
+    //calclist.push_back(OOGA::calculatorType::bicubicDotProductGPU);
     calclist.push_back(OOGA::calculatorType::DCTCPUCalculator2);
     calclist.push_back(OOGA::calculatorType::DCTCPUPaddedCalculator2);
 
@@ -383,68 +332,15 @@ int main() {
         return (30 * std::exp(1 / (temp / 25.0 - 1.0)));
     };*/
     std::cout << "Calculator,N,Init time (s), Calc.time(s), Calc.Freq(hz), Bytes, MaxError, FirstBlank, Err1, Err2, Err3, Blank" << std::endl;
-    //for (auto& cal_i : calclist) {
-    //    testRunList<rhocount, double>(cal_i, hardfunc, g);
+    for (auto& cal_i : calclist) {
+        testRunList<rhocount, double>(cal_i, hardfunc, g);
         //testRunList<rhocount, float>(cal_i, testfunc2, g);
-    //}
-
-    for (auto& cal_i : chebCalclist) {
-        testRunList<rhocount, double, true>(cal_i, hardfunc, g);
-        //testRunList<rhocount, float, true>(cal_i, testfunc2, g);
     }
 
-    /*auto res1 = testRun<8, rhocount, double, true>(chebCalclist, testfunc2, g);
-    std::cout << res1;
-    res1 = testRun<16, rhocount, double, true>(chebCalclist, testfunc2, g);
-    std::cout << res1;
-    res1 = testRun<32, rhocount, double, true>(chebCalclist, testfunc2, g);
-    std::cout << res1;
-    res1 = testRun<48, rhocount, double, true>(chebCalclist, testfunc2, g);
-    std::cout << res1;
-    res1 = testRun<64, rhocount, double, true>(chebCalclist, testfunc2, g);
-    std::cout << res1;
-    //    res1 = testRun<96, rhocount, double, true>(chebCalclist, testfunc2, g);
-    //std::cout << res1;
-
-    res1 = testRun<8, rhocount, double>(calclist, testfunc2, g);
-    std::cout << res1;
-    res1 = testRun<16, rhocount, double>(calclist, testfunc2, g);
-    std::cout << res1;
-    res1 = testRun<32, rhocount, double>(calclist, testfunc2, g);
-    std::cout << res1;
-    res1 = testRun<48, rhocount, double>(calclist, testfunc2, g);
-    std::cout << res1;
-    res1 = testRun<64, rhocount, double>(calclist, testfunc2, g);
-    std::cout << res1;
-    res1 = testRun<96, rhocount, double>(calclist, testfunc2, g);
-    std::cout << res1;
-
-    auto res2 = testRun<8, rhocount, float, true>(chebCalclist, testfunc2, g);
-    std::cout << res2;
-    res2 = testRun<16, rhocount, float, true>(chebCalclist, testfunc2, g);
-    std::cout << res2;
-    res2 = testRun<32, rhocount, float, true>(chebCalclist, testfunc2, g);
-    std::cout << res2;
-    res2 = testRun<48, rhocount, float, true>(chebCalclist, testfunc2, g);
-    std::cout << res2;
-    res2 = testRun<64, rhocount, float, true>(chebCalclist, testfunc2, g);
-    std::cout << res2;
-    res2 = testRun<96, rhocount, float, true>(chebCalclist, testfunc2, g);
-    std::cout << res2;
-
-    res2 = testRun<8, rhocount, float>(calclist, testfunc2, g);
-    std::cout << res2;
-    res2 = testRun<16, rhocount, float>(calclist, testfunc2, g);
-    std::cout << res2;
-    res2 = testRun<32, rhocount, float>(calclist, testfunc2, g);
-    std::cout << res2;
-    res2 = testRun<48, rhocount, float>(calclist, testfunc2, g);
-    std::cout << res2;
-    res2 = testRun<64, rhocount, float>(calclist, testfunc2, g);
-    std::cout << res2;
-    res2 = testRun<96, rhocount, float>(calclist, testfunc2, g);
-    std::cout << res2;*/
-
+    for (auto& cal_i : chebCalclist) {
+        testRunList<rhocount, double>(cal_i, hardfunc, g, true);
+        //testRunList<rhocount, float>(cal_i, testfunc2, g, true);
+    }
     fftw_cleanup();
 }
 
@@ -498,7 +394,7 @@ void fft_testing() {
                 return DCTBasisFunction2(p, q, xint, yint, xcount);
             };*/
 
-            functionGrid<rhocount, xcount, ycount> in(rhoset, xset, yset), in2(rhoset, xset, yset), out(rhoset, xset, yset);
+            functionGrid<mainReal> in(rhoset, xset, yset), in2(rhoset, xset, yset), out(rhoset, xset, yset);
             //in2.fill(basistest);
             in2.clearGrid();
             in2.gridValues(0, p, q) = 1;
@@ -549,9 +445,9 @@ void chebDevel() {
     xset = chebPoints(xcount);
     yset = chebPoints(ycount);
 
-    functionGrid<rhocount, xcount, ycount> f(rhoset, xset, yset);
-    functionGrid<rhocount, xcount, ycount> exact(rhoset, xset, yset);
-    functionGrid<rhocount, xcount, ycount> m(rhoset, xset, yset);
+    functionGrid<mainReal> f(rhoset, xset, yset);
+    functionGrid<mainReal> exact(rhoset, xset, yset);
+    functionGrid<mainReal> m(rhoset, xset, yset);
 
     auto testfunc2 = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
         ex = ex * 4;
@@ -560,7 +456,7 @@ void chebDevel() {
     };
 
     f.fill(testfunc2);
-    OOGA::fftw_wrapper_2d<rhocount, xcount, ycount, mainReal> plan(FFTW_REDFT00);
+    OOGA::fftw_wrapper_2d<mainReal> plan(rhocount, xcount, ycount, FFTW_REDFT00);
 
     for (int p = 0; p < xcount; p++) {
         for (int q = 0; q < ycount; q++) {

@@ -1,0 +1,375 @@
+Error while trying to load a compilation database:
+Could not auto-detect compilation database for file "GyroAverage.cpp"
+No compilation database found in /home/orebas/GyroAveraging or any parent directory
+fixed-compilation-database: Error while opening fixed database: No such file or directory
+json-compilation-database: Error while opening JSON database: No such file or directory
+Running without flags.
+81485 warnings and 12 errors generated.
+Error while processing /home/orebas/GyroAveraging/GyroAverage.cpp.
+/home/orebas/GyroAveraging/./ga.h:5:9: warning: header guard does not follow preferred style [llvm-header-guard]
+#ifndef GYROAVERAGING_GA_H
+        ^~~~~~~~~~~~~~~~~~
+        _HOME_OREBAS_GYROAVERAGING_GA_H
+/home/orebas/GyroAveraging/./ga.h:47:9: warning: member variable 'xcount' has public visibility [misc-non-private-member-variables-in-classes]
+    int xcount;
+        ^
+/home/orebas/GyroAveraging/./ga.h:48:9: warning: member variable 'ycount' has public visibility [misc-non-private-member-variables-in-classes]
+    int ycount;
+        ^
+/home/orebas/GyroAveraging/./ga.h:49:9: warning: member variable 'rhocount' has public visibility [misc-non-private-member-variables-in-classes]
+    int rhocount;
+        ^
+/home/orebas/GyroAveraging/./ga.h:51:4: warning: redundant access specifier has the same accessibility as the previous access specifier [readability-redundant-access-specifiers]
+   public:
+   ^~~~~~~
+/home/orebas/GyroAveraging/./ga.h:46:4: note: previously declared here
+   public:
+   ^
+/home/orebas/GyroAveraging/./ga.h:60:24: warning: member variable 'rhoset' has public visibility [misc-non-private-member-variables-in-classes]
+    std::vector<RealT> rhoset;
+                       ^
+/home/orebas/GyroAveraging/./ga.h:61:24: warning: member variable 'xset' has public visibility [misc-non-private-member-variables-in-classes]
+    std::vector<RealT> xset;
+                       ^
+/home/orebas/GyroAveraging/./ga.h:62:24: warning: member variable 'yset' has public visibility [misc-non-private-member-variables-in-classes]
+    std::vector<RealT> yset;
+                       ^
+/home/orebas/GyroAveraging/./ga.h:63:14: warning: member variable 'gridValues' has public visibility [misc-non-private-member-variables-in-classes]
+    fullgrid gridValues;  // input values of f
+             ^
+/home/orebas/GyroAveraging/./ga.h:239:63: warning: non-const reference parameter 'xindex', make it const or use a pointer [google-runtime-references]
+    void interpIndexSearch(const RealT x, const RealT y, int &xindex,
+                                                              ^
+/home/orebas/GyroAveraging/./ga.h:240:33: warning: non-const reference parameter 'yindex', make it const or use a pointer [google-runtime-references]
+                           int &yindex) const {
+                                ^
+/home/orebas/GyroAveraging/./ga.h:430:9: warning: member variable 'rhocount' has public visibility [cppcoreguidelines-non-private-member-variables-in-classes]
+    int rhocount;
+        ^
+/home/orebas/GyroAveraging/./ga.h:430:9: warning: member variable 'rhocount' has public visibility [misc-non-private-member-variables-in-classes]
+/home/orebas/GyroAveraging/./ga.h:431:9: warning: member variable 'xcount' has public visibility [cppcoreguidelines-non-private-member-variables-in-classes]
+    int xcount;
+        ^
+/home/orebas/GyroAveraging/./ga.h:431:9: warning: member variable 'xcount' has public visibility [misc-non-private-member-variables-in-classes]
+/home/orebas/GyroAveraging/./ga.h:432:9: warning: member variable 'ycount' has public visibility [cppcoreguidelines-non-private-member-variables-in-classes]
+    int ycount;
+        ^
+/home/orebas/GyroAveraging/./ga.h:432:9: warning: member variable 'ycount' has public visibility [misc-non-private-member-variables-in-classes]
+/home/orebas/GyroAveraging/./ga.h:433:12: warning: member variable 'fftin' has public visibility [cppcoreguidelines-non-private-member-variables-in-classes]
+    RealT *fftin;
+           ^
+/home/orebas/GyroAveraging/./ga.h:433:12: warning: member variable 'fftin' has public visibility [misc-non-private-member-variables-in-classes]
+/home/orebas/GyroAveraging/./ga.h:434:12: warning: member variable 'fftout' has public visibility [cppcoreguidelines-non-private-member-variables-in-classes]
+    RealT *fftout;
+           ^
+/home/orebas/GyroAveraging/./ga.h:434:12: warning: member variable 'fftout' has public visibility [misc-non-private-member-variables-in-classes]
+/home/orebas/GyroAveraging/./ga.h:438:9: warning: do not declare C-style arrays, use std::array<> instead [cppcoreguidelines-avoid-c-arrays]
+        int n[] = {xcount, ycount};
+        ^
+/home/orebas/GyroAveraging/./ga.h:438:9: warning: do not declare C-style arrays, use std::array<> instead [hicpp-avoid-c-arrays]
+/home/orebas/GyroAveraging/./ga.h:438:9: warning: do not declare C-style arrays, use std::array<> instead [modernize-avoid-c-arrays]
+/home/orebas/GyroAveraging/./ga.h:444:9: warning: do not declare C-style arrays, use std::array<> instead [cppcoreguidelines-avoid-c-arrays]
+        fftw_r2r_kind type[] = {t, t};
+        ^
+/home/orebas/GyroAveraging/./ga.h:444:9: warning: do not declare C-style arrays, use std::array<> instead [hicpp-avoid-c-arrays]
+/home/orebas/GyroAveraging/./ga.h:444:9: warning: do not declare C-style arrays, use std::array<> instead [modernize-avoid-c-arrays]
+/home/orebas/GyroAveraging/./ga.h:460:5: warning: constructor does not initialize these fields: rhocount, xcount, ycount [cppcoreguidelines-pro-type-member-init]
+    fftw_wrapper_2d(fftw_wrapper_2d<RealT> &&other) noexcept
+    ^
+/home/orebas/GyroAveraging/./ga.h:460:5: warning: constructor does not initialize these fields: rhocount, xcount, ycount [hicpp-member-init]
+    fftw_wrapper_2d(fftw_wrapper_2d<RealT> &&other) noexcept
+    ^
+/home/orebas/GyroAveraging/./ga.h:472:34: warning: do not use pointer arithmetic [cppcoreguidelines-pro-bounds-pointer-arithmetic]
+        std::copy(fftout, fftout + in.rhoset.size() * in.xset.size() * in.yset.size(), out->gridValues.data.begin());
+                                 ^
+/home/orebas/GyroAveraging/./ga.h:492:9: warning: member variable 'rhocount' has public visibility [cppcoreguidelines-non-private-member-variables-in-classes]
+    int rhocount;
+        ^
+/home/orebas/GyroAveraging/./ga.h:492:9: warning: member variable 'rhocount' has public visibility [misc-non-private-member-variables-in-classes]
+/home/orebas/GyroAveraging/./ga.h:493:9: warning: member variable 'xcount' has public visibility [cppcoreguidelines-non-private-member-variables-in-classes]
+    int xcount;
+        ^
+/home/orebas/GyroAveraging/./ga.h:493:9: warning: member variable 'xcount' has public visibility [misc-non-private-member-variables-in-classes]
+/home/orebas/GyroAveraging/./ga.h:494:9: warning: member variable 'ycount' has public visibility [cppcoreguidelines-non-private-member-variables-in-classes]
+    int ycount;
+        ^
+/home/orebas/GyroAveraging/./ga.h:494:9: warning: member variable 'ycount' has public visibility [misc-non-private-member-variables-in-classes]
+/home/orebas/GyroAveraging/./ga.h:496:12: warning: member variable 'fftin' has public visibility [cppcoreguidelines-non-private-member-variables-in-classes]
+    RealT *fftin;
+           ^
+/home/orebas/GyroAveraging/./ga.h:496:12: warning: member variable 'fftin' has public visibility [misc-non-private-member-variables-in-classes]
+/home/orebas/GyroAveraging/./ga.h:497:12: warning: member variable 'fftout' has public visibility [cppcoreguidelines-non-private-member-variables-in-classes]
+    RealT *fftout;
+           ^
+/home/orebas/GyroAveraging/./ga.h:497:12: warning: member variable 'fftout' has public visibility [misc-non-private-member-variables-in-classes]
+/home/orebas/GyroAveraging/./ga.h:501:9: warning: do not declare C-style arrays, use std::array<> instead [cppcoreguidelines-avoid-c-arrays]
+        int n[] = {xcount, ycount};
+        ^
+/home/orebas/GyroAveraging/./ga.h:501:9: warning: do not declare C-style arrays, use std::array<> instead [hicpp-avoid-c-arrays]
+/home/orebas/GyroAveraging/./ga.h:501:9: warning: do not declare C-style arrays, use std::array<> instead [modernize-avoid-c-arrays]
+/home/orebas/GyroAveraging/./ga.h:507:9: warning: do not declare C-style arrays, use std::array<> instead [cppcoreguidelines-avoid-c-arrays]
+        fftw_r2r_kind type[] = {t, t};
+        ^
+/home/orebas/GyroAveraging/./ga.h:507:9: warning: do not declare C-style arrays, use std::array<> instead [hicpp-avoid-c-arrays]
+/home/orebas/GyroAveraging/./ga.h:507:9: warning: do not declare C-style arrays, use std::array<> instead [modernize-avoid-c-arrays]
+/home/orebas/GyroAveraging/./ga.h:515:5: warning: constructor does not initialize these fields: rhocount, xcount, ycount [cppcoreguidelines-pro-type-member-init]
+    fftw_wrapper_2d(fftw_wrapper_2d<RealT> &&other) noexcept
+    ^
+/home/orebas/GyroAveraging/./ga.h:515:5: warning: constructor does not initialize these fields: rhocount, xcount, ycount [hicpp-member-init]
+    fftw_wrapper_2d(fftw_wrapper_2d<RealT> &&other) noexcept
+    ^
+/home/orebas/GyroAveraging/./ga.h:527:34: warning: do not use pointer arithmetic [cppcoreguidelines-pro-bounds-pointer-arithmetic]
+        std::copy(fftout, fftout + in.xset.size() * in.yset.size() * in.rhoset.size(), out->gridValues.data.begin());
+                                 ^
+/home/orebas/GyroAveraging/./ga.h:616:86: warning: declaring a parameter with a default argument is disallowed [fuchsia-default-arguments-declarations]
+        newCalculator(calculatorType c, const gridDomain &g, functionGrid<RealT> &f, int padcount = 0);
+                                                                                     ^           ~~~~
+/home/orebas/GyroAveraging/./ga.h:806:59: warning: do not use array subscript when the index is not an integer constant expression; use gsl::at() instead [cppcoreguidelines-pro-bounds-constant-array-index]
+                                    Eigen::Triplet<RealT>(LTTargets[l], LTSources[l], LTCoeffs[l]));
+                                                          ^
+/home/orebas/GyroAveraging/./ga.h:806:73: warning: do not use array subscript when the index is not an integer constant expression; use gsl::at() instead [cppcoreguidelines-pro-bounds-constant-array-index]
+                                    Eigen::Triplet<RealT>(LTTargets[l], LTSources[l], LTCoeffs[l]));
+                                                                        ^
+/home/orebas/GyroAveraging/./ga.h:806:87: warning: do not use array subscript when the index is not an integer constant expression; use gsl::at() instead [cppcoreguidelines-pro-bounds-constant-array-index]
+                                    Eigen::Triplet<RealT>(LTTargets[l], LTSources[l], LTCoeffs[l]));
+                                                                                      ^
+/home/orebas/GyroAveraging/./ga.h:879:27: warning: do not use array subscript when the index is not an integer constant expression; use gsl::at() instead [cppcoreguidelines-pro-bounds-constant-array-index]
+                          xns[i] * yns[j];  //TODO(orebas) horner's method (bivariate)
+                          ^
+/home/orebas/GyroAveraging/./ga.h:879:36: warning: do not use array subscript when the index is not an integer constant expression; use gsl::at() instead [cppcoreguidelines-pro-bounds-constant-array-index]
+                          xns[i] * yns[j];  //TODO(orebas) horner's method (bivariate)
+                                   ^
+/home/orebas/GyroAveraging/./ga.h:1132:41: warning: member variable 'besselVals' has public visibility [cppcoreguidelines-non-private-member-variables-in-classes]
+    std::shared_ptr<std::vector<RealT>> besselVals = nullptr;
+                                        ^
+/home/orebas/GyroAveraging/./ga.h:1132:41: warning: member variable 'besselVals' has public visibility [misc-non-private-member-variables-in-classes]
+/home/orebas/GyroAveraging/./ga.h:1134:84: warning: declaring a parameter with a default argument is disallowed [fuchsia-default-arguments-declarations]
+    explicit DCTCPUCalculator2(const gridDomain &gd, const functionGrid<RealT> &f, std::shared_ptr<std::vector<RealT>> besselbuff = nullptr)
+                                                                                   ^                                             ~~~~~~~~~~
+/home/orebas/GyroAveraging/./ga.h:1169:44: warning: do not use pointer arithmetic [cppcoreguidelines-pro-bounds-pointer-arithmetic]
+        std::copy(plan.fftout, plan.fftout + f.rhocount * f.xcount * f.ycount, plan_inv.fftin);
+                                           ^
+/home/orebas/GyroAveraging/./ga.h:1171:13: warning: do not use pointer arithmetic [cppcoreguidelines-pro-bounds-pointer-arithmetic]
+            plan_inv.fftin[i] *= (*besselVals)[i];
+            ^
+/home/orebas/GyroAveraging/./ga.h:1174:52: warning: do not use pointer arithmetic [cppcoreguidelines-pro-bounds-pointer-arithmetic]
+        std::copy(plan_inv.fftout, plan_inv.fftout + f.rhocount * f.xcount * f.ycount, m.gridValues.data.begin());
+                                                   ^
+/home/orebas/GyroAveraging/./ga.h:1191:10: error: no template named 'optional' in namespace 'std' [clang-diagnostic-error]
+    std::optional<functionGrid<RealT>> paddedf;  //rhocount, xcount + padcount*2, ycount+padcount*2,RealT
+         ^
+/home/orebas/GyroAveraging/./ga.h:1195:47: warning: member variable 'dctCalc' has public visibility [cppcoreguidelines-non-private-member-variables-in-classes]
+    std::unique_ptr<DCTCPUCalculator2<RealT>> dctCalc;  //  rhocount, xcount + padcount * 2, ycount + padcount * 2,
+                                              ^
+/home/orebas/GyroAveraging/./ga.h:1195:47: warning: member variable 'dctCalc' has public visibility [misc-non-private-member-variables-in-classes]
+/home/orebas/GyroAveraging/./ga.h:1197:5: warning: constructor does not initialize these fields: paddedf [cppcoreguidelines-pro-type-member-init]
+    explicit DCTCPUPaddedCalculator(const gridDomain &g, const functionGrid<RealT> &f, int pcount, std::shared_ptr<std::vector<RealT>> besselbuff = nullptr)
+    ^
+/home/orebas/GyroAveraging/./ga.h:1197:5: warning: constructor does not initialize these fields: paddedf [hicpp-member-init]
+    explicit DCTCPUPaddedCalculator(const gridDomain &g, const functionGrid<RealT> &f, int pcount, std::shared_ptr<std::vector<RealT>> besselbuff = nullptr)
+    ^
+/home/orebas/GyroAveraging/./ga.h:1197:100: warning: declaring a parameter with a default argument is disallowed [fuchsia-default-arguments-declarations]
+    explicit DCTCPUPaddedCalculator(const gridDomain &g, const functionGrid<RealT> &f, int pcount, std::shared_ptr<std::vector<RealT>> besselbuff = nullptr)
+                                                                                                   ^                                             ~~~~~~~~~~
+/home/orebas/GyroAveraging/./ga.h:1226:75: warning: declaring a parameter with a default argument is disallowed [fuchsia-default-arguments-declarations]
+    create(const gridDomain &g, const functionGrid<RealT> &f, int pcount, std::shared_ptr<std::vector<RealT>> besselbuff = nullptr) {
+                                                                          ^                                             ~~~~~~~~~~
+/home/orebas/GyroAveraging/./ga.h:1335:115: warning: do not use pointer arithmetic [cppcoreguidelines-pro-bounds-pointer-arithmetic]
+                    Eigen::Map<Eigen::Matrix<RealT, Eigen::Dynamic, Eigen::Dynamic>> m(res.gridValues.data.data() + rho_iter * threadf.xcount * threadf.ycount, threadf.xcount * threadf.ycount, 1);
+                                                                                                                  ^
+/home/orebas/GyroAveraging/./ga.h:1360:92: warning: do not use pointer arithmetic [cppcoreguidelines-pro-bounds-pointer-arithmetic]
+            Eigen::Map<Eigen::Matrix<RealT, Eigen::Dynamic, Eigen::Dynamic>> X(plan.fftout + rho_iter * f.xcount * f.ycount, f.xcount * f.ycount, 1);
+                                                                                           ^
+/home/orebas/GyroAveraging/./ga.h:1363:105: warning: do not use pointer arithmetic [cppcoreguidelines-pro-bounds-pointer-arithmetic]
+            Eigen::Map<Eigen::Matrix<RealT, Eigen::Dynamic, Eigen::Dynamic>> b(m.gridValues.data.data() + rho_iter * f.xcount * f.ycount, f.xcount * f.ycount, 1);
+                                                                                                        ^
+/home/orebas/GyroAveraging/./ga.h:1413:92: warning: do not use pointer arithmetic [cppcoreguidelines-pro-bounds-pointer-arithmetic]
+            Eigen::Map<Eigen::Matrix<RealT, Eigen::Dynamic, Eigen::Dynamic>> X(plan.fftout + rho_iter * f.xcount * f.ycount, f.xcount * f.ycount, 1);
+                                                                                           ^
+/home/orebas/GyroAveraging/./ga.h:1415:40: warning: do not use pointer arithmetic [cppcoreguidelines-pro-bounds-pointer-arithmetic]
+            viennacl::copy(plan.fftout + rho_iter * f.xcount * f.ycount, plan.fftout + (rho_iter + 1) * f.xcount * f.ycount, GPUSource.begin());
+                                       ^
+/home/orebas/GyroAveraging/./ga.h:1415:86: warning: do not use pointer arithmetic [cppcoreguidelines-pro-bounds-pointer-arithmetic]
+            viennacl::copy(plan.fftout + rho_iter * f.xcount * f.ycount, plan.fftout + (rho_iter + 1) * f.xcount * f.ycount, GPUSource.begin());
+                                                                                     ^
+/home/orebas/GyroAveraging/./ga.h:1421:79: warning: do not use pointer arithmetic [cppcoreguidelines-pro-bounds-pointer-arithmetic]
+            copy(GPUTarget.begin(), GPUTarget.end(), m.gridValues.data.data() + rho_iter * f.xcount * f.ycount);
+                                                                              ^
+/home/orebas/GyroAveraging/./ga.h:1460:9: warning: function-like macro 'f00' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f00(x) ((x))
+        ^
+/home/orebas/GyroAveraging/./ga.h:1462:9: warning: function-like macro 'f10' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f10(x) (c * (x)-r * cos((x)))
+        ^
+/home/orebas/GyroAveraging/./ga.h:1464:9: warning: function-like macro 'f20' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f20(x) (c2 * (x)-2 * c * r * cos((x)) + r2 * (x) / 2 - r2 * sin(2 * (x)) / 4)
+        ^
+/home/orebas/GyroAveraging/./ga.h:1466:9: warning: function-like macro 'f30' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f30(x)                                                                     \
+        ^
+/home/orebas/GyroAveraging/./ga.h:1470:9: warning: function-like macro 'f01' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f01(x) (d * (x)-r * sin((x)))
+        ^
+/home/orebas/GyroAveraging/./ga.h:1472:9: warning: function-like macro 'f11' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f11(x) \
+        ^
+/home/orebas/GyroAveraging/./ga.h:1475:9: warning: function-like macro 'f21' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f21(x)                                                                 \
+        ^
+/home/orebas/GyroAveraging/./ga.h:1481:9: warning: function-like macro 'f31' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f31(x)                                                                     \
+        ^
+/home/orebas/GyroAveraging/./ga.h:1489:9: warning: function-like macro 'f02' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f02(x) \
+        ^
+/home/orebas/GyroAveraging/./ga.h:1492:9: warning: function-like macro 'f12' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f12(x)                                                       \
+        ^
+/home/orebas/GyroAveraging/./ga.h:1498:9: warning: function-like macro 'f22' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f22(x)                                                                     \
+        ^
+/home/orebas/GyroAveraging/./ga.h:1506:9: warning: function-like macro 'f32' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f32(x)                                                           \
+        ^
+/home/orebas/GyroAveraging/./ga.h:1517:9: warning: function-like macro 'f03' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f03(x)                                                             \
+        ^
+/home/orebas/GyroAveraging/./ga.h:1522:9: warning: function-like macro 'f13' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f13(x)                                                                 \
+        ^
+/home/orebas/GyroAveraging/./ga.h:1530:9: warning: function-like macro 'f23' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f23(x)                                                                                                                                                \
+        ^
+/home/orebas/GyroAveraging/./ga.h:1542:9: warning: function-like macro 'f33' used; consider a 'constexpr' template function [cppcoreguidelines-macro-usage]
+#define f33(x)                                                               \
+        ^
+/home/orebas/GyroAveraging/./ga.h:1694:33: warning: do not use array subscript when the index is not an integer constant expression; use gsl::at() instead [cppcoreguidelines-pro-bounds-constant-array-index]
+                                LTSources[l] =
+                                ^
+/home/orebas/GyroAveraging/./ga.h:1696:33: warning: do not use array subscript when the index is not an integer constant expression; use gsl::at() instead [cppcoreguidelines-pro-bounds-constant-array-index]
+                                LTTargets[l] =
+                                ^
+/home/orebas/GyroAveraging/./ga.h:1698:33: warning: do not use array subscript when the index is not an integer constant expression; use gsl::at() instead [cppcoreguidelines-pro-bounds-constant-array-index]
+                                LTCoeffs[l] = coeffs[l] / (2.0 * pi);
+                                ^
+/home/orebas/GyroAveraging/./ga.h:1698:47: warning: do not use array subscript when the index is not an integer constant expression; use gsl::at() instead [cppcoreguidelines-pro-bounds-constant-array-index]
+                                LTCoeffs[l] = coeffs[l] / (2.0 * pi);
+                                              ^
+/home/orebas/GyroAveraging/./ga.h:1701:59: warning: do not use array subscript when the index is not an integer constant expression; use gsl::at() instead [cppcoreguidelines-pro-bounds-constant-array-index]
+                                    Eigen::Triplet<RealT>(LTTargets[l], LTSources[l], LTCoeffs[l]));
+                                                          ^
+/home/orebas/GyroAveraging/./ga.h:1701:73: warning: do not use array subscript when the index is not an integer constant expression; use gsl::at() instead [cppcoreguidelines-pro-bounds-constant-array-index]
+                                    Eigen::Triplet<RealT>(LTTargets[l], LTSources[l], LTCoeffs[l]));
+                                                                        ^
+/home/orebas/GyroAveraging/./ga.h:1701:87: warning: do not use array subscript when the index is not an integer constant expression; use gsl::at() instead [cppcoreguidelines-pro-bounds-constant-array-index]
+                                    Eigen::Triplet<RealT>(LTTargets[l], LTSources[l], LTCoeffs[l]));
+                                                                                      ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:8:9: warning: macro 'VIENNACL_WITH_UBLAS' used to declare a constant; consider using a 'constexpr' constant [cppcoreguidelines-macro-usage]
+#define VIENNACL_WITH_UBLAS 1
+        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:9:9: warning: macro 'VIENNACL_HAVE_EIGEN' used to declare a constant; consider using a 'constexpr' constant [cppcoreguidelines-macro-usage]
+#define VIENNACL_HAVE_EIGEN 1
+        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:62:26: warning: member variable 'type' has public visibility [misc-non-private-member-variables-in-classes]
+    OOGA::calculatorType type = OOGA::calculatorType::linearCPU;
+                         ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:63:9: warning: member variable 'N' has public visibility [misc-non-private-member-variables-in-classes]
+    int N = 0;
+        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:64:24: warning: member variable 'rhoset' has public visibility [misc-non-private-member-variables-in-classes]
+    std::vector<RealT> rhoset;
+                       ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:65:12: warning: member variable 'initTime' has public visibility [misc-non-private-member-variables-in-classes]
+    double initTime = 0;
+           ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:66:12: warning: member variable 'calcTime' has public visibility [misc-non-private-member-variables-in-classes]
+    double calcTime = 0;
+           ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:67:9: warning: member variable 'bits' has public visibility [misc-non-private-member-variables-in-classes]
+    int bits = 0;
+        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:68:25: warning: member variable 'error' has public visibility [misc-non-private-member-variables-in-classes]
+    std ::vector<RealT> error;
+                        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:69:5: warning: overloading 'operator<<' is disallowed [fuchsia-overloaded-operator]
+    friend std::ostream& operator<<(std::ostream& output, const resultsRecord<RealT>& r) {
+    ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:92:1: warning: overloading 'operator<<' is disallowed [fuchsia-overloaded-operator]
+std::ostream& operator<<(std::ostream& output, const std::vector<resultsRecord<RealT>>& r) {
+^
+/home/orebas/GyroAveraging/GyroAverage.cpp:92:1: warning: overloading 'operator<<<double>' is disallowed [fuchsia-overloaded-operator]
+/home/orebas/GyroAveraging/GyroAverage.cpp:100:96: warning: non-const reference parameter 'g', make it const or use a pointer [google-runtime-references]
+resultsRecord<RealT> testRun(OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomain& g, int N, int rhocount, bool cheb = false) {
+                                                                                               ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:100:120: warning: declaring a parameter with a default argument is disallowed [fuchsia-default-arguments-declarations]
+resultsRecord<RealT> testRun(OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomain& g, int N, int rhocount, bool cheb = false) {
+                                                                                                                       ^        ~~~~~~~~
+/home/orebas/GyroAveraging/GyroAverage.cpp:101:107: warning: use of multiple declarators in a single using declaration is a C++17 extension [clang-diagnostic-c++17-extensions]
+    using OOGA::functionGrid, OOGA::GACalculator, OOGA::gridDomain, OOGA::LinearSpacedArray, OOGA::measure;
+                                                                                                          ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:197:84: warning: non-const reference parameter 'g', make it const or use a pointer [google-runtime-references]
+void testRunList(OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomain& g, bool cheb = false) {
+                                                                                   ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:197:87: warning: declaring a parameter with a default argument is disallowed [fuchsia-default-arguments-declarations]
+void testRunList(OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomain& g, bool cheb = false) {
+                                                                                      ^        ~~~~~~~~
+/home/orebas/GyroAveraging/GyroAverage.cpp:201:58: warning: statement should be inside braces [google-readability-braces-around-statements]
+            if (r.initTime > 100000 || r.calcTime > 1e11)
+                                                         ^
+                                                          {
+/home/orebas/GyroAveraging/GyroAverage.cpp:201:58: warning: statement should be inside braces [hicpp-braces-around-statements]
+            if (r.initTime > 100000 || r.calcTime > 1e11)
+                                                         ^
+                                                          {
+/home/orebas/GyroAveraging/GyroAverage.cpp:201:58: warning: statement should be inside braces [readability-braces-around-statements]
+            if (r.initTime > 100000 || r.calcTime > 1e11)
+                                                         ^
+                                                          {
+/home/orebas/GyroAveraging/GyroAverage.cpp:251:117: warning: use of multiple declarators in a single using declaration is a C++17 extension [clang-diagnostic-c++17-extensions]
+    using OOGA::chebBasisFunction, OOGA::functionGrid, OOGA::GACalculator, OOGA::gridDomain, OOGA::LinearSpacedArray;
+                                                                                                                    ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:300:49: warning: parameter 'row' is unused [misc-unused-parameters]
+    auto hardfunc = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
+                                       ~~~~~~~~~^~~~~
+/home/orebas/GyroAveraging/GyroAverage.cpp:303:41: error: invalid suffix 'd' on floating constant [clang-diagnostic-error]
+                                    (1.0d / cosh(4.0d * sin(40.0d * dist))),
+                                        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:303:53: error: invalid suffix 'd' on floating constant [clang-diagnostic-error]
+                                    (1.0d / cosh(4.0d * sin(40.0d * dist))),
+                                                    ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:303:65: error: invalid suffix 'd' on floating constant [clang-diagnostic-error]
+                                    (1.0d / cosh(4.0d * sin(40.0d * dist))),
+                                                                ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:306:25: error: invalid suffix 'd' on floating constant [clang-diagnostic-error]
+                pow((1.0d / cosh(4.0d * sin(40.0d * ex))), exp(ex));
+                        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:306:37: error: invalid suffix 'd' on floating constant [clang-diagnostic-error]
+                pow((1.0d / cosh(4.0d * sin(40.0d * ex))), exp(ex));
+                                    ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:306:49: error: invalid suffix 'd' on floating constant [clang-diagnostic-error]
+                pow((1.0d / cosh(4.0d * sin(40.0d * ex))), exp(ex));
+                                                ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:307:27: error: invalid suffix 'd' on floating constant [clang-diagnostic-error]
+        if (why + ex / 2.0d < 00.0d) hard += 1.5d;
+                          ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:307:35: error: invalid suffix 'd' on floating constant [clang-diagnostic-error]
+        if (why + ex / 2.0d < 00.0d) hard += 1.5d;
+                                  ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:307:49: error: invalid suffix 'd' on floating constant [clang-diagnostic-error]
+        if (why + ex / 2.0d < 00.0d) hard += 1.5d;
+                                                ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:308:21: error: invalid suffix 'd' on floating constant [clang-diagnostic-error]
+        hard *= (1.0d - ex * ex);
+                    ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:309:21: error: invalid suffix 'd' on floating constant [clang-diagnostic-error]
+        hard *= (1.0d - why * why);
+                    ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:461:52: warning: parameter 'row' is unused [misc-unused-parameters]
+            auto cheb_basis_func = [p, q](mainReal row, mainReal ex, mainReal why) -> mainReal {
+                                          ~~~~~~~~~^~~~~
+/home/orebas/GyroAveraging/GyroAverage.cpp:469:48: warning: do not use pointer arithmetic [cppcoreguidelines-pro-bounds-pointer-arithmetic]
+            std::copy(plan.fftout, plan.fftout + rhocount * xcount * ycount, m.gridValues.data.begin());  //add division by 4
+                                               ^
+Suppressed 81321 warnings (81321 in non-user code).
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+Found compiler error(s).
