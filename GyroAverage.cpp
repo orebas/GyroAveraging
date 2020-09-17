@@ -196,9 +196,10 @@ std::vector<resultsRecord<RealT>> testRunMultiple(const std::vector<OOGA::calcul
 template <int rhocount, class RealT, typename TFunc1>
 void testRunList(OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomain& g, bool cheb = false) {
     try {
-        for (int i = 4; i < 8192; i *= 4) {
+        for (int i = 4; i < 8192; i *= 2) {
             auto r = testRun<RealT>(calcType, testfunc, g, i, rhocount, cheb);
-            auto r = testRun<RealT>(calcType, testfunc, g, (i / 2 * 3), rhocount, cheb);
+     
+ r = testRun<RealT>(calcType, testfunc, g, (i / 2 * 3), rhocount, cheb);
             if (r.initTime > 1000000 || r.calcTime > 1e13)
                 break;
         }
@@ -285,7 +286,7 @@ int main() {
 
     std::vector<std::unique_ptr<GACalculator<mainReal>>> calcset;
     std::vector<OOGA::calculatorType> calclist;
-    //calclist.push_back(OOGA::calculatorType::linearCPU);
+    calclist.push_back(OOGA::calculatorType::linearCPU);
     calclist.push_back(OOGA::calculatorType::linearDotProductCPU);
     //calclist.push_back(OOGA::calculatorType::linearDotProductGPU);
     calclist.push_back(OOGA::calculatorType::bicubicCPU);
