@@ -679,8 +679,11 @@ class linearDotProductCPU
         auto f = ftocopy;
         Eigen::SparseMatrix<RealT, Eigen::RowMajor> LTOffsetTensor;
         LTOffsetTensor.setZero();
+
+        int max_threads = omp_get_max_threads() + 1;
+
         std::vector<std::vector<Eigen::Triplet<RealT>>>
-            TripletVecVec(f.rhocount);
+            TripletVecVec(max_threads);
 #pragma omp parallel for collapse(2)  //todo:  can we collapse(3)
         for (auto i = 0; i < f.rhocount; i++) {
             for (auto j = 0; j < f.xcount; j++) {
@@ -808,7 +811,7 @@ class linearDotProductCPU
                             LTCoeffs[3] =
                                 (c1 * x * y - y * c2 - x * c3 + c4) / denom;
                             for (int l = 0; l < 4; l++) {
-                                TripletVecVec[i].emplace_back(
+                                TripletVecVec[omp_get_thread_num()].emplace_back(
                                     Eigen::Triplet<RealT>(LTTargets[l], LTSources[l], LTCoeffs[l]));
                             }
                         }
@@ -819,7 +822,7 @@ class linearDotProductCPU
         std::vector<Eigen::Triplet<RealT>>
             Triplets;
 
-        for (int i = 0; i < f.rhocount; i++) {
+        for (int i = 0; i < TripletVecVec.size(); i++) {
             for (auto iter = TripletVecVec[i].begin();
                  iter != TripletVecVec[i].end(); ++iter) {
                 Triplets.emplace_back(*iter);
