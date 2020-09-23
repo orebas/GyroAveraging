@@ -681,7 +681,7 @@ class linearDotProductCPU
         LTOffsetTensor.setZero();
         std::vector<std::vector<Eigen::Triplet<RealT>>>
             TripletVecVec(f.rhocount);
-#pragma omp parallel for  //todo:  can we collapse(3)
+#pragma omp parallel for collapse(2)  //todo:  can we collapse(3)
         for (auto i = 0; i < f.rhocount; i++) {
             for (auto j = 0; j < f.xcount; j++) {
                 for (auto k = 0; k < f.ycount; k++) {
