@@ -168,7 +168,7 @@ resultsRecord<RealT> testRun(OOGA::calculatorType calcType, TFunc1 testfunc, OOG
     auto func2 = [&]() -> void {
         calculator->calculate(b);
     };
-    double calcTime = measure<std::chrono::nanoseconds>::execution2(func2);
+    double calcTime = measure<std::chrono::nanoseconds>::execution(func2);
     result = (calculator->calculate(f));
     resultsRecord<RealT> runResults(calcType, N, std::vector<RealT>(rhoset.begin(), rhoset.end()), initTime, calcTime, sizeof(RealT));
     for (int k = 0; k < rhocount; ++k) {
@@ -232,11 +232,10 @@ std::vector<resultsRecord<RealT>> testRunMultiple(const std::vector<OOGA::calcul
 template <int rhocount, class RealT, typename TFunc1>
 void testRunList(OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomain& g, bool cheb = false) {
     try {
-        for (int i = 4; i < 8192; i *= 2) {
+        for (int i = 4; i < 1024; i *= 2) {
             auto r = testRun<RealT>(calcType, testfunc, g, i, rhocount, cheb);
-
             r = testRun<RealT>(calcType, testfunc, g, (i / 2 * 3), rhocount, cheb);
-            if (r.initTime > 1000000 || r.calcTime > 1e13)
+            if (r.initTime > 1000 * 1000 || r.calcTime > 1e10)
                 break;
         }
 
@@ -293,8 +292,8 @@ int main() {
 
     using mainReal = double;
 
-    constexpr mainReal mainRhoMin = 0.05 / 4.0;  //used to be 0.25/4
-    constexpr mainReal mainRhoMax = 3.45 / 4.0;  //used to be 3/4
+    constexpr mainReal mainRhoMin = 0.5 / 4.0;   //used to be 0.25/4
+    constexpr mainReal mainRhoMax = 3.55 / 4.0;  //used to be 3/4
     constexpr mainReal mainxyMin = -1;
     constexpr mainReal mainxyMax = 1;
 
@@ -322,10 +321,10 @@ int main() {
 
     std::vector<std::unique_ptr<GACalculator<mainReal>>> calcset;
     std::vector<OOGA::calculatorType> calclist;
-    calclist.push_back(OOGA::calculatorType::linearCPU);
+    //calclist.push_back(OOGA::calculatorType::linearCPU);
     calclist.push_back(OOGA::calculatorType::linearDotProductCPU);
     //calclist.push_back(OOGA::calculatorType::linearDotProductGPU);
-    calclist.push_back(OOGA::calculatorType::bicubicCPU);
+    //calclist.push_back(OOGA::calculatorType::bicubicCPU);
     calclist.push_back(OOGA::calculatorType::bicubicDotProductCPU);
     //calclist.push_back(OOGA::calculatorType::bicubicDotProductGPU);
     calclist.push_back(OOGA::calculatorType::DCTCPUCalculator2);
@@ -370,12 +369,12 @@ int main() {
     };*/
     std::cout << "Calculator,N,Init time (s), Calc.time(s), Calc.Freq(hz), Bytes, MaxError, FirstBlank, Err1, Err2, Err3, Blank" << std::endl;
     for (auto& cal_i : calclist) {
-        testRunList<rhocount, double>(cal_i, hardfunc, g);
+        testRunList<rhocount, double>(cal_i, testfunc2, g);
         //testRunList<rhocount, float>(cal_i, testfunc2, g);
     }
 
     for (auto& cal_i : chebCalclist) {
-        testRunList<rhocount, double>(cal_i, hardfunc, g, true);
+        testRunList<rhocount, double>(cal_i, testfunc2, g, true);
         //testRunList<rhocount, float>(cal_i, testfunc2, g, true);
     }
     fftw_cleanup();
