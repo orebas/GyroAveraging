@@ -232,10 +232,9 @@ std::vector<resultsRecord<RealT>> testRunMultiple(const std::vector<OOGA::calcul
 template <int rhocount, class RealT, typename TFunc1>
 void testRunList(OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomain& g, bool cheb = false) {
     try {
-        for (int i = 4; i < 256; i *= 2) {
+        for (int i = 4; i < 385; i += 4) {
             auto r = testRun<RealT>(calcType, testfunc, g, i, rhocount, cheb);
-            r = testRun<RealT>(calcType, testfunc, g, (i / 2 * 3), rhocount, cheb);
-            if (r.initTime > 100 * 1000 || r.calcTime > 1e10)
+            if (r.initTime > 1000 * 1000 || r.calcTime > 1e10)
                 break;
         }
 
@@ -292,7 +291,7 @@ int main() {
 
     using mainReal = double;
 
-    constexpr mainReal mainRhoMin = 0.5 / 4.0;   //used to be 0.25/4
+    constexpr mainReal mainRhoMin = 0.25 / 4.0;  //used to be 0.25/4
     constexpr mainReal mainRhoMax = 3.55 / 4.0;  //used to be 3/4
     constexpr mainReal mainxyMin = -1;
     constexpr mainReal mainxyMax = 1;
@@ -303,7 +302,7 @@ int main() {
     g.xmin = g.ymin = mainxyMin;
     g.xmax = g.ymax = mainxyMax;
     constexpr int xcount = 16, ycount = 16,
-                  rhocount = 3;  // bump up to 64x64x35 later or 128x128x35
+                  rhocount = 8;  // bump up to 64x64x35 later or 128x128x35
     constexpr mainReal A = 24;
     constexpr mainReal B = 1.1;
     constexpr mainReal Normalizer = 50.0;
