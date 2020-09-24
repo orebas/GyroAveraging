@@ -234,7 +234,7 @@ void testRunList(OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomai
     try {
         for (int i = 4; i < 385; i += 4) {
             auto r = testRun<RealT>(calcType, testfunc, g, i, rhocount, cheb);
-            if (r.initTime > 1000 * 1000 || r.calcTime > 1e10)
+            if (r.initTime > 1000 * 1000 || r.calcTime > 5e10)
                 break;
         }
 
@@ -320,18 +320,18 @@ int main() {
 
     std::vector<std::unique_ptr<GACalculator<mainReal>>> calcset;
     std::vector<OOGA::calculatorType> calclist;
-    //calclist.push_back(OOGA::calculatorType::linearCPU);
+    calclist.push_back(OOGA::calculatorType::linearCPU);
     calclist.push_back(OOGA::calculatorType::linearDotProductCPU);
-    //calclist.push_back(OOGA::calculatorType::linearDotProductGPU);
-    //calclist.push_back(OOGA::calculatorType::bicubicCPU);
+    calclist.push_back(OOGA::calculatorType::linearDotProductGPU);
+    calclist.push_back(OOGA::calculatorType::bicubicCPU);
     calclist.push_back(OOGA::calculatorType::bicubicDotProductCPU);
-    //calclist.push_back(OOGA::calculatorType::bicubicDotProductGPU);
+    calclist.push_back(OOGA::calculatorType::bicubicDotProductGPU);
     calclist.push_back(OOGA::calculatorType::DCTCPUCalculator2);
     calclist.push_back(OOGA::calculatorType::DCTCPUPaddedCalculator2);
 
     std::vector<OOGA::calculatorType> chebCalclist;
     chebCalclist.push_back(OOGA::calculatorType::chebCPUDense);
-    //chebCalclist.push_back(OOGA::calculatorType::chebGPUDense);
+    chebCalclist.push_back(OOGA::calculatorType::chebGPUDense);
     //constexpr mainReal padtest = xcount * mainRhoMax / std::abs(mainxyMax - mainxyMin);
     //constexpr int padcount = mymax(8, 4 + static_cast<int>(std::ceil(padtest)));
 
