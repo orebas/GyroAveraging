@@ -232,10 +232,10 @@ std::vector<resultsRecord<RealT>> testRunMultiple(const std::vector<OOGA::calcul
 template <int rhocount, class RealT, typename TFunc1>
 void testRunList(OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomain& g, bool cheb = false) {
     try {
-        for (int i = 4; i < 1024; i *= 2) {
+        for (int i = 4; i < 256; i *= 2) {
             auto r = testRun<RealT>(calcType, testfunc, g, i, rhocount, cheb);
             r = testRun<RealT>(calcType, testfunc, g, (i / 2 * 3), rhocount, cheb);
-            if (r.initTime > 1000 * 1000 || r.calcTime > 1e10)
+            if (r.initTime > 100 * 1000 || r.calcTime > 1e10)
                 break;
         }
 
@@ -340,7 +340,7 @@ int main() {
         return Normalizer * exp(-A * (ex * ex + why * why)) * exp(-B * row * row);
     };
 
-    auto hardfunc = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
+    auto crazyhardfunc = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
         auto dist = ex * ex + why * why;
         auto hard = exp(dist) * pow(
                                     (1.0d / cosh(4.0d * sin(40.0d * dist))),
@@ -351,6 +351,12 @@ int main() {
         hard *= (1.0d - ex * ex);
         hard *= (1.0d - why * why);
         return hard;
+    };
+
+    auto mediumfunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
+        double r = 2.0d * std::abs(ex - why);
+        double l = std::max(0.0d, 0.5 - r);
+        return l * l * l * l * (4 * r + 1) + 1.0 / (1 + 100 * ((ex - 0.2) * (ex - 0.2) + (why - 0.5) * (why - 0.5)));
     };
     /*auto testfunc2_analytic = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
         return Normalizer * exp(-B * row * row) * exp(-A * (ex * ex + why * why + row * row)) *
@@ -367,14 +373,15 @@ int main() {
         }
         return (30 * std::exp(1 / (temp / 25.0 - 1.0)));
     };*/
-    std::cout << "Calculator,N,Init time (s), Calc.time(s), Calc.Freq(hz), Bytes, MaxError, FirstBlank, Err1, Err2, Err3, Blank" << std::endl;
+    std::cout
+        << "Calculator,N,Init time (s), Calc.time(s), Calc.Freq(hz), Bytes, MaxError, FirstBlank, Err1, Err2, Err3, Blank" << std::endl;
     for (auto& cal_i : calclist) {
-        testRunList<rhocount, double>(cal_i, testfunc2, g);
+        testRunList<rhocount, double>(cal_i, mediumfunc, g);
         //testRunList<rhocount, float>(cal_i, testfunc2, g);
     }
 
     for (auto& cal_i : chebCalclist) {
-        testRunList<rhocount, double>(cal_i, testfunc2, g, true);
+        testRunList<rhocount, double>(cal_i, mediumfunc, g, true);
         //testRunList<rhocount, float>(cal_i, testfunc2, g, true);
     }
     fftw_cleanup();
