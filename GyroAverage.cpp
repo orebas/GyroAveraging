@@ -62,6 +62,7 @@
 template <class RealT = double>
 struct resultsRecord {
     OOGA::calculatorType type = OOGA::calculatorType::linearCPU;
+    std::string function_name;
     int N = 0;
     std::vector<RealT> rhoset;
     double initTime = 0;
@@ -70,7 +71,8 @@ struct resultsRecord {
     std ::vector<RealT> error;
     friend std::ostream& operator<<(std::ostream& output, const resultsRecord<RealT>& r) {
         auto nameMap = OOGA::calculatorNameMap();
-        output << nameMap[r.type] << ","
+        output << r.function_name << ","
+               << nameMap[r.type] << ","
                << r.N << ","
                << r.initTime / 1000 << ","
                << r.calcTime << ","
@@ -83,10 +85,8 @@ struct resultsRecord {
         output << ",";
         return output;
     }
-    //std::string header() {
-    //}
-    resultsRecord(OOGA::calculatorType t_i, int N_i, std ::vector<RealT> rhoset_i, double initTime_i, double calcTime_i, int bits_i)
-        : type(t_i), N(N_i), rhoset(rhoset_i), initTime(initTime_i), calcTime(calcTime_i), bits(bits_i), error(rhoset_i) {
+    resultsRecord(const std::string& fn, OOGA::calculatorType t_i, int N_i, std ::vector<RealT> rhoset_i, double initTime_i, double calcTime_i, int bits_i)
+        : function_name(fn), type(t_i), N(N_i), rhoset(rhoset_i), initTime(initTime_i), calcTime(calcTime_i), bits(bits_i), error(rhoset_i) {
     }
 };
 
@@ -99,7 +99,7 @@ std::ostream& operator<<(std::ostream& output, const std::vector<resultsRecord<R
 }
 
 template <class RealT, typename TFunc1>
-resultsRecord<RealT> testConvergence(TFunc1 testfunc, OOGA::gridDomain& g, int rhocount) {
+resultsRecord<RealT> testConvergence(TFunc1 testfunc, const std::string& fn, OOGA::gridDomain& g, int rhocount) {
     using OOGA::functionGrid;
     using OOGA::GACalculator;
     using OOGA::gridDomain;
@@ -131,7 +131,7 @@ resultsRecord<RealT> testConvergence(TFunc1 testfunc, OOGA::gridDomain& g, int r
 }
 
 template <class RealT, typename TFunc1>
-resultsRecord<RealT> testRun(OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomain& g, int N, int rhocount, bool cheb = false) {
+resultsRecord<RealT> testRun(const std::string& function_name, OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomain& g, int N, int rhocount, bool cheb = false) {
     using OOGA::functionGrid;
     using OOGA::GACalculator;
     using OOGA::gridDomain;
@@ -172,7 +172,7 @@ resultsRecord<RealT> testRun(OOGA::calculatorType calcType, TFunc1 testfunc, OOG
     };
     double calcTime = measure<std::chrono::nanoseconds>::execution(func2);
     result = (calculator->calculate(f));
-    resultsRecord<RealT> runResults(calcType, N, std::vector<RealT>(rhoset.begin(), rhoset.end()), initTime, calcTime, sizeof(RealT));
+    resultsRecord<RealT> runResults(function_name, calcType, N, std::vector<RealT>(rhoset.begin(), rhoset.end()), initTime, calcTime, sizeof(RealT));
     for (int k = 0; k < rhocount; ++k) {
         runResults.error[k] = exact.maxNormDiff(result.gridValues, k) / exact.maxNorm(k);
     }
@@ -232,10 +232,10 @@ std::vector<resultsRecord<RealT>> testRunMultiple(const std::vector<OOGA::calcul
 }*/
 
 template <int rhocount, class RealT, typename TFunc1>
-void testRunList(OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomain& g, bool cheb = false) {
+void testRunList(const std::string function_name, OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomain& g, bool cheb = false) {
     try {
-        for (int i = 4; i < 385; i += 4) {
-            auto r = testRun<RealT>(calcType, testfunc, g, i, rhocount, cheb);
+        for (int i = 4; i < 64; i += 4) { //go to 385 or farther?
+            auto r = testRun<RealT>(function_name, calcType, testfunc, g, i, rhocount, cheb);
             if (r.initTime > 1000 * 1000 || r.calcTime > 5e10)
                 break;
         }
@@ -280,47 +280,52 @@ std::vector<resultsRecord<RealT>> testRunRecursive(const std::vector<OOGA::calcu
     }
 }*/
 
-<<<<<<< HEAD
 int main(int argc, char* argv[]) {
-=======
-
-int main() {
->>>>>>> a19d8d3e8fbff4d6f14b566a4f5854cecd40bd99
     //fft_testing();
     //chebDevel();
     //fftw_cleanup();
-    //cd return 0;
+    // return 0;
     //using namespace OOGA;
     using OOGA::chebBasisFunction;
     using OOGA::functionGrid, OOGA::GACalculator;
     using OOGA::gridDomain;
     using OOGA::LinearSpacedArray;
-    using po = boost::program_options;
+    namespace po = boost::program_options;
     using mainReal = double;
 
     po::options_description desc("Allowed options");
-    desc.add_options()("help", "produce help message")("calculator", po::value<int>(), "choose which calculator to test run")("func", po::value<int>(), "choose which function to test run");
+    desc.add_options()("help", "produce help message")("calc", po::value<int>(), "choose which calculator to test run")("func", po::value<int>(), "choose which function to test run");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
 
+    int calc_option = -1;
+    int func_option = -1;
+
     if (vm.count("help")) {
-        std::cout ::"First argument is which calculator to run. Second argument is which function to test.\n";
+        std::cout << "Example: --calc=1 --func=2\n";  //TODO(orebas):rewrite this text
         return 1;
     }
 
-    if (vm.count("calulator")) {
-        std::cout << "calculator chosen: " << vm["calculator"].as<int>() << std::endl;
+    if (vm.count("calc")) {
+        std::cout << "calculator chosen: " << vm["calc"].as<int>() << std::endl;
+        calc_option = vm["calc"].as<int>();
+
     } else {
-        std::cout << "Calculator not chosen" << std::endl;
+        std::cout << "Calculator not chosen.  Please pick one." << std::endl;
+        return 1;
     }
 
     if (vm.count("func")) {
         std::cout << "func chosen: " << vm["func"].as<int>() << std::endl;
+        func_option = vm["func"].as<int>();
     } else {
-        std::cout << "func not chosen" << std::endl;
+        std::cout << "func not chosen.  Please pick one." << std::endl;
+        return 1;
     }
+
+    //the below can in theory be command line args as well:
 
     constexpr mainReal mainRhoMin = 0.25 / 4.0;  //used to be 0.25/4
     constexpr mainReal mainRhoMax = 3.55 / 4.0;  //used to be 3/4
@@ -332,46 +337,49 @@ int main() {
     g.rhomin = mainRhoMin;
     g.xmin = g.ymin = mainxyMin;
     g.xmax = g.ymax = mainxyMax;
-    constexpr int xcount = 16, ycount = 16,
-                  rhocount = 8;  // bump up to 64x64x35 later or 128x128x35
+    //constexpr int xcount = 16, ycount = 16;
+    constexpr int rhocount = 8;  // bump up to 64x64x35 later or 128x128x35
     constexpr mainReal A = 24;
     constexpr mainReal B = 1.1;
     constexpr mainReal Normalizer = 50.0;
     std::vector<mainReal> rhoset;
-    std::vector<mainReal> xset;
-    std::vector<mainReal> yset;
+    //std::vector<mainReal> xset;
+    //std::vector<mainReal> yset;
     auto nameMap = OOGA::calculatorNameMap();
 
-    rhoset = LinearSpacedArray<mainReal>(g.rhomin, g.rhomax, rhocount);
-    xset = LinearSpacedArray<mainReal>(g.xmin, g.xmax, xcount);
-    yset = LinearSpacedArray<mainReal>(g.ymin, g.ymax, ycount);
+    //rhoset = LinearSpacedArray<mainReal>(g.rhomin, g.rhomax, rhocount);
+    //xset = LinearSpacedArray<mainReal>(g.xmin, g.xmax, xcount);
+    //yset = LinearSpacedArray<mainReal>(g.ymin, g.ymax, ycount);
 
-    functionGrid<mainReal> f(rhoset, xset, yset),
-        exact(rhoset, xset, yset);
+    //functionGrid<mainReal> f(rhoset, xset, yset),  exact(rhoset, xset, yset);
 
-    std::vector<std::unique_ptr<GACalculator<mainReal>>> calcset;
+    //std::vector<std::unique_ptr<GACalculator<mainReal>>> calcset;
     std::vector<OOGA::calculatorType> calclist;
-    //calclist.push_back(OOGA::calculatorType::linearCPU);
-    //calclist.push_back(OOGA::calculatorType::linearDotProductCPU);
-    //calclist.push_back(OOGA::calculatorType::linearDotProductGPU);
-    //calclist.push_back(OOGA::calculatorType::bicubicCPU);
-    //calclist.push_back(OOGA::calculatorType::bicubicDotProductCPU);
-
+    calclist.push_back(OOGA::calculatorType::linearCPU);
+    calclist.push_back(OOGA::calculatorType::linearDotProductCPU);
+    calclist.push_back(OOGA::calculatorType::linearDotProductGPU);
+    calclist.push_back(OOGA::calculatorType::bicubicCPU);
+    calclist.push_back(OOGA::calculatorType::bicubicDotProductCPU);
     calclist.push_back(OOGA::calculatorType::DCTCPUCalculator2);
     calclist.push_back(OOGA::calculatorType::DCTCPUPaddedCalculator2);
-
-
     calclist.push_back(OOGA::calculatorType::bicubicDotProductGPU);
+    calclist.push_back(OOGA::calculatorType::chebCPUDense);
+    calclist.push_back(OOGA::calculatorType::chebGPUDense);
 
-
-    std::vector<OOGA::calculatorType> chebCalclist;
-    chebCalclist.push_back(OOGA::calculatorType::chebCPUDense);
-    chebCalclist.push_back(OOGA::calculatorType::chebGPUDense);
+    //std::vector<OOGA::calculatorType> chebCalclist;
+    //chebCalclist.push_back(OOGA::calculatorType::chebCPUDense);
+    //chebCalclist.push_back(OOGA::calculatorType::chebGPUDense);
     //constexpr mainReal padtest = xcount * mainRhoMax / std::abs(mainxyMax - mainxyMin);
     //constexpr int padcount = mymax(8, 4 + static_cast<int>(std::ceil(padtest)));
 
-    auto testfunc2 = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
+    auto easyfunc = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
         return Normalizer * exp(-A * (ex * ex + why * why)) * exp(-B * row * row);
+    };
+
+    auto mediumfunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
+        double r = 2.0d * std::abs(ex - why);
+        double l = std::max(0.0d, 0.5 - r);
+        return l * l * l * l * (4 * r + 1) + 1.0 / (1 + 100 * ((ex - 0.2) * (ex - 0.2) + (why - 0.5) * (why - 0.5)));
     };
 
     auto crazyhardfunc = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
@@ -386,12 +394,11 @@ int main() {
         hard *= (1.0d - why * why);
         return hard;
     };
-
-    auto mediumfunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
-        double r = 2.0d * std::abs(ex - why);
-        double l = std::max(0.0d, 0.5 - r);
-        return l * l * l * l * (4 * r + 1) + 1.0 / (1 + 100 * ((ex - 0.2) * (ex - 0.2) + (why - 0.5) * (why - 0.5)));
+    std::string function_name = "Constant Zero";
+    auto func_lambda = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
+        return 0;
     };
+
     /*auto testfunc2_analytic = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
         return Normalizer * exp(-B * row * row) * exp(-A * (ex * ex + why * why + row * row)) *
                boost::math::cyl_bessel_i(0, 2 * A * row * std::sqrt(ex * ex + why * why));
@@ -407,17 +414,41 @@ int main() {
         }
         return (30 * std::exp(1 / (temp / 25.0 - 1.0)));
     };*/
-    std::cout
-        << "Calculator,N,Init time (s), Calc.time(s), Calc.Freq(hz), Bytes, MaxError, FirstBlank, Err1, Err2, Err3, Blank" << std::endl;
-    for (auto& cal_i : calclist) {
-        testRunList<rhocount, double>(cal_i, mediumfunc, g);
-        //testRunList<rhocount, float>(cal_i, testfunc2, g);
-    }
 
-    for (auto& cal_i : chebCalclist) {
-        testRunList<rhocount, double>(cal_i, mediumfunc, g, true);
-        //testRunList<rhocount, float>(cal_i, testfunc2, g, true);
+    if (calc_option < 0 || calc_option >= calclist.size()) {
+        std::cout << "That's not a valid calculator." << std::endl;
+        return 1;
     }
+    bool cheb_grid_needed = false;
+    if (calclist[calc_option] == OOGA::calculatorType::chebCPUDense || calclist[calc_option] == OOGA::calculatorType::chebGPUDense) {
+        cheb_grid_needed = true;
+    }
+    std::cout
+        << "FunctionName, Calculator,N,Init time (s), Calc.time(s), Calc.Freq(hz), Bytes, MaxError, FirstBlank, Err1, Err2, Err3, Blank" << std::endl;
+    switch (func_option) {
+        case 1:
+
+            function_name = "Smooth exp(-Ar^2-b*rho^2)";
+            testRunList<rhocount, double>(function_name, calclist[calc_option], easyfunc, g, cheb_grid_needed);
+            //testRunList<rhocount, float>(function_name, calclist[calc_option], easyfunc, g, cheb_grid_needed);
+
+            break;
+
+        case 2:
+            function_name = "Non-smooth: Wendland CSRBF+Runge";
+            testRunList<rhocount, double>(function_name, calclist[calc_option], mediumfunc, g, cheb_grid_needed);
+            //testRunList<rhocount, float>(function_name, calclist[calc_option], mediumfunc, g, cheb_grid_needed);
+            break;
+        case 3:
+            function_name = "Discontinuous - hard to approximate";
+
+            testRunList<rhocount, double>(function_name, calclist[calc_option], crazyhardfunc, g, cheb_grid_needed);
+            //testRunList<rhocount, float>(function_name, calclist[calc_option], crazyhardfunc, g, cheb_grid_needed);
+            break;
+        default:
+            break;
+    };
+
     fftw_cleanup();
 }
 

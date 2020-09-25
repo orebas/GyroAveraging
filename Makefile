@@ -8,26 +8,26 @@ DEPS = ga.h
 
 
 GyroAverage-OpenCL: GyroAverage.cpp ga.h  gautils.h
-	$(CPP) GyroAverage.cpp   -std=c++2a -Wall   -O3  -I. -fopenmp -march=native -o GyroAverage-OpenCL -DVIENNACL_WITH_OPENCL -lOpenCL -I/usr/include/boost169 -lm -lfftw3 -lfftw3f
+	$(CPP) GyroAverage.cpp   -std=c++2a -Wall   -O3  -I. -fopenmp -march=native -o GyroAverage-OpenCL -DVIENNACL_WITH_OPENCL -lOpenCL -I/usr/include/boost169 -lm -lfftw3 -lfftw3f -lboost_program_options
 
 GyroAverage-CPU: GyroAverage.cpp ga.h gautils.h
-	$(CPP) GyroAverage.cpp   -std=c++2a -Wall  -O3  -I. -fopenmp -march=native -o GyroAverage-CPU  -I/usr/include/boost169 -lm -lfftw3 -lfftw3f
+	$(CPP) GyroAverage.cpp   -std=c++2a -Wall  -O3  -I. -fopenmp -march=native -o GyroAverage-CPU  -I/usr/include/boost169 -lm -lfftw3 -lfftw3f -lboost_program_options
 
 GyroAverage-CUDA:  GyroAverage.cpp ga.h gautils.h
 	cp -f GyroAverage.cpp GyroAverage.cu 
 	nvcc GyroAverage.cu -I. -O3  -o GyroAverage-CUDA -DVIENNACL_WITH_CUDA -lOpenCL -lfftw3 -lfftw3f -I/usr/include/boost169   -Xcompiler -fopenmp -Xcompiler -I/usr/include/boost169 -DINCL_MATH_CONSTANTS=1   
 
 GyroAverage-Home: GyroAverage.cpp ga.h gautils.h
-	$(CPP) GyroAverage.cpp  -std=c++2a -Wall -g -pg  -O3  -I. -fopenmp -march=native -o GyroAverage-Home   -lm -lfftw3 -lfftw3f
+	$(CPP) GyroAverage.cpp  -std=c++2a -Wall -g -pg  -O3  -I. -fopenmp -march=native -o GyroAverage-Home   -lm -lfftw3 -lfftw3f -lboost_program_options
 
 Home-Debug: GyroAverage.cpp ga.h gautils.h
-	$(CPP) GyroAverage.cpp  -std=c++2a -Wall   -ggdb  -I.  -o GyroAverage-Home   -lm -lfftw3 -lfftw3f
+	$(CPP) GyroAverage.cpp  -std=c++2a -Wall   -ggdb  -I.  -o GyroAverage-Home   -lm -lfftw3 -lfftw3f -lboost_program_options
 
 Home-Asan: GyroAverage.cpp ga.h gautils.h
-	$(CPP) GyroAverage.cpp  -std=c++2a -Wall   -ggdb -O1   -fopenmp -I. -fsanitize=address -fno-omit-frame-pointer -o GyroAverage-Home   -lm -lfftw3 -lfftw3f -lasan 
+	$(CPP) GyroAverage.cpp  -std=c++2a -Wall   -ggdb -O1   -fopenmp -I. -fsanitize=address -fno-omit-frame-pointer -o GyroAverage-Home   -lm -lfftw3 -lfftw3f -lasan  -lboost_program_options
 
 GyroAverage-Home-Clang: GyroAverage.cpp ga.h gautils.h
-	clang++ GyroAverage.cpp  -std=c++2a -Wall -g -pg  -O3  -I. -fopenmp -march=native -o GyroAverage-Home-Clang   -lm -lfftw3 -lfftw3f -lstdc++
+	clang++ GyroAverage.cpp  -std=c++2a -Wall -g -pg  -O3  -I. -fopenmp -march=native -o GyroAverage-Home-Clang   -lm -lfftw3 -lfftw3f -lstdc++ -lboost_program_options
 
 
 all: GyroAverage-OpenCL GyroAverage-CPU GyroAverage-CUDA

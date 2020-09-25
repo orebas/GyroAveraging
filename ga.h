@@ -431,13 +431,17 @@ class fftw_wrapper_2d {
 
 template <>
 class fftw_wrapper_2d<double> {
+   private:
+    fftw_plan plan;
+
    public:
     using RealT = double;
+    RealT *fftin;
+    RealT *fftout;
+
     int rhocount;
     int xcount;
     int ycount;
-    RealT *fftin;
-    RealT *fftout;
     fftw_wrapper_2d() = delete;
     explicit fftw_wrapper_2d(int rc, int xc, int yc, fftw_r2r_kind t) : rhocount(rc), xcount(xc), ycount(yc) {
         int rank = 2;
@@ -464,7 +468,7 @@ class fftw_wrapper_2d<double> {
 
     fftw_wrapper_2d(const fftw_wrapper_2d<RealT> &other) = delete;
     fftw_wrapper_2d(fftw_wrapper_2d<RealT> &&other) noexcept
-        : fftin{other.fftin}, fftout{other.fftout}, plan{other.plan}, rhocount(other.rhocount), xcount(other.xcount), ycount(other.ycount) {
+        : plan{other.plan}, fftin{other.fftin}, fftout{other.fftout}, rhocount(other.rhocount), xcount(other.xcount), ycount(other.ycount) {
         other.fftin = nullptr;
         other.fftout = nullptr;
     }
@@ -486,21 +490,22 @@ class fftw_wrapper_2d<double> {
         fftw_free(fftout);
         fftw_destroy_plan(plan);
     };
-
-   private:
-    fftw_plan plan;
 };
 
 //specialization for float (fp32)
 template <>
 class fftw_wrapper_2d<float> {
+   private:
+    fftwf_plan plan;
+
    public:
-    int rhocount;
-    int xcount;
-    int ycount;
     using RealT = float;
     RealT *fftin;
     RealT *fftout;
+    int rhocount;
+    int xcount;
+    int ycount;
+
     fftw_wrapper_2d() = delete;
     explicit fftw_wrapper_2d(int rc, int xc, int yc, fftwf_r2r_kind t) : rhocount(rc), xcount(xc), ycount(yc) {
         int rank = 2;
@@ -519,7 +524,7 @@ class fftw_wrapper_2d<float> {
 
     fftw_wrapper_2d(const fftw_wrapper_2d<RealT> &other) = delete;
     fftw_wrapper_2d(fftw_wrapper_2d<RealT> &&other) noexcept
-        : fftin{other.fftin}, fftout{other.fftout}, plan{other.plan}, rhocount(other.rhocount), xcount(other.xcount), ycount(other.ycount) {
+        : plan{other.plan}, fftin{other.fftin}, fftout{other.fftout}, rhocount(other.rhocount), xcount(other.xcount), ycount(other.ycount) {
         other.fftin = nullptr;
         other.fftout = nullptr;
     }
@@ -541,9 +546,6 @@ class fftw_wrapper_2d<float> {
         fftwf_free(fftout);
         fftwf_destroy_plan(plan);
     };
-
-   private:
-    fftwf_plan plan;
 };
 
 /* GACalculator API
