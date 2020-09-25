@@ -55,6 +55,8 @@
 #include <map>
 #include <vector>
 */
+#include <boost/program_options.hpp>
+
 #include "ga.h"
 
 template <class RealT = double>
@@ -278,8 +280,12 @@ std::vector<resultsRecord<RealT>> testRunRecursive(const std::vector<OOGA::calcu
     }
 }*/
 
+<<<<<<< HEAD
+int main(int argc, char* argv[]) {
+=======
 
 int main() {
+>>>>>>> a19d8d3e8fbff4d6f14b566a4f5854cecd40bd99
     //fft_testing();
     //chebDevel();
     //fftw_cleanup();
@@ -289,8 +295,32 @@ int main() {
     using OOGA::functionGrid, OOGA::GACalculator;
     using OOGA::gridDomain;
     using OOGA::LinearSpacedArray;
-
+    using po = boost::program_options;
     using mainReal = double;
+
+    po::options_description desc("Allowed options");
+    desc.add_options()("help", "produce help message")("calculator", po::value<int>(), "choose which calculator to test run")("func", po::value<int>(), "choose which function to test run");
+
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
+
+    if (vm.count("help")) {
+        std::cout ::"First argument is which calculator to run. Second argument is which function to test.\n";
+        return 1;
+    }
+
+    if (vm.count("calulator")) {
+        std::cout << "calculator chosen: " << vm["calculator"].as<int>() << std::endl;
+    } else {
+        std::cout << "Calculator not chosen" << std::endl;
+    }
+
+    if (vm.count("func")) {
+        std::cout << "func chosen: " << vm["func"].as<int>() << std::endl;
+    } else {
+        std::cout << "func not chosen" << std::endl;
+    }
 
     constexpr mainReal mainRhoMin = 0.25 / 4.0;  //used to be 0.25/4
     constexpr mainReal mainRhoMax = 3.55 / 4.0;  //used to be 3/4
