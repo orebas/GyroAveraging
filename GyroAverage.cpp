@@ -280,7 +280,12 @@ std::vector<resultsRecord<RealT>> testRunRecursive(const std::vector<OOGA::calcu
     }
 }*/
 
+<<<<<<< HEAD
 int main(int argc, char* argv[]) {
+=======
+
+int main() {
+>>>>>>> a19d8d3e8fbff4d6f14b566a4f5854cecd40bd99
     //fft_testing();
     //chebDevel();
     //fftw_cleanup();
@@ -346,14 +351,18 @@ int main(int argc, char* argv[]) {
 
     std::vector<std::unique_ptr<GACalculator<mainReal>>> calcset;
     std::vector<OOGA::calculatorType> calclist;
-    calclist.push_back(OOGA::calculatorType::linearCPU);
-    calclist.push_back(OOGA::calculatorType::linearDotProductCPU);
-    calclist.push_back(OOGA::calculatorType::linearDotProductGPU);
-    calclist.push_back(OOGA::calculatorType::bicubicCPU);
-    calclist.push_back(OOGA::calculatorType::bicubicDotProductCPU);
-    calclist.push_back(OOGA::calculatorType::bicubicDotProductGPU);
+    //calclist.push_back(OOGA::calculatorType::linearCPU);
+    //calclist.push_back(OOGA::calculatorType::linearDotProductCPU);
+    //calclist.push_back(OOGA::calculatorType::linearDotProductGPU);
+    //calclist.push_back(OOGA::calculatorType::bicubicCPU);
+    //calclist.push_back(OOGA::calculatorType::bicubicDotProductCPU);
+
     calclist.push_back(OOGA::calculatorType::DCTCPUCalculator2);
     calclist.push_back(OOGA::calculatorType::DCTCPUPaddedCalculator2);
+
+
+    calclist.push_back(OOGA::calculatorType::bicubicDotProductGPU);
+
 
     std::vector<OOGA::calculatorType> chebCalclist;
     chebCalclist.push_back(OOGA::calculatorType::chebCPUDense);
