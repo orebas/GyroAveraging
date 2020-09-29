@@ -377,22 +377,25 @@ int main(int argc, char* argv[]) {
         return Normalizer * exp(-A * (ex * ex + why * why)) * exp(-B * row * row);
     };
 
+    using std::max;
+    using std::abs;
+
     auto mediumfunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
-        double r = 2.0d * std::abs(ex - why);
-        double l = std::max(0.0d, 0.5 - r);
+        double r = 2.0 * abs(ex - why);
+        double l = max(0.0, 0.5 - r);//   (0.5-r>0? 0.5-r,0);   //std::max(0.0d,0.5-r)
         return l * l * l * l * (4 * r + 1) + 1.0 / (1 + 100 * ((ex - 0.2) * (ex - 0.2) + (why - 0.5) * (why - 0.5)));
     };
 
     auto crazyhardfunc = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
         auto dist = ex * ex + why * why;
         auto hard = exp(dist) * pow(
-                                    (1.0d / cosh(4.0d * sin(40.0d * dist))),
+                                    (1.0 / cosh(4.0 * sin(40.0 * dist))),
                                     exp(dist));
         hard += exp(ex) *
-                pow((1.0d / cosh(4.0d * sin(40.0d * ex))), exp(ex));
-        if (why + ex / 2.0d < 00.0d) hard += 1.5d;
-        hard *= (1.0d - ex * ex);
-        hard *= (1.0d - why * why);
+                pow((1.0 / cosh(4.0 * sin(40.0 * ex))), exp(ex));
+        if (why + ex / 2.0 < 00.0) hard += 1.5;
+        hard *= (1.0 - ex * ex);
+        hard *= (1.0 - why * why);
         return hard;
     };
     std::string function_name = "Constant Zero";

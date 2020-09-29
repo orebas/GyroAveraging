@@ -15,7 +15,7 @@ GyroAverage-CPU: GyroAverage.cpp ga.h gautils.h
 
 GyroAverage-CUDA:  GyroAverage.cpp ga.h gautils.h
 	cp -f GyroAverage.cpp GyroAverage.cu 
-	nvcc GyroAverage.cu  -std=c++14 -I. -O3  -o GyroAverage-CUDA -D_GLIBCXX_USE_CXX11_ABI=0  -DVIENNACL_WITH_CUDA -lOpenCL -lfftw3 -lfftw3f -I/usr/include/boost169   -Xcompiler -fopenmp -Xcompiler -I/usr/include/boost169 -DINCL_MATH_CONSTANTS=1  
+	nvcc GyroAverage.cu  -std=c++14 -I. -O3  -o GyroAverage-CUDA -D_GLIBCXX_USE_CXX11_ABI=0  -DVIENNACL_WITH_CUDA -lboost_program_options -lOpenCL -lfftw3 -lfftw3f -I/usr/include/boost169   -Xcompiler -fopenmp -Xcompiler -I/usr/include/boost169 -DINCL_MATH_CONSTANTS=1  
 
 
 GyroAverage-Prince-CPU: GyroAverage.cpp ga.h gautils.h
