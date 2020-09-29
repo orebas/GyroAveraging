@@ -5,6 +5,10 @@
 #ifndef GYROAVERAGING_GA_H
 #define GYROAVERAGING_GA_H
 
+
+
+
+#include<iostream>
 #include <fftw3.h>
 #include <omp.h>
 
@@ -15,7 +19,7 @@
 #include <exception>
 #include <iostream>
 #include <new>
-#include <optional>
+#include <boost/optional.hpp>
 
 #include "viennacl/compressed_matrix.hpp"
 /*#include <algorithm>
@@ -1201,7 +1205,7 @@ class DCTCPUPaddedCalculator
 
     std::vector<RealT> xnew;
     std::vector<RealT> ynew;
-    std::optional<functionGrid<RealT>> paddedf;  //rhocount, xcount + padcount*2, ycount+padcount*2,RealT
+    boost::optional<functionGrid<RealT>> paddedf;  //rhocount, xcount + padcount*2, ycount+padcount*2,RealT
 
    public:
     friend class GACalculator<RealT>;
