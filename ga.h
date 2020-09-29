@@ -5,6 +5,10 @@
 #ifndef GYROAVERAGING_GA_H
 #define GYROAVERAGING_GA_H
 
+
+
+
+#include<iostream>
 #include <fftw3.h>
 #include <omp.h>
 
@@ -15,7 +19,7 @@
 #include <exception>
 #include <iostream>
 #include <new>
-#include <optional>
+#include <boost/optional.hpp>
 
 #include "viennacl/compressed_matrix.hpp"
 #include <boost/optional.hpp>

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-progname="./GyroAverage-Home"
+progname="./GyroAverage-CPU"
 
 
 echo $progname

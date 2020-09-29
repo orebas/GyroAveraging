@@ -17,6 +17,16 @@ GyroAverage-CUDA:  GyroAverage.cpp ga.h gautils.h
 	cp -f GyroAverage.cpp GyroAverage.cu 
 	nvcc GyroAverage.cu  -std=c++14 -I. -O3  -o GyroAverage-CUDA -D_GLIBCXX_USE_CXX11_ABI=0  -DVIENNACL_WITH_CUDA -lOpenCL -lfftw3 -lfftw3f -I/usr/include/boost169   -Xcompiler -fopenmp -Xcompiler -I/usr/include/boost169 -DINCL_MATH_CONSTANTS=1  
 
+
+GyroAverage-Prince-CPU: GyroAverage.cpp ga.h gautils.h
+	$(CPP) GyroAverage.cpp   -Wall  -O3  -I. -fopenmp -march=native -o GyroAverage-CPU  -lm -lfftw3 -lfftw3f -I${BOOST_INC}  -I${EIGEN_INC}   -L${BOOST_LIB}   -lboost_program_options
+
+
+GyroAverage-Prince-OpenCL: GyroAverage.cpp ga.h  gautils.h
+	$(CPP) GyroAverage.cpp   -std=c++2a -Wall   -O3  -I. -fopenmp -march=native -o GyroAverage-OpenCL -DVIENNACL_WITH_OPENCL -lOpenCL  -I${BOOST_INC}  -I${EIGEN_INC}   -L${BOOST_LIB} -lm -lfftw3 -lfftw3f -lboost_program_options
+
+
+
 GyroAverage-Home: GyroAverage.cpp ga.h gautils.h
 	$(CPP) GyroAverage.cpp  -std=c++2a -Wall -g -pg  -O3  -I. -fopenmp -march=native -o GyroAverage-Home   -lm -lfftw3 -lfftw3f -lboost_program_options
 
