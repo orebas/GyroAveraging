@@ -18,6 +18,7 @@
 #include <optional>
 
 #include "viennacl/compressed_matrix.hpp"
+#include <boost/optional.hpp>
 /*#include <algorithm>
 #include <array>
 #include <cassert>
@@ -1201,7 +1202,7 @@ class DCTCPUPaddedCalculator
 
     std::vector<RealT> xnew;
     std::vector<RealT> ynew;
-    std::optional<functionGrid<RealT>> paddedf;  //rhocount, xcount + padcount*2, ycount+padcount*2,RealT
+    boost::optional<functionGrid<RealT>> paddedf;  //rhocount, xcount + padcount*2, ycount+padcount*2,RealT
 
    public:
     friend class GACalculator<RealT>;

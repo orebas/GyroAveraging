@@ -287,7 +287,8 @@ int main(int argc, char* argv[]) {
     // return 0;
     //using namespace OOGA;
     using OOGA::chebBasisFunction;
-    using OOGA::functionGrid, OOGA::GACalculator;
+    using OOGA::functionGrid;
+    using OOGA::GACalculator;
     using OOGA::gridDomain;
     using OOGA::LinearSpacedArray;
     namespace po = boost::program_options;
