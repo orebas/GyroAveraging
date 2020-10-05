@@ -8,10 +8,10 @@ DEPS = ga.h
 
 
 GyroAverage-OpenCL: GyroAverage.cpp ga.h  gautils.h
-	$(CPP) GyroAverage.cpp   -std=c++2a -Wall   -O3  -I. -D_GLIBCXX_USE_CXX11_ABI=0  -fopenmp -march=native -o GyroAverage-OpenCL -DVIENNACL_WITH_OPENCL -lOpenCL -I/usr/include/boost169 -lm -lfftw3 -lfftw3f -lboost_program_options
+	$(CPP) GyroAverage.cpp   -std=c++14 -Wall   -O3  -I. -D_GLIBCXX_USE_CXX11_ABI=0  -fopenmp -march=native -o GyroAverage-OpenCL -DVIENNACL_WITH_OPENCL -lOpenCL -I/usr/include/boost169 -lm -lfftw3 -lfftw3f -lboost_program_options
 
 GyroAverage-CPU: GyroAverage.cpp ga.h gautils.h
-	$(CPP) GyroAverage.cpp   -std=c++2a -Wall  -D_GLIBCXX_USE_CXX11_ABI=0 -O3  -I. -fopenmp -march=native -o GyroAverage-CPU  -I/usr/include/boost169 -lm -lfftw3 -lfftw3f -lboost_program_options
+	$(CPP) GyroAverage.cpp   -std=c++14 -Wall  -D_GLIBCXX_USE_CXX11_ABI=0 -O3  -I. -fopenmp -march=native -o GyroAverage-CPU  -I/usr/include/boost169 -lm -lfftw3 -lfftw3f -lboost_program_options
 
 GyroAverage-CUDA:  GyroAverage.cpp ga.h gautils.h
 	cp -f GyroAverage.cpp GyroAverage.cu 

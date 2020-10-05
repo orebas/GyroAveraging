@@ -234,7 +234,7 @@ std::vector<resultsRecord<RealT>> testRunMultiple(const std::vector<OOGA::calcul
 template <int rhocount, class RealT, typename TFunc1>
 void testRunList(const std::string function_name, OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomain& g, bool cheb = false) {
     try {
-        for (int i = 4; i < 64; i += 4) { //go to 385 or farther?
+        for (int i = 4; i < 392; i += 4) { //go to 385 or farther?
             auto r = testRun<RealT>(function_name, calcType, testfunc, g, i, rhocount, cheb);
             if (r.initTime > 1000 * 1000 || r.calcTime > 5e10)
                 break;

@@ -1,5 +1,0 @@
-calculator chosen: 2
-func chosen: 1
-FunctionName, Calculator,N,Init time (s), Calc.time(s), Calc.Freq(hz), Bytes, MaxError, FirstBlank, Err1, Err2, Err3, Blank
-terminate called after throwing an instance of 'std::bad_alloc'
-  what():  std::bad_alloc
