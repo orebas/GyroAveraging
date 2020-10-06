@@ -2,7 +2,7 @@
 #/usr/lib64/libboost_timer.so
 #took out OpenMP for now, add back later -fopenmp
 
-CPP = icc
+CPP = g++
 CFLAGS=-I. -Wall -std=c++2A 
 DEPS = ga.h
 

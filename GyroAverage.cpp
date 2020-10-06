@@ -234,7 +234,7 @@ std::vector<resultsRecord<RealT>> testRunMultiple(const std::vector<OOGA::calcul
 template <int rhocount, class RealT, typename TFunc1>
 void testRunList(const std::string function_name, OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomain& g, bool cheb = false) {
     try {
-        for (int i = 4; i < 392; i += 4) { //go to 385 or farther?
+        for (int i = 8; i < 392; i += 4) {  //go to 385 or farther?
             auto r = testRun<RealT>(function_name, calcType, testfunc, g, i, rhocount, cheb);
             if (r.initTime > 1000 * 1000 || r.calcTime > 5e10)
                 break;
@@ -377,12 +377,12 @@ int main(int argc, char* argv[]) {
         return Normalizer * exp(-A * (ex * ex + why * why)) * exp(-B * row * row);
     };
 
-    using std::max;
     using std::abs;
+    using std::max;
 
     auto mediumfunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
         double r = 2.0 * abs(ex - why);
-        double l = max(0.0, 0.5 - r);//   (0.5-r>0? 0.5-r,0);   //std::max(0.0d,0.5-r)
+        double l = max(0.0, 0.5 - r);  //   (0.5-r>0? 0.5-r,0);   //std::max(0.0d,0.5-r)
         return l * l * l * l * (4 * r + 1) + 1.0 / (1 + 100 * ((ex - 0.2) * (ex - 0.2) + (why - 0.5) * (why - 0.5)));
     };
 

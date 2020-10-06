@@ -5,24 +5,19 @@
 #ifndef GYROAVERAGING_GA_H
 #define GYROAVERAGING_GA_H
 
-
-
-
-#include<iostream>
 #include <fftw3.h>
 #include <omp.h>
 
 #include <boost/math/special_functions/bessel.hpp>
 #include <boost/math/special_functions/chebyshev_transform.hpp>
 #include <boost/math/special_functions/next.hpp>
+#include <boost/optional.hpp>
 #include <eigen3/Eigen/Eigen>
 #include <exception>
 #include <iostream>
 #include <new>
-#include <boost/optional.hpp>
 
 #include "viennacl/compressed_matrix.hpp"
-#include <boost/optional.hpp>
 /*#include <algorithm>
 #include <array>
 #include <cassert>
@@ -354,7 +349,7 @@ class functionGrid {
                     (3.0 * g(i, xcount - 1, k) + 10.0 * g(i, xcount - 2, k) +
                      -18.0 * g(i, xcount - 3, k) + 6.0 * g(i, xcount - 4, k) +
                      -1.0 * g(i, xcount - 5, k)) /
-                    (12.0 * xdenom);
+                    (12.0 * xdenom);  //TODO: fails for 4x4
                 for (int j = 2; j <= xcount - 3; j++) {
                     derivs(i, j, k, 1) =
                         (1.0 * g(i, j - 2, k) + -8.0 * g(i, j - 1, k) +
@@ -690,8 +685,8 @@ class linearDotProductCPU
         int max_threads = omp_get_max_threads() + 1;
 
         std::vector<std::vector<Eigen::Triplet<RealT>>>
-	TripletVecVec(std::max(9,max_threads));  //todo: magic number
-#pragma omp parallel for collapse(2) num_threads(8)  //todo:  can we collapse(3)
+            TripletVecVec(std::max(9, max_threads));  //todo: magic number
+#pragma omp parallel for collapse(2) num_threads(8)   //todo:  can we collapse(3)
         for (auto i = 0; i < f.rhocount; i++) {
             for (auto j = 0; j < f.xcount; j++) {
                 for (auto k = 0; k < f.ycount; k++) {
@@ -1622,13 +1617,14 @@ class bicubicDotProductCPU
         const int myycount = f.ycount;
         //auto ref = functionGrid<RealT>::bicubicParameterGrid::internalRef;
         auto ref2 = [myxcount, myycount](int x, int y, int z, int t) -> int { return x * myxcount * myycount * 16 + y * myycount * 16 + z * 16 + t; };
+        int max_threads = omp_get_max_threads() + 1;
         //inline int internalRef(int x, int y, int z, int t) {
         //    return x * h * d * l + y * d * l + z * l + t;
         //}
         std::vector<std::vector<Eigen::Triplet<RealT>>>
-            TripletVecVec(f.rhocount * f.xcount);
+            TripletVecVec(std::max(max_threads, 9));
+#pragma omp parallel for collapse(2) num_threads(8)
         for (auto i = 0; i < f.rhocount; i++) {
-#pragma omp parallel for
             for (auto j = 0; j < f.xcount; j++) {
                 for (auto k = 0; k < f.ycount; k++) {
                     std::vector<indexedPoint<RealT>> intersections;
@@ -1719,7 +1715,7 @@ class bicubicDotProductCPU
                                     &(f.gridValues(i, j, k)) - &(f.gridValues(0, 0, 0));
                                 LTCoeffs[l] = coeffs[l] / (2.0 * pi);
 
-                                TripletVecVec[i * f.xcount + j].emplace_back(
+                                TripletVecVec[omp_get_thread_num()].emplace_back(
                                     Eigen::Triplet<RealT>(LTTargets[l], LTSources[l], LTCoeffs[l]));
                             }
                         }
@@ -1728,7 +1724,7 @@ class bicubicDotProductCPU
             }
         }
         std::vector<Eigen::Triplet<RealT>> Triplets;
-        for (int i = 0; i < f.rhocount * f.xcount; i++) {
+        for (int i = 0; i < TripletVecVec.size(); i++) {
             for (auto iter = TripletVecVec[i].begin();
                  iter != TripletVecVec[i].end(); ++iter) {
                 //Eigen::Triplet<RealT> lto(*iter);
