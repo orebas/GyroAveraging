@@ -2,7 +2,7 @@
 #/usr/lib64/libboost_timer.so
 #took out OpenMP for now, add back later -fopenmp
 
-CPP=g++
+CPP = icc
 CFLAGS=-I. -Wall -std=c++2A 
 DEPS = ga.h
 
@@ -19,11 +19,16 @@ GyroAverage-CUDA:  GyroAverage.cpp ga.h gautils.h
 
 
 GyroAverage-Prince-CPU: GyroAverage.cpp ga.h gautils.h
-	$(CPP) GyroAverage.cpp   -Wall  -O3  -I. -fopenmp -march=native -o GyroAverage-CPU  -lm -lfftw3 -lfftw3f -I${BOOST_INC}  -I${EIGEN_INC}   -L${BOOST_LIB}   -lboost_program_options
+	$(CPP) GyroAverage.cpp  -std=c++14 -Wall  -O3  -I. -fopenmp -march=native -o GyroAverage-CPU  -lm -lfftw3 -lfftw3f -I${BOOST_INC}  -I${EIGEN_INC}   -L${BOOST_LIB}   -lboost_program_options
 
 
 GyroAverage-Prince-OpenCL: GyroAverage.cpp ga.h  gautils.h
-	$(CPP) GyroAverage.cpp   -std=c++2a -Wall   -O3  -I. -fopenmp -march=native -o GyroAverage-OpenCL -DVIENNACL_WITH_OPENCL -lOpenCL  -I${BOOST_INC}  -I${EIGEN_INC}   -L${BOOST_LIB} -lm -lfftw3 -lfftw3f -lboost_program_options
+	$(CPP) GyroAverage.cpp -std=c++14  -Wall   -O3  -I. -fopenmp -march=native -o GyroAverage-OpenCL -DVIENNACL_WITH_OPENCL -lOpenCL  -I${BOOST_INC}  -I${EIGEN_INC}   -L${BOOST_LIB} -lm -lfftw3 -lfftw3f -lboost_program_options
+
+GyroAverage-Prince-CUDA:  GyroAverage.cpp ga.h gautils.h
+	cp -f GyroAverage.cpp GyroAverage.cu
+	nvcc GyroAverage.cu    -I. -O3  -o GyroAverage-CUDA   -DVIENNACL_WITH_CUDA -lboost_program_options -lOpenCL -lfftw3 -lfftw3f    -Xcompiler -fopenmp   -I${CUDA_INC}  -I${BOOST_INC} -I${CUDA_INC}/crt  -I${EIGEN_INC}   -L${BOOST_LIB} -DINCL_MATH_CONSTANTS=1
+
 
 
 

@@ -690,7 +690,7 @@ class linearDotProductCPU
         int max_threads = omp_get_max_threads() + 1;
 
         std::vector<std::vector<Eigen::Triplet<RealT>>>
-            TripletVecVec(max_threads);
+	TripletVecVec(std::max(9,max_threads));  //todo: magic number
 #pragma omp parallel for collapse(2) num_threads(8)  //todo:  can we collapse(3)
         for (auto i = 0; i < f.rhocount; i++) {
             for (auto j = 0; j < f.xcount; j++) {
