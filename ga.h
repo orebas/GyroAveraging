@@ -8,14 +8,16 @@
 #include <fftw3.h>
 #include <omp.h>
 
+#include <iostream>
 #include <boost/math/special_functions/bessel.hpp>
 #include <boost/math/special_functions/chebyshev_transform.hpp>
 #include <boost/math/special_functions/next.hpp>
 #include <boost/optional.hpp>
-#include <eigen3/Eigen/Eigen>
 #include <exception>
-#include <iostream>
 #include <new>
+//#include <eigen/test/main.h>
+#include<eigen3/Eigen/Dense>
+
 
 #include "viennacl/compressed_matrix.hpp"
 /*#include <algorithm>
