@@ -358,13 +358,13 @@ int main(int argc, char* argv[]) {
     std::vector<OOGA::calculatorType> calclist;
     calclist.push_back(OOGA::calculatorType::linearCPU);
     calclist.push_back(OOGA::calculatorType::linearDotProductCPU);
-    calclist.push_back(OOGA::calculatorType::linearDotProductGPU);
     calclist.push_back(OOGA::calculatorType::bicubicCPU);
     calclist.push_back(OOGA::calculatorType::bicubicDotProductCPU);
     calclist.push_back(OOGA::calculatorType::DCTCPUCalculator2);
     calclist.push_back(OOGA::calculatorType::DCTCPUPaddedCalculator2);
-    calclist.push_back(OOGA::calculatorType::bicubicDotProductGPU);
     calclist.push_back(OOGA::calculatorType::chebCPUDense);
+    calclist.push_back(OOGA::calculatorType::linearDotProductGPU);
+    calclist.push_back(OOGA::calculatorType::bicubicDotProductGPU);
     calclist.push_back(OOGA::calculatorType::chebGPUDense);
 
     //std::vector<OOGA::calculatorType> chebCalclist;
