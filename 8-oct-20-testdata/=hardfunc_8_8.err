@@ -1,0 +1,2 @@
+/opt/slurm/data/slurmd/job12939032/slurm_script: line 67: 43300 Killed                  $SRCDIR/GyroAverage-CUDA --calc=$SLURM_ARRAY_TASK_ID --func=1
+slurmstepd: error: Detected 1 oom-kill event(s) in step 12939032.batch cgroup. Some of your processes may have been killed by the cgroup out-of-memory handler.

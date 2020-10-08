@@ -10,8 +10,9 @@
 # we need 1 node, will launch a maximum of one task and use one cpu for the task: 
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=24
-#SBATCH --array=0-6
+#SBATCH --cpus-per-task=12
+#SBATCH --array=7-9
+#SBATCH --gres=gpu:k80:1
    
 # we expect the job to finish within 5 hours. If it takes longer than 5
 # hours, SLURM can kill it:
@@ -32,8 +33,8 @@
 # both standard output and standard error are directed to the same file.
 # It will be placed in the directory I submitted the job from and will
 # have a name like slurm_12345.out
-#SBATCH --output=easyfunc_%A_%a.out
-#SBATCH --error =easyfunc_%a_%a.err
+#SBATCH --output=hardfuncR_%A_%a.out
+#SBATCH --error =hardfuncR_%a_%a.err
  
 # once the first non-comment, non-SBATCH-directive line is encountered, SLURM
 # stops looking for SBATCH directives. The remainder of the script is  executed
@@ -63,4 +64,4 @@ SRCDIR=$HOME/GyroAveraging
 # the script will have started running in $HOME, so we need to move into the
 # unique directory we just created
 cd $RUNDIR
-$SRCDIR/GyroAverage-CUDA --calc=$SLURM_ARRAY_TASK_ID --func=1
+$SRCDIR/GyroAverage-CUDA --calc=$SLURM_ARRAY_TASK_ID --func=2
