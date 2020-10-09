@@ -10,15 +10,15 @@
 # we need 1 node, will launch a maximum of one task and use one cpu for the task: 
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=24
+#SBATCH --cpus-per-task=20
 #SBATCH --array=0-6
    
 # we expect the job to finish within 5 hours. If it takes longer than 5
 # hours, SLURM can kill it:
-#SBATCH --time=8:00:00
+#SBATCH --time=10:00:00
    
 # we expect the job to use no more than 2GB of memory:
-#SBATCH --mem=63GB
+#SBATCH --mem=100GB
    
 # we want the job to be named "myTest" rather than something generated
 # from the script name. This will affect the name of the job as reported
@@ -32,8 +32,8 @@
 # both standard output and standard error are directed to the same file.
 # It will be placed in the directory I submitted the job from and will
 # have a name like slurm_12345.out
-#SBATCH --output=hardfunc_%A_%a.out
-#SBATCH --error =hardfunc_%a_%a.err
+#SBATCH --output=easyfunc_%A_%a.out
+#SBATCH --error=easyfunc_%a_%a.err
  
 # once the first non-comment, non-SBATCH-directive line is encountered, SLURM
 # stops looking for SBATCH directives. The remainder of the script is  executed
@@ -52,10 +52,10 @@ module load gcc/6.3.0
 # SLURM sets SLURM_JOB_ID to the job id, ${SLURM_JOB_ID/.*} expands to the job
 # id up to the first '.' We make the run directory in our area under $SCRATCH, because at NYU HPC
 # $SCRATCH is configured for the disk space and speed required by HPC jobs.
-RUNDIR=$SCRATCH/GA/run-${SLURM_JOB_ID/.*}
-mkdir $RUNDIR
+#RUNDIR=$SCRATCH/GA/run-${SLURM_JOB_ID/.*}
+#mkdir $RUNDIR
   
-OMP_NUM_THREADS=24
+OMP_NUM_THREADS=20
 SRCDIR=$HOME/GyroAveraging
 # we will be reading data in from somewhere, so define that too:
 #DATADIR=$SCRATCH/my_project/data
