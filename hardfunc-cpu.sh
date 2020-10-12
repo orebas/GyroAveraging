@@ -18,7 +18,7 @@
 #SBATCH --time=10:00:00
    
 # we expect the job to use no more than 2GB of memory:
-#SBATCH --mem=100GB
+#SBATCH --mem=120GB
    
 # we want the job to be named "myTest" rather than something generated
 # from the script name. This will affect the name of the job as reported
@@ -32,8 +32,8 @@
 # both standard output and standard error are directed to the same file.
 # It will be placed in the directory I submitted the job from and will
 # have a name like slurm_12345.out
-#SBATCH --output=easyfunc_%A_%a.out
-#SBATCH --error=easyfunc_%a_%a.err
+#SBATCH --output=hardfunc_%A_%a.out
+#SBATCH --error=hardfunc_%a_%a.err
  
 # once the first non-comment, non-SBATCH-directive line is encountered, SLURM
 # stops looking for SBATCH directives. The remainder of the script is  executed

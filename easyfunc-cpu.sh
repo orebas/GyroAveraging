@@ -18,7 +18,7 @@
 #SBATCH --time=10:00:00
    
 # we expect the job to use no more than 2GB of memory:
-#SBATCH --mem=100GB
+#SBATCH --mem=120GB
    
 # we want the job to be named "myTest" rather than something generated
 # from the script name. This will affect the name of the job as reported

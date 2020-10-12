@@ -224,9 +224,9 @@ return runResults;
 template <int rhocount, class RealT, typename TFunc1>
 void testRunList(const std::string function_name, OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomain& g, bool cheb = false) {
   try {
-    for (int i = 8; i < 392; i += 4) {  //go to 385 or farther?
+    for (int i = 8; i < 518; i += 4) {  //go to 385 or farther?
       auto r = testRun<RealT>(function_name, calcType, testfunc, g, i, rhocount, cheb);
-      if (r.initTime > 1000 * 1000 || r.calcTime > 5e10)
+      if (r.initTime > 5000 * 1000 || r.calcTime > 9e10)
 	break;
     }
 
@@ -328,7 +328,7 @@ int main(int argc, char* argv[]) {
   g.xmin = g.ymin = mainxyMin;
   g.xmax = g.ymax = mainxyMax;
   //constexpr int xcount = 16, ycount = 16;
-  constexpr int rhocount = 8;  // bump up to 64x64x35 later or 128x128x35
+  constexpr int rhocount = 3;  // bump up to 64x64x35 later or 128x128x35
   constexpr mainReal A = 24;
   constexpr mainReal B = 1.1;
   constexpr mainReal Normalizer = 50.0;

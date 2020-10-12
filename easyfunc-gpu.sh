@@ -10,7 +10,7 @@
 # we need 1 node, will launch a maximum of one task and use one cpu for the task: 
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=12
+#SBATCH --cpus-per-task=10
 #SBATCH --array=7-9
 #SBATCH --gres=gpu:p40:1
    
@@ -33,8 +33,8 @@
 # both standard output and standard error are directed to the same file.
 # It will be placed in the directory I submitted the job from and will
 # have a name like slurm_12345.out
-#SBATCH --output=hardfunc_%A_%a.out
-#SBATCH --error=hardfunc_%a_%a.err
+#SBATCH --output=easyfunc_%A_%a.out
+#SBATCH --error=easyfunc_%a_%a.err
  
 # once the first non-comment, non-SBATCH-directive line is encountered, SLURM
 # stops looking for SBATCH directives. The remainder of the script is  executed
@@ -56,7 +56,7 @@ module load gcc/6.3.0
 RUNDIR=$SCRATCH/GA/run-${SLURM_JOB_ID/.*}
 mkdir $RUNDIR
   
-OMP_NUM_THREADS=4
+OMP_NUM_THREADS=8
 SRCDIR=$HOME/GyroAveraging
 # we will be reading data in from somewhere, so define that too:
 #DATADIR=$SCRATCH/my_project/data
