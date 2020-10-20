@@ -8,12 +8,12 @@
 #include <fftw3.h>
 #include <omp.h>
 
+#include <iostream>
 #include <boost/math/special_functions/bessel.hpp>
 #include <boost/math/special_functions/chebyshev_transform.hpp>
 #include <boost/math/special_functions/next.hpp>
 #include <boost/optional.hpp>
 #include <exception>
-#include <iostream>
 #include <new>
 #include <sstream>
 //#include <eigen/test/main.h>

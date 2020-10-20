@@ -48,6 +48,9 @@ module load fftw/intel/3.3.5
 module load cuda/10.1.105
 module load gcc/6.3.0
   
+ulimit -c 0
+
+
 # next we create a unique directory to run this job in. We will record its
 # name in the shell variable "RUNDIR", for better readability.
 # SLURM sets SLURM_JOB_ID to the job id, ${SLURM_JOB_ID/.*} expands to the job
@@ -64,4 +67,5 @@ SRCDIR=$HOME/GyroAveraging
 # the script will have started running in $HOME, so we need to move into the
 # unique directory we just created
 cd $RUNDIR
-$SRCDIR/GyroAverage-CUDA --calc=$SLURM_ARRAY_TASK_ID --func=1
+$SRCDIR/GyroAverage-CUDA --calc=$SLURM_ARRAY_TASK_ID --func=1 --cache=/scratch/ob749/GA/cache/
+
