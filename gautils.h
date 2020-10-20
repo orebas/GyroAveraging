@@ -8,6 +8,27 @@
 #include <boost/math/special_functions/bessel.hpp>
 #include <boost/math/special_functions/next.hpp>
 #include <chrono>
+
+template <typename T>
+std::ostream &operator<<(std::ostream &out, const std::vector<T> &v) {
+    if (!v.empty()) {
+        out << '[';
+        std::copy(v.begin(), v.end(), std::ostream_iterator<T>(out, ", "));
+        out << "\b\b]";
+    }
+    return out;
+}
+
+template <typename T, size_t s>
+std::ostream &operator<<(std::ostream &out, const std::array<T, s> &v) {
+    if (!v.empty()) {
+        out << '[';
+        std::copy(v.begin(), v.end(), std::ostream_iterator<T>(out, ", "));
+        out << "\b\b]";
+    }
+    return out;
+}
+
 namespace OOGA {
 
 template <typename TimeT = std::chrono::milliseconds>
@@ -151,26 +172,6 @@ inline RealT TrapezoidIntegrate(RealT x, RealT y, TFunc f) {
 
     //boost::math::quadrature::tanh_sinh<RealT> integrator;
     //return integrator.integrate(f, x, y);  //TODO REPLACE
-}
-
-template <typename T>
-std::ostream &operator<<(std::ostream &out, const std::vector<T> &v) {
-    if (!v.empty()) {
-        out << '[';
-        std::copy(v.begin(), v.end(), std::ostream_iterator<T>(out, ", "));
-        out << "\b\b]";
-    }
-    return out;
-}
-
-template <typename T, size_t s>
-std::ostream &operator<<(std::ostream &out, const std::array<T, s> &v) {
-    if (!v.empty()) {
-        out << '[';
-        std::copy(v.begin(), v.end(), std::ostream_iterator<T>(out, ", "));
-        out << "\b\b]";
-    }
-    return out;
 }
 
 template <class T = double>

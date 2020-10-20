@@ -24,6 +24,7 @@
 #include <boost/numeric/ublas/triangular.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/vector_proxy.hpp>
+
 #include "viennacl/coordinate_matrix.hpp"
 #include "viennacl/ell_matrix.hpp"
 #include "viennacl/hyb_matrix.hpp"
@@ -57,124 +58,124 @@
 
 template <class RealT = double>
 struct resultsRecord {
-  OOGA::calculatorType type = OOGA::calculatorType::linearCPU;
-  std::string function_name;
-  int N = 0;
-  std::vector<RealT> rhoset;
-  double initTime = 0;
-  double calcTime = 0;
-  int bits = 0;
-  std ::vector<RealT> error;
-  friend std::ostream& operator<<(std::ostream& output, const resultsRecord<RealT>& r) {
-    auto nameMap = OOGA::calculatorNameMap();
-    output << r.function_name << ","
-	   << nameMap[r.type] << ","
-	   << r.N << ","
-	   << r.initTime / 1000 << ","
-	   << r.calcTime << ","
-	   << 1e9 / r.calcTime << ","
-	   << r.bits << ", "
-	   << *std::max_element(r.error.begin(), r.error.end()) << ",";
-    for (auto e : r.error) {
-      output << "," << e;
+    OOGA::calculatorType type = OOGA::calculatorType::linearCPU;
+    std::string function_name;
+    int N = 0;
+    std::vector<RealT> rhoset;
+    double initTime = 0;
+    double calcTime = 0;
+    int bits = 0;
+    std ::vector<RealT> error;
+    friend std::ostream& operator<<(std::ostream& output, const resultsRecord<RealT>& r) {
+        auto nameMap = OOGA::calculatorNameMap();
+        output << r.function_name << ","
+               << nameMap[r.type] << ","
+               << r.N << ","
+               << r.initTime / 1000 << ","
+               << r.calcTime << ","
+               << 1e9 / r.calcTime << ","
+               << r.bits << ", "
+               << *std::max_element(r.error.begin(), r.error.end()) << ",";
+        for (auto e : r.error) {
+            output << "," << e;
+        }
+        output << ",";
+        return output;
     }
-    output << ",";
-    return output;
-  }
-  resultsRecord(const std::string& fn, OOGA::calculatorType t_i, int N_i, std ::vector<RealT> rhoset_i, double initTime_i, double calcTime_i, int bits_i)
-    : function_name(fn), type(t_i), N(N_i), rhoset(rhoset_i), initTime(initTime_i), calcTime(calcTime_i), bits(bits_i), error(rhoset_i) {
-  }
+    resultsRecord(const std::string& fn, OOGA::calculatorType t_i, int N_i, std ::vector<RealT> rhoset_i, double initTime_i, double calcTime_i, int bits_i)
+        : function_name(fn), type(t_i), N(N_i), rhoset(rhoset_i), initTime(initTime_i), calcTime(calcTime_i), bits(bits_i), error(rhoset_i) {
+    }
 };
 
 template <class RealT = double>
 std::ostream& operator<<(std::ostream& output, const std::vector<resultsRecord<RealT>>& r) {
-  for (const auto& e : r) {
-    std::cout << e << std::endl;
-  }
-  return output;
+    for (const auto& e : r) {
+        std::cout << e << std::endl;
+    }
+    return output;
 }
 
 template <class RealT, typename TFunc1>
 resultsRecord<RealT> testConvergence(TFunc1 testfunc, const std::string& fn, OOGA::gridDomain& g, int rhocount) {
-  using OOGA::functionGrid;
-  using OOGA::GACalculator;
-  using OOGA::gridDomain;
-  using OOGA::LinearSpacedArray;
-  using OOGA::measure;
+    using OOGA::functionGrid;
+    using OOGA::GACalculator;
+    using OOGA::gridDomain;
+    using OOGA::LinearSpacedArray;
+    using OOGA::measure;
 
-  for (int N = 8; N < 1024; N++) {
+    for (int N = 8; N < 1024; N++) {
+        int xcount = N;
+        int ycount = N;
+        std::vector<RealT> rhoset;
+        std::vector<RealT> cheb_xset, lin_xset, lin_yset;
+        std::vector<RealT> cheb_yset;
+
+        rhoset = LinearSpacedArray<RealT>(g.rhomin, g.rhomax, rhocount);
+        cheb_xset = chebPoints<RealT>(xcount);
+        cheb_yset = chebPoints<RealT>(ycount);
+        lin_xset = LinearSpacedArray<RealT>(g.xmin, g.xmax, xcount);
+        lin_yset = LinearSpacedArray<RealT>(g.ymin, g.ymax, ycount);
+
+        functionGrid<RealT>
+            f(rhoset, lin_xset, lin_yset), f_cheb(rhoset, cheb_xset, cheb_yset), exact(rhoset, lin_xset, lin_yset), result(rhoset, lin_xset, lin_yset);
+
+        exact.fillTruncatedAlmostExactGA(testfunc);
+        // NOT DONE
+    }
+    std::vector<RealT> rhoset;
+    std::vector<RealT> xset, lin_xset, lin_yset;
+    std::vector<RealT> yset;
+}
+
+template <class RealT, typename TFunc1>
+resultsRecord<RealT> testRun(const std::string& function_name, OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomain& g, int N, int rhocount, OOGA::fileCache* cache = nullptr, bool cheb = false) {
+    using OOGA::functionGrid;
+    using OOGA::GACalculator;
+    using OOGA::gridDomain;
+    using OOGA::LinearSpacedArray;
+    using OOGA::measure;
+
     int xcount = N;
     int ycount = N;
     std::vector<RealT> rhoset;
-    std::vector<RealT> cheb_xset, lin_xset, lin_yset;
-    std::vector<RealT> cheb_yset;
+    std::vector<RealT> xset, lin_xset, lin_yset;
+    std::vector<RealT> yset;
 
     rhoset = LinearSpacedArray<RealT>(g.rhomin, g.rhomax, rhocount);
-    cheb_xset = chebPoints<RealT>(xcount);
-    cheb_yset = chebPoints<RealT>(ycount);
+    if (!cheb) {
+        xset = LinearSpacedArray<RealT>(g.xmin, g.xmax, xcount);
+        yset = LinearSpacedArray<RealT>(g.ymin, g.ymax, ycount);
+    } else {
+        xset = chebPoints<RealT>(xcount);
+        yset = chebPoints<RealT>(ycount);
+    }
+
     lin_xset = LinearSpacedArray<RealT>(g.xmin, g.xmax, xcount);
     lin_yset = LinearSpacedArray<RealT>(g.ymin, g.ymax, ycount);
 
     functionGrid<RealT>
-      f(rhoset, lin_xset, lin_yset), f_cheb(rhoset, cheb_xset, cheb_yset), exact(rhoset, lin_xset, lin_yset), result(rhoset, lin_xset, lin_yset);
+        f(rhoset, xset, yset),
+        exact(rhoset, lin_xset, lin_yset), result(rhoset, lin_xset, lin_yset);
 
+    std::unique_ptr<GACalculator<RealT>> calculator;
     exact.fillTruncatedAlmostExactGA(testfunc);
-    // NOT DONE
-  }
-  std::vector<RealT> rhoset;
-  std::vector<RealT> xset, lin_xset, lin_yset;
-  std::vector<RealT> yset;
-}
 
-template <class RealT, typename TFunc1>
-resultsRecord<RealT> testRun(const std::string& function_name, OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomain& g, int N, int rhocount, bool cheb = false) {
-  using OOGA::functionGrid;
-  using OOGA::GACalculator;
-  using OOGA::gridDomain;
-  using OOGA::LinearSpacedArray;
-  using OOGA::measure;
-
-  int xcount = N;
-  int ycount = N;
-  std::vector<RealT> rhoset;
-  std::vector<RealT> xset, lin_xset, lin_yset;
-  std::vector<RealT> yset;
-
-  rhoset = LinearSpacedArray<RealT>(g.rhomin, g.rhomax, rhocount);
-  if (!cheb) {
-    xset = LinearSpacedArray<RealT>(g.xmin, g.xmax, xcount);
-    yset = LinearSpacedArray<RealT>(g.ymin, g.ymax, ycount);
-  } else {
-    xset = chebPoints<RealT>(xcount);
-    yset = chebPoints<RealT>(ycount);
-  }
-
-  lin_xset = LinearSpacedArray<RealT>(g.xmin, g.xmax, xcount);
-  lin_yset = LinearSpacedArray<RealT>(g.ymin, g.ymax, ycount);
-
-  functionGrid<RealT>
-    f(rhoset, xset, yset),
-    exact(rhoset, lin_xset, lin_yset), result(rhoset, lin_xset, lin_yset);
-
-  std::unique_ptr<GACalculator<RealT>> calculator;
-  exact.fillTruncatedAlmostExactGA(testfunc);
-
-  auto func = [&]() -> void { calculator = (GACalculator<RealT>::Factory::newCalculator(calcType, g, exact, xcount / 2)); };
-  double initTime = measure<std::chrono::milliseconds>::execution(func);
-  f.fill(testfunc);
-  auto& b = f;
-  auto func2 = [&]() -> void {
-    calculator->calculate(b);
-  };
-  double calcTime = measure<std::chrono::nanoseconds>::execution(func2);
-  result = (calculator->calculate(f));
-  resultsRecord<RealT> runResults(function_name, calcType, N, std::vector<RealT>(rhoset.begin(), rhoset.end()), initTime, calcTime, sizeof(RealT));
-  for (int k = 0; k < rhocount; ++k) {
-    runResults.error[k] = exact.maxNormDiff(result.gridValues, k) / exact.maxNorm(k);
-  }
-  calculator.reset(nullptr);
-  std::cout << runResults << std::endl;
-  return runResults;
+    auto func = [&]() -> void { calculator = (GACalculator<RealT>::Factory::newCalculator(calcType, g, exact, cache, xcount / 2)); };
+    double initTime = measure<std::chrono::milliseconds>::execution(func);
+    f.fill(testfunc);
+    auto& b = f;
+    auto func2 = [&]() -> void {
+        calculator->calculate(b);
+    };
+    double calcTime = measure<std::chrono::nanoseconds>::execution(func2);
+    result = (calculator->calculate(f));
+    resultsRecord<RealT> runResults(function_name, calcType, N, std::vector<RealT>(rhoset.begin(), rhoset.end()), initTime, calcTime, sizeof(RealT));
+    for (int k = 0; k < rhocount; ++k) {
+        runResults.error[k] = exact.maxNormDiff(result.gridValues, k) / exact.maxNorm(k);
+    }
+    calculator.reset(nullptr);
+    std::cout << runResults << std::endl;
+    return runResults;
 }
 
 /*template <int N, int rhocount, class RealT, bool cheb = false, typename TFunc1>
@@ -222,17 +223,17 @@ return runResults;
 }*/
 
 template <int rhocount, class RealT, typename TFunc1>
-void testRunList(const std::string function_name, OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomain& g, bool cheb = false) {
-  try {
-    for (int i = 8; i < 518; i += 4) {  //go to 385 or farther?
-      auto r = testRun<RealT>(function_name, calcType, testfunc, g, i, rhocount, cheb);
-      if (r.initTime > 5000 * 1000 || r.calcTime > 9e10)
-	break;
-    }
+void testRunList(const std::string function_name, OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomain& g, OOGA::fileCache* cache = nullptr, bool cheb = false) {
+    try {
+        for (int i = 8; i < 518; i += 4) {  //go to 385 or farther?
+            auto r = testRun<RealT>(function_name, calcType, testfunc, g, i, rhocount, cache, cheb);
+            if (r.initTime > 5000 * 1000 || r.calcTime > 9e10)
+                break;
+        }
 
-  } catch (std::exception& e) {
-    std::cout << "Finished a list." << std::endl;
-  }
+    } catch (std::exception& e) {
+        std::cout << "Finished a list. " << e.what() << std::endl;
+    }
 }
 
 /*template <int N, int MaxN, int rhocount, class RealT, bool cheb = false, typename TFunc1>
@@ -269,138 +270,167 @@ return fullResult;
 }
 }*/
 
+void cache_testing(std::string directory) {
+    using OOGA::fileCache;
+    fileCache fc(directory);
+    std::vector<double> a(5, 10);
+    for (int i = 0; i < a.size(); ++i)
+        a[i] = i + 100;
+    std::cout << a << std::endl;
+
+    fc.save("A2.123", a.data(), sizeof(double) * a.size());
+    std::vector<double> results = fc.read<double>("A2.123");
+    std::cout << results << std::endl;
+
+    //calculator = (GACalculator<RealT>::Factory::newCalculator(OOGA::calculatorType::chebCPUDense, g, exact, xcount / 2));
+}
+
 int main(int argc, char* argv[]) {
-  //fft_testing();
-  //chebDevel();
-  //fftw_cleanup();
-  // return 0;
-  //using namespace OOGA;
-  using OOGA::chebBasisFunction;
-  using OOGA::functionGrid;
-  using OOGA::GACalculator;
-  using OOGA::gridDomain;
-  using OOGA::LinearSpacedArray;
-  namespace po = boost::program_options;
-  using mainReal = double;
+    //fft_testing();
+    //chebDevel();
+    //fftw_cleanup();
+    // return 0;
+    //using namespace OOGA;
+    using OOGA::chebBasisFunction;
+    using OOGA::functionGrid;
+    using OOGA::GACalculator;
+    using OOGA::gridDomain;
+    using OOGA::LinearSpacedArray;
+    namespace po = boost::program_options;
+    using mainReal = double;
 
-  po::options_description desc("Allowed options");
-  desc.add_options()("help", "produce help message")("calc", po::value<int>(), "choose which calculator to test run")("func", po::value<int>(), "choose which function to test run");
+    po::options_description desc("Allowed options");
+    desc.add_options()("help", "produce help message")("calc", po::value<int>(), "choose which calculator to test run")("func", po::value<int>(), "choose which function to test run")("cache", po::value<std::string>(), "choose the cache directory");
 
-  po::variables_map vm;
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
 
-  int calc_option = -1;
-  int func_option = -1;
+    int calc_option = -1;
+    int func_option = -1;
+    std::string cache_dir;
 
-  if (vm.count("help")) {
-    std::cout << "Example: --calc=1 --func=2\n";  //TODO(orebas):rewrite this text
-    return 1;
-  }
+    if (vm.count("help")) {
+        std::cout << "Example: --calc=1 --func=2\n";  //TODO(orebas):rewrite this text
+        return 1;
+    }
 
-  if (vm.count("calc")) {
-    std::cout << "calculator chosen: " << vm["calc"].as<int>() << std::endl;
-    calc_option = vm["calc"].as<int>();
+    if (vm.count("calc")) {
+        std::cout << "calculator chosen: " << vm["calc"].as<int>() << std::endl;
+        calc_option = vm["calc"].as<int>();
 
-  } else {
-    std::cout << "Calculator not chosen.  Please pick one." << std::endl;
-    return 1;
-  }
+    } else {
+        std::cout << "Calculator not chosen.  Please pick one." << std::endl;
+        return 1;
+    }
 
-  if (vm.count("func")) {
-    std::cout << "func chosen: " << vm["func"].as<int>() << std::endl;
-    func_option = vm["func"].as<int>();
-  } else {
-    std::cout << "func not chosen.  Please pick one." << std::endl;
-    return 1;
-  }
+    if (vm.count("func")) {
+        std::cout << "func chosen: " << vm["func"].as<int>() << std::endl;
+        func_option = vm["func"].as<int>();
+    } else {
+        std::cout << "func not chosen.  Please pick one." << std::endl;
+        return 1;
+    }
 
-  //the below can in theory be command line args as well:
+    if (vm.count("cache")) {
+        std::cout << "cache dir chosen: " << vm["cache"].as<std::string>() << std::endl;
+        cache_dir = vm["cache"].as<std::string>();
+    } else {
+        std::cout << "cache dir not specified.  We will continue without caching." << std::endl;
+    }
 
-  constexpr mainReal mainRhoMin = 0.25 / 4.0;  //used to be 0.25/4
-  constexpr mainReal mainRhoMax = 3.55 / 4.0;  //used to be 3/4
-  constexpr mainReal mainxyMin = -1;
-  constexpr mainReal mainxyMax = 1;
+    //cache_testing(cache_dir);
+    //return 0;
 
-  gridDomain g;
-  g.rhomax = mainRhoMax;
-  g.rhomin = mainRhoMin;
-  g.xmin = g.ymin = mainxyMin;
-  g.xmax = g.ymax = mainxyMax;
-  //constexpr int xcount = 16, ycount = 16;
-  constexpr int rhocount = 3;  // bump up to 64x64x35 later or 128x128x35
-  constexpr mainReal A = 24;
-  constexpr mainReal B = 1.1;
-  constexpr mainReal Normalizer = 50.0;
-  std::vector<mainReal> rhoset;
-  //std::vector<mainReal> xset;
-  //std::vector<mainReal> yset;
-  auto nameMap = OOGA::calculatorNameMap();
+    using OOGA::fileCache;
+    fileCache cache(cache_dir);
 
-  //rhoset = LinearSpacedArray<mainReal>(g.rhomin, g.rhomax, rhocount);
-  //xset = LinearSpacedArray<mainReal>(g.xmin, g.xmax, xcount);
-  //yset = LinearSpacedArray<mainReal>(g.ymin, g.ymax, ycount);
+    //the below can in theory be command line args as well:
 
-  //functionGrid<mainReal> f(rhoset, xset, yset),  exact(rhoset, xset, yset);
+    constexpr mainReal mainRhoMin = 0.25 / 4.0;  //used to be 0.25/4
+    constexpr mainReal mainRhoMax = 3.55 / 4.0;  //used to be 3/4
+    constexpr mainReal mainxyMin = -1;
+    constexpr mainReal mainxyMax = 1;
 
-  //std::vector<std::unique_ptr<GACalculator<mainReal>>> calcset;
-  std::vector<OOGA::calculatorType> calclist;
-  calclist.push_back(OOGA::calculatorType::linearCPU);
-  calclist.push_back(OOGA::calculatorType::linearDotProductCPU);
-  calclist.push_back(OOGA::calculatorType::bicubicCPU);
-  calclist.push_back(OOGA::calculatorType::bicubicDotProductCPU);
-  calclist.push_back(OOGA::calculatorType::DCTCPUCalculator2);
-  calclist.push_back(OOGA::calculatorType::DCTCPUPaddedCalculator2);
-  calclist.push_back(OOGA::calculatorType::chebCPUDense);
-  calclist.push_back(OOGA::calculatorType::linearDotProductGPU);
-  calclist.push_back(OOGA::calculatorType::bicubicDotProductGPU);
-  calclist.push_back(OOGA::calculatorType::chebGPUDense);
+    gridDomain g;
+    g.rhomax = mainRhoMax;
+    g.rhomin = mainRhoMin;
+    g.xmin = g.ymin = mainxyMin;
+    g.xmax = g.ymax = mainxyMax;
+    //constexpr int xcount = 16, ycount = 16;
+    constexpr int rhocount = 3;  // bump up to 64x64x35 later or 128x128x35
+    constexpr mainReal A = 24;
+    constexpr mainReal B = 1.1;
+    constexpr mainReal Normalizer = 50.0;
+    std::vector<mainReal> rhoset;
+    //std::vector<mainReal> xset;
+    //std::vector<mainReal> yset;
+    auto nameMap = OOGA::calculatorNameMap();
 
-  //std::vector<OOGA::calculatorType> chebCalclist;
-  //chebCalclist.push_back(OOGA::calculatorType::chebCPUDense);
-  //chebCalclist.push_back(OOGA::calculatorType::chebGPUDense);
-  //constexpr mainReal padtest = xcount * mainRhoMax / std::abs(mainxyMax - mainxyMin);
-  //constexpr int padcount = mymax(8, 4 + static_cast<int>(std::ceil(padtest)));
+    //rhoset = LinearSpacedArray<mainReal>(g.rhomin, g.rhomax, rhocount);
+    //xset = LinearSpacedArray<mainReal>(g.xmin, g.xmax, xcount);
+    //yset = LinearSpacedArray<mainReal>(g.ymin, g.ymax, ycount);
 
-  auto easyfunc = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
-    return Normalizer * exp(-A * (ex * ex + why * why)) * exp(-B * row * row);
-  };
+    //functionGrid<mainReal> f(rhoset, xset, yset),  exact(rhoset, xset, yset);
 
-  using std::abs;
-  using std::max;
+    //std::vector<std::unique_ptr<GACalculator<mainReal>>> calcset;
+    std::vector<OOGA::calculatorType> calclist;
+    calclist.push_back(OOGA::calculatorType::linearCPU);
+    calclist.push_back(OOGA::calculatorType::linearDotProductCPU);
+    calclist.push_back(OOGA::calculatorType::bicubicCPU);
+    calclist.push_back(OOGA::calculatorType::bicubicDotProductCPU);
+    calclist.push_back(OOGA::calculatorType::DCTCPUCalculator2);
+    calclist.push_back(OOGA::calculatorType::DCTCPUPaddedCalculator2);
+    calclist.push_back(OOGA::calculatorType::chebCPUDense);
+    calclist.push_back(OOGA::calculatorType::linearDotProductGPU);
+    calclist.push_back(OOGA::calculatorType::bicubicDotProductGPU);
+    calclist.push_back(OOGA::calculatorType::chebGPUDense);
 
-  auto mediumfunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
-    double r = 2.0 * abs(ex - why);
-    double l = max(0.0, 0.5 - r);  //   (0.5-r>0? 0.5-r,0);   //std::max(0.0d,0.5-r)
-    return l * l * l * l * (4 * r + 1) + 1.0 / (1 + 100 * ((ex - 0.2) * (ex - 0.2) + (why - 0.5) * (why - 0.5)));
-  };
+    //std::vector<OOGA::calculatorType> chebCalclist;
+    //chebCalclist.push_back(OOGA::calculatorType::chebCPUDense);
+    //chebCalclist.push_back(OOGA::calculatorType::chebGPUDense);
+    //constexpr mainReal padtest = xcount * mainRhoMax / std::abs(mainxyMax - mainxyMin);
+    //constexpr int padcount = mymax(8, 4 + static_cast<int>(std::ceil(padtest)));
 
-  auto crazyhardfunc = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
-    auto dist = ex * ex + why * why;
-    auto hard = exp(dist) * pow(
-				(1.0 / cosh(4.0 * sin(40.0 * dist))),
-				exp(dist));
-    hard += exp(ex) *
-    pow((1.0 / cosh(4.0 * sin(40.0 * ex))), exp(ex));
-    if (why + ex / 2.0 < 00.0) hard += 1.5;
-    hard *= (1.0 - ex * ex);
-    hard *= (1.0 - why * why);
-    return hard;
-  };
-  std::string function_name = "Constant Zero";
-  auto func_lambda = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
-    return 0;
-  };
+    auto easyfunc = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
+        return Normalizer * exp(-A * (ex * ex + why * why)) * exp(-B * row * row);
+    };
 
-  /*auto testfunc2_analytic = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
+    using std::abs;
+    using std::max;
+
+    auto mediumfunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
+        double r = 2.0 * abs(ex - why);
+        double l = max(0.0, 0.5 - r);  //   (0.5-r>0? 0.5-r,0);   //std::max(0.0d,0.5-r)
+        return l * l * l * l * (4 * r + 1) + 1.0 / (1 + 100 * ((ex - 0.2) * (ex - 0.2) + (why - 0.5) * (why - 0.5)));
+    };
+
+    auto crazyhardfunc = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
+        auto dist = ex * ex + why * why;
+        auto hard = exp(dist) * pow(
+                                    (1.0 / cosh(4.0 * sin(40.0 * dist))),
+                                    exp(dist));
+        hard += exp(ex) *
+                pow((1.0 / cosh(4.0 * sin(40.0 * ex))), exp(ex));
+        if (why + ex / 2.0 < 00.0) hard += 1.5;
+        hard *= (1.0 - ex * ex);
+        hard *= (1.0 - why * why);
+        return hard;
+    };
+    std::string function_name = "Constant Zero";
+    auto func_lambda = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
+        return 0;
+    };
+
+    /*auto testfunc2_analytic = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
         return Normalizer * exp(-B * row * row) * exp(-A * (ex * ex + why * why + row * row)) *
                boost::math::cyl_bessel_i(0, 2 * A * row * std::sqrt(ex * ex + why * why));
 	       };*/
 
-  /*auto ezfunc_old = [xcount](mainReal row, mainReal ex, mainReal why) -> mainReal {
+    /*auto ezfunc_old = [xcount](mainReal row, mainReal ex, mainReal why) -> mainReal {
         return row * 0 + (1 - ex * ex) * (1 - why * why) * chebBasisFunction(2, 2, ex, why, xcount);
 	};*/
-  /*auto ezfunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
+    /*auto ezfunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
   mainReal temp = row * 0 + 25.0 * ex * ex + 25.0 * why * why;
   if (temp >= 25) {
   return 0;
@@ -409,75 +439,75 @@ int main(int argc, char* argv[]) {
 };*/
 
     if (calc_option < 0 || calc_option >= calclist.size()) {
-      std::cout << "That's not a valid calculator." << std::endl;
-      return 1;
+        std::cout << "That's not a valid calculator." << std::endl;
+        return 1;
     }
     bool cheb_grid_needed = false;
     if (calclist[calc_option] == OOGA::calculatorType::chebCPUDense || calclist[calc_option] == OOGA::calculatorType::chebGPUDense) {
-      cheb_grid_needed = true;
+        cheb_grid_needed = true;
     }
     std::cout
-      << "FunctionName, Calculator,N,Init time (s), Calc.time(s), Calc.Freq(hz), Bytes, MaxError, FirstBlank, Err1, Err2, Err3, Blank" << std::endl;
+        << "FunctionName, Calculator,N,Init time (s), Calc.time(s), Calc.Freq(hz), Bytes, MaxError, FirstBlank, Err1, Err2, Err3, Blank" << std::endl;
     switch (func_option) {
-    case 1:
+        case 1:
 
-      function_name = "Smooth exp(-Ar^2-b*rho^2)";
-      testRunList<rhocount, double>(function_name, calclist[calc_option], easyfunc, g, cheb_grid_needed);
-      //testRunList<rhocount, float>(function_name, calclist[calc_option], easyfunc, g, cheb_grid_needed);
+            function_name = "Smooth exp(-Ar^2-b*rho^2)";
+            testRunList<rhocount, double>(function_name, calclist[calc_option], easyfunc, g, &cache, cheb_grid_needed);
+            //testRunList<rhocount, float>(function_name, calclist[calc_option], easyfunc, g, cheb_grid_needed);
 
-      break;
+            break;
 
-    case 2:
-      function_name = "Non-smooth: Wendland CSRBF+Runge";
-      testRunList<rhocount, double>(function_name, calclist[calc_option], mediumfunc, g, cheb_grid_needed);
-      //testRunList<rhocount, float>(function_name, calclist[calc_option], mediumfunc, g, cheb_grid_needed);
-      break;
-    case 3:
-      function_name = "Discontinuous - hard to approximate";
+        case 2:
+            function_name = "Non-smooth: Wendland CSRBF+Runge";
+            testRunList<rhocount, double>(function_name, calclist[calc_option], mediumfunc, g, &cache, cheb_grid_needed);
+            //testRunList<rhocount, float>(function_name, calclist[calc_option], mediumfunc, g, cheb_grid_needed);
+            break;
+        case 3:
+            function_name = "Discontinuous - hard to approximate";
 
-      testRunList<rhocount, double>(function_name, calclist[calc_option], crazyhardfunc, g, cheb_grid_needed);
-      //testRunList<rhocount, float>(function_name, calclist[calc_option], crazyhardfunc, g, cheb_grid_needed);
-      break;
-    default:
-      break;
+            testRunList<rhocount, double>(function_name, calclist[calc_option], crazyhardfunc, g, &cache, cheb_grid_needed);
+            //testRunList<rhocount, float>(function_name, calclist[calc_option], crazyhardfunc, g, cheb_grid_needed);
+            break;
+        default:
+            break;
     };
 
     fftw_cleanup();
 }
 
 void fft_testing() {
-  //using namespace OOGA;
-  using OOGA::DCTBasisFunction2;
-  using OOGA::functionGrid;
-  using OOGA::gridDomain;
-  using OOGA::LinearSpacedArray;
-  typedef double mainReal;
+    //using namespace OOGA;
+    using OOGA::DCTBasisFunction2;
+    using OOGA::functionGrid;
+    using OOGA::gridDomain;
+    using OOGA::LinearSpacedArray;
+    typedef double mainReal;
 
-  gridDomain g;
-  g.rhomax = 0.25;
-  g.rhomin = 1.55;
-  g.xmin = g.ymin = -2;
-  g.xmax = g.ymax = 2;
-  constexpr int xcount = 4, ycount = 4,
-    rhocount = 3;  // bump up to 64x64x35 later or 128x128x35
+    gridDomain g;
+    g.rhomax = 0.25;
+    g.rhomin = 1.55;
+    g.xmin = g.ymin = -2;
+    g.xmax = g.ymax = 2;
+    constexpr int xcount = 4, ycount = 4,
+                  rhocount = 3;  // bump up to 64x64x35 later or 128x128x35
 
-  std::vector<mainReal> rhoset;  //TODO(orebas) we should write a function to initialize a functiongrid from a gridDomain.
-  std::vector<mainReal> xset;
-  std::vector<mainReal> yset;
+    std::vector<mainReal> rhoset;  //TODO(orebas) we should write a function to initialize a functiongrid from a gridDomain.
+    std::vector<mainReal> xset;
+    std::vector<mainReal> yset;
 
-  rhoset = LinearSpacedArray<mainReal>(g.rhomin, g.rhomax, rhocount);
-  xset = LinearSpacedArray<mainReal>(g.xmin, g.xmax, xcount);
-  yset = LinearSpacedArray<mainReal>(g.ymin, g.ymax, ycount);
-  for (int p = 0; p < xcount; ++p) {
-    for (int q = 0; q < ycount; ++q) {
-      if (p > 3 || q > 3) {
-	continue;
-      }
-      auto basistest = [p, q, g, xcount, ycount](mainReal row, mainReal ex, mainReal why) -> mainReal {
-	mainReal xint = (ex - g.xmin) / (g.xmax - g.xmin) * (xcount - 1);
-	mainReal yint = (why - g.ymin) / (g.ymax - g.ymin) * (ycount - 1);
-	mainReal dr = row * 0 + DCTBasisFunction2(p, q, xint, yint, xcount);
-	/* std::cout << "row: " << row
+    rhoset = LinearSpacedArray<mainReal>(g.rhomin, g.rhomax, rhocount);
+    xset = LinearSpacedArray<mainReal>(g.xmin, g.xmax, xcount);
+    yset = LinearSpacedArray<mainReal>(g.ymin, g.ymax, ycount);
+    for (int p = 0; p < xcount; ++p) {
+        for (int q = 0; q < ycount; ++q) {
+            if (p > 3 || q > 3) {
+                continue;
+            }
+            auto basistest = [p, q, g, xcount, ycount](mainReal row, mainReal ex, mainReal why) -> mainReal {
+                mainReal xint = (ex - g.xmin) / (g.xmax - g.xmin) * (xcount - 1);
+                mainReal yint = (why - g.ymin) / (g.ymax - g.ymin) * (ycount - 1);
+                mainReal dr = row * 0 + DCTBasisFunction2(p, q, xint, yint, xcount);
+                /* std::cout << "row: " << row
 	   << "ex: " << ex
 	   << "why: " << why
 	   << "xint: " << xint
@@ -486,100 +516,100 @@ void fft_testing() {
 	   << "q: " << q
 	   << "N: " << xcount
 	   << "dr: " << dr << std::endl;*/
-	return dr;
-      };
+                return dr;
+            };
 
-      /*auto basistest2 = [p, q, g, xcount, ycount](int row, int ex, int why) -> mainReal {
+            /*auto basistest2 = [p, q, g, xcount, ycount](int row, int ex, int why) -> mainReal {
                 mainReal xint = (ex - g.xmin) / (g.xmax - g.xmin) * xcount;
                 mainReal yint = (why - g.ymin) / (g.ymax - g.ymin) * ycount;
                 return DCTBasisFunction2(p, q, xint, yint, xcount);
 		};*/
 
-      functionGrid<mainReal> in(rhoset, xset, yset), in2(rhoset, xset, yset), out(rhoset, xset, yset);
-      //in2.fill(basistest);
-      in2.clearGrid();
-      in2.gridValues(0, p, q) = 1;
-      fftw_plan plan = fftw_plan_r2r_2d(xcount, ycount, in2.gridValues.data.data(), out.gridValues.data.data(), FFTW_REDFT01, FFTW_REDFT01, FFTW_MEASURE);
-      fftw_execute(plan);
-      in2.csvPrinter(0);
-      std::cout << std::endl;
-      out.csvPrinter(0);
-      std::cout << std::endl;
-      in.fill(basistest);
-      in.csvPrinter(0);
-      std::cout << std::endl;
-    }
-    /*for (int i = 0; i < xcount; ++i) for (int j = 0; j < ycount; ++j) {
+            functionGrid<mainReal> in(rhoset, xset, yset), in2(rhoset, xset, yset), out(rhoset, xset, yset);
+            //in2.fill(basistest);
+            in2.clearGrid();
+            in2.gridValues(0, p, q) = 1;
+            fftw_plan plan = fftw_plan_r2r_2d(xcount, ycount, in2.gridValues.data.data(), out.gridValues.data.data(), FFTW_REDFT01, FFTW_REDFT01, FFTW_MEASURE);
+            fftw_execute(plan);
+            in2.csvPrinter(0);
+            std::cout << std::endl;
+            out.csvPrinter(0);
+            std::cout << std::endl;
+            in.fill(basistest);
+            in.csvPrinter(0);
+            std::cout << std::endl;
+        }
+        /*for (int i = 0; i < xcount; ++i) for (int j = 0; j < ycount; ++j) {
                 if (std::abs(out.gridValues(0, i, j) > 0.01))
 		std::cout << p << " " << q << " " << i << " " << j << " " << out.gridValues(0, i, j) << std::endl;
             }
     */
-  }
-  std::cout << std::endl;
+    }
+    std::cout << std::endl;
 }
 void chebDevel() {
-  //using namespace OOGA;
-  using OOGA::chebBasisFunction;
-  using OOGA::functionGrid;
-  using OOGA::gridDomain;
-  using OOGA::LinearSpacedArray;
-  using mainReal = double;
-  constexpr mainReal mainRhoMin = 0.25 / 4.0;
-  constexpr mainReal mainRhoMax = 3.0 / 4.0;
-  constexpr mainReal mainxyMin = -1;
-  constexpr mainReal mainxyMax = 1;
-  gridDomain g;
-  g.rhomax = mainRhoMax;
-  g.rhomin = mainRhoMin;
-  g.xmin = g.ymin = mainxyMin;
-  g.xmax = g.ymax = mainxyMax;
-  constexpr int xcount = 13, ycount = 13,
-    rhocount = 3;  // bump up to 64x64x35 later or 128x128x35
-  constexpr mainReal A = 1.5;
-  constexpr mainReal B = 1.1;
-  constexpr mainReal Normalizer = 50.0;
-  std::vector<mainReal> rhoset;
-  std::vector<mainReal> xset;
-  std::vector<mainReal> yset;
+    //using namespace OOGA;
+    using OOGA::chebBasisFunction;
+    using OOGA::functionGrid;
+    using OOGA::gridDomain;
+    using OOGA::LinearSpacedArray;
+    using mainReal = double;
+    constexpr mainReal mainRhoMin = 0.25 / 4.0;
+    constexpr mainReal mainRhoMax = 3.0 / 4.0;
+    constexpr mainReal mainxyMin = -1;
+    constexpr mainReal mainxyMax = 1;
+    gridDomain g;
+    g.rhomax = mainRhoMax;
+    g.rhomin = mainRhoMin;
+    g.xmin = g.ymin = mainxyMin;
+    g.xmax = g.ymax = mainxyMax;
+    constexpr int xcount = 13, ycount = 13,
+                  rhocount = 3;  // bump up to 64x64x35 later or 128x128x35
+    constexpr mainReal A = 1.5;
+    constexpr mainReal B = 1.1;
+    constexpr mainReal Normalizer = 50.0;
+    std::vector<mainReal> rhoset;
+    std::vector<mainReal> xset;
+    std::vector<mainReal> yset;
 
-  rhoset = LinearSpacedArray<mainReal>(g.rhomin, g.rhomax, rhocount);
-  xset = chebPoints(xcount);
-  yset = chebPoints(ycount);
+    rhoset = LinearSpacedArray<mainReal>(g.rhomin, g.rhomax, rhocount);
+    xset = chebPoints(xcount);
+    yset = chebPoints(ycount);
 
-  functionGrid<mainReal> f(rhoset, xset, yset);
-  functionGrid<mainReal> exact(rhoset, xset, yset);
-  functionGrid<mainReal> m(rhoset, xset, yset);
+    functionGrid<mainReal> f(rhoset, xset, yset);
+    functionGrid<mainReal> exact(rhoset, xset, yset);
+    functionGrid<mainReal> m(rhoset, xset, yset);
 
-  auto testfunc2 = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
-    ex = ex * 4;
-    why = why * 4;
-    return Normalizer * exp(-A * (ex * ex + why * why)) * exp(-B * row * row);
-  };
+    auto testfunc2 = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
+        ex = ex * 4;
+        why = why * 4;
+        return Normalizer * exp(-A * (ex * ex + why * why)) * exp(-B * row * row);
+    };
 
-  f.fill(testfunc2);
-  OOGA::fftw_wrapper_2d<mainReal> plan(rhocount, xcount, ycount, FFTW_REDFT00);
+    f.fill(testfunc2);
+    OOGA::fftw_wrapper_2d<mainReal> plan(rhocount, xcount, ycount, FFTW_REDFT00);
 
-  for (int p = 0; p < xcount; p++) {
-    for (int q = 0; q < ycount; q++) {
-      f.clearGrid();
-      m = f;
-      exact = f;
-      f.gridValues(0, p, q) = 1;
+    for (int p = 0; p < xcount; p++) {
+        for (int q = 0; q < ycount; q++) {
+            f.clearGrid();
+            m = f;
+            exact = f;
+            f.gridValues(0, p, q) = 1;
 
-      auto cheb_basis_func = [p, q](mainReal row, mainReal ex, mainReal why) -> mainReal {
-	return chebBasisFunction(p, q, ex, why, xcount);
-      };
+            auto cheb_basis_func = [p, q](mainReal row, mainReal ex, mainReal why) -> mainReal {
+                return chebBasisFunction(p, q, ex, why, xcount);
+            };
 
-      exact.fill(cheb_basis_func);
+            exact.fill(cheb_basis_func);
 
-      std::copy(f.gridValues.data.begin(), f.gridValues.data.begin() + xcount * ycount * rhocount, plan.fftin);
-      plan.execute();
-      std::copy(plan.fftout, plan.fftout + rhocount * xcount * ycount, m.gridValues.data.begin());  //add division by 4
-      for (auto& x : m.gridValues.data) {
-	x /= 4.0;
-      }
+            std::copy(f.gridValues.data.begin(), f.gridValues.data.begin() + xcount * ycount * rhocount, plan.fftin);
+            plan.execute();
+            std::copy(plan.fftout, plan.fftout + rhocount * xcount * ycount, m.gridValues.data.begin());  //add division by 4
+            for (auto& x : m.gridValues.data) {
+                x /= 4.0;
+            }
 
-      std::cout << p << " " << q << " " << m.maxNormDiff(exact.gridValues, 0) << std::endl;
+            std::cout << p << " " << q << " " << m.maxNormDiff(exact.gridValues, 0) << std::endl;
+        }
     }
-  }
 }

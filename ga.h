@@ -8,22 +8,27 @@
 #include <fftw3.h>
 #include <omp.h>
 
-#include <iostream>
 #include <boost/math/special_functions/bessel.hpp>
 #include <boost/math/special_functions/chebyshev_transform.hpp>
 #include <boost/math/special_functions/next.hpp>
 #include <boost/optional.hpp>
 #include <exception>
+#include <iostream>
 #include <new>
+#include <sstream>
 //#include <eigen/test/main.h>
-#include<eigen3/Eigen/Dense>
-
+#include <boost/iostreams/device/mapped_file.hpp>
+#include <boost/iostreams/stream.hpp>
+#include <eigen3/Eigen/Dense>
 
 #include "viennacl/compressed_matrix.hpp"
 /*#include <algorithm>
 #include <array>
+#include <boost/iostreams/code_converter.hpp>
+#include <boost/iostreams/device/mapped_file.hpp>
 #include <cassert>
 #include <cmath>
+#include <iostream>
 #include <iterator>
 #include <string>
 #include <vector>*/
@@ -38,6 +43,68 @@ struct gridDomain {
     using RealT = double;
     RealT xmin = 0, xmax = 0, ymin = 0, ymax = 0, rhomin = 0, rhomax = 0;
 };
+
+struct fileCache {
+    std::string cacheDir;
+    fileCache(std::string cdir) : cacheDir(cdir) {
+    }
+    void save(std::string name, void *data, long size) {  //size is in BYTES very important.
+        try {
+            boost::iostreams::mapped_file_params params;
+            params.path = cacheDir + name;
+            std::cout << params.path << std::endl;
+            params.new_file_size = size;  // 1 MB
+            params.flags =
+                boost::iostreams::mapped_file::mapmode::readwrite;
+            boost::iostreams::mapped_file_sink mf;
+            mf.open(params);
+            if (mf.is_open()) {
+                char *bytes = (reinterpret_cast<char *>(mf.data()));
+                for (long i = 0; i < size; ++i) {
+                    bytes[i] = (reinterpret_cast<char *>(data))[i];
+                }
+                mf.close();
+            }
+        } catch (std::exception &e) {
+        }
+    }
+    template <class T>
+    std::vector<T> read(const std::string &name) {
+        try {
+            boost::iostreams::mapped_file_params params;
+            params.path = cacheDir + name;
+            //params.length = 512; // default: complete file
+            //params.new_file_size = pow(1024, 2);  // 1 MB
+            //DO I NEED the above line?
+            params.flags =
+                boost::iostreams::mapped_file::mapmode::readonly;
+            boost::iostreams::mapped_file_source mf;
+            mf.open(params);
+            if (mf.is_open()) {
+                long file_size = mf.size();
+                long width = sizeof(T);
+                long vecsize = file_size / width;
+                if (file_size % width) {
+                    vecsize++;
+                }
+                std::vector<T> targetVec(vecsize);
+                char *start_ptr = reinterpret_cast<char *>(targetVec.data());
+                char *bytes = (char *)mf.data();
+
+                std::copy(mf.begin(), mf.end(), start_ptr);
+                //std::cout << targetVec << std::endl;
+                mf.close();
+                return targetVec;
+            } else {
+                std::vector<T> t;
+                return t;
+            }
+        } catch (std::exception &e) {
+            std::vector<T> t;
+            return t;
+        }
+    }
+};  // namespace OOGA
 
 //The below class holds function values without reference to the function itself.  It contains the code for calculating finite differences,
 // bicubic coefficients, for filling in a grid from lambas, and for taking norms (and norm diffs).  This object is the main input into the various GA calculators.
@@ -623,7 +690,7 @@ class GACalculator {
    public:
     struct Factory {
         static std::unique_ptr<GACalculator<RealT>>
-        newCalculator(calculatorType c, const gridDomain &g, functionGrid<RealT> &f, int padcount = 0);
+        newCalculator(calculatorType c, const gridDomain &g, functionGrid<RealT> &f, fileCache *cache = nullptr, int padcount = 0);
     };
     virtual ~GACalculator() = default;
     GACalculator() = default;
@@ -1314,11 +1381,9 @@ class chebCPUDense
         }
     }*/
 
-    void static fastFill(const gridDomain &g, const functionGrid<RealT> &paramf, std::vector<Eigen::Matrix<RealT, Eigen::Dynamic, Eigen::Dynamic>> &dgma) {
-        for (int rho_iter = 0; rho_iter < paramf.rhocount; ++rho_iter) {
-            dgma[rho_iter].resize(paramf.xcount * paramf.ycount, paramf.xcount * paramf.ycount);
-            dgma[rho_iter].setZero();
-        }
+    void static fastFill(const gridDomain &g, const functionGrid<RealT> &paramf, std::vector<Eigen::Matrix<RealT, Eigen::Dynamic, Eigen::Dynamic>> &dgma, fileCache *cache /*= nullptr*/) {
+        bool needNewData = false;
+
         std::vector<RealT> rhoset;
         std::vector<RealT> xset;
         std::vector<RealT> yset;
@@ -1327,46 +1392,86 @@ class chebCPUDense
         xset = LinearSpacedArray<RealT>(g.xmin, g.xmax, paramf.xcount);
         yset = LinearSpacedArray<RealT>(g.ymin, g.ymax, paramf.ycount);
 
-        //functionGrid<RealT> f(rhoset, xset, yset);
-        std::vector<std::unique_ptr<DCTCPUPaddedCalculator<RealT>>> calcset;  //TODO(orebas) replace 59 with xcount/2, or something better
+        if (cache) {
+            std::string calcname = "ChebCache";
+            for (int rho_iter = 0; rho_iter < paramf.rhocount; ++rho_iter) {
+                std::ostringstream fullname;
+                fullname << calcname << "." << paramf.xcount << "." << paramf.ycount << "." << std::to_string(rhoset[rho_iter]);
+                //std::cout << "attempting to read from " << fullname.str() << std::endl;
+                std::vector<RealT> check;
+                check = cache->read<RealT>(fullname.str());
+                if (check.size() == paramf.xcount * paramf.ycount * paramf.xcount * paramf.ycount) {
+                    //std::cout << "Succesful read" << std::endl;
+                    Eigen::Map<Eigen::Matrix<RealT, Eigen::Dynamic, Eigen::Dynamic>> m(check.data(), paramf.xcount * paramf.ycount, paramf.xcount * paramf.ycount);
+                    dgma[rho_iter] = m;
+                } else {
+                    //std::cout << "Failed  read " << check.size() << std::endl;
 
-        calcset.emplace_back(DCTCPUPaddedCalculator<RealT>::create(g, paramf, paramf.xcount / 2));
-        int max_threads = omp_get_max_threads() + 1;
-        for (int p = 1; p < max_threads; ++p) {
-            calcset.emplace_back(DCTCPUPaddedCalculator<RealT>::create(g, paramf, paramf.xcount / 2, (calcset[0]->dctCalc)->besselVals));
-            if (calcset.back() == nullptr) {
-                std::cout << "ERROR" << std::endl;
-                exit(0);
-            }
-        }
-#pragma omp parallel for  //same as above this breaks the code
-        for (int p = 0; p < paramf.xcount; ++p) {
-            functionGrid<RealT> threadf(rhoset, xset, yset);
-            for (int q = 0; q < threadf.ycount; ++q) {
-                const int N = threadf.xcount;
-                auto basistest = [p, q, g, N](RealT row, RealT ex, RealT why) -> RealT {
-                    return row * 0 + chebBasisFunction(p, q, ex, why, N);
-                };
-
-                threadf.fill(basistest);
-                auto res = calcset[omp_get_thread_num()]->calculate(threadf);  //this is  FFT + IFFT.
-                for (int rho_iter = 0; rho_iter < threadf.rhocount; ++rho_iter) {
-                    Eigen::Map<Eigen::Matrix<RealT, Eigen::Dynamic, Eigen::Dynamic>> m(res.gridValues.data.data() + rho_iter * threadf.xcount * threadf.ycount, threadf.xcount * threadf.ycount, 1);
-                    dgma[rho_iter].col(threadf.ycount * p + q) = m;  //TODO(orebas) NOT FINISHED REDO THIS LINE
+                    needNewData = true;
                 }
             }
         }
+        if (needNewData) {
+            for (int rho_iter = 0; rho_iter < paramf.rhocount; ++rho_iter) {
+                dgma[rho_iter].resize(paramf.xcount * paramf.ycount, paramf.xcount * paramf.ycount);
+                dgma[rho_iter].setZero();
+            }
+
+            //functionGrid<RealT> f(rhoset, xset, yset);
+            std::vector<std::unique_ptr<DCTCPUPaddedCalculator<RealT>>> calcset;  //TODO(orebas) replace 59 with xcount/2, or something better
+
+            calcset.emplace_back(DCTCPUPaddedCalculator<RealT>::create(g, paramf, paramf.xcount / 2));
+            int max_threads = omp_get_max_threads() + 1;
+            for (int p = 1; p < max_threads; ++p) {
+                calcset.emplace_back(DCTCPUPaddedCalculator<RealT>::create(g, paramf, paramf.xcount / 2, (calcset[0]->dctCalc)->besselVals));
+                if (calcset.back() == nullptr) {
+                    std::cout << "ERROR" << std::endl;
+                    exit(0);
+                }
+            }
+#pragma omp parallel for  //same as above this breaks the code
+            for (int p = 0; p < paramf.xcount; ++p) {
+                functionGrid<RealT> threadf(rhoset, xset, yset);
+                for (int q = 0; q < threadf.ycount; ++q) {
+                    const int N = threadf.xcount;
+                    auto basistest = [p, q, g, N](RealT row, RealT ex, RealT why) -> RealT {
+                        return row * 0 + chebBasisFunction(p, q, ex, why, N);
+                    };
+
+                    threadf.fill(basistest);
+                    auto res = calcset[omp_get_thread_num()]->calculate(threadf);  //this is  FFT + IFFT.
+                    for (int rho_iter = 0; rho_iter < threadf.rhocount; ++rho_iter) {
+                        Eigen::Map<Eigen::Matrix<RealT, Eigen::Dynamic, Eigen::Dynamic>> m(res.gridValues.data.data() + rho_iter * threadf.xcount * threadf.ycount, threadf.xcount * threadf.ycount, 1);
+                        dgma[rho_iter].col(threadf.ycount * p + q) = m;  //TODO(orebas) NOT FINISHED REDO THIS LINE
+                    }
+                }
+            }
+            if (cache) {
+                std::cout << "attempting to cache\n";
+                for (int rho_iter = 0; rho_iter < paramf.rhocount; ++rho_iter) {
+                    std::string calcname = "ChebCache";
+                    std::ostringstream fullname;
+                    fullname << calcname << "." << paramf.xcount << "." << paramf.ycount << "." << std::to_string(rhoset[rho_iter]);
+                    cache->save(fullname.str(), dgma[rho_iter].data(), dgma[rho_iter].size() * sizeof(RealT));
+                }
+            } else {
+                std::cout << "didn't try to cache\n";
+            }
+        } else {
+            //std::cout << "Fully read from cache!" << std::endl;
+        }
     }
 
-    explicit chebCPUDense(const gridDomain &g, const functionGrid<RealT> &f)
+    explicit chebCPUDense(const gridDomain &g, const functionGrid<RealT> &f, fileCache *cache)
         : plan(f.rhocount, f.xcount, f.ycount, FFTW_REDFT00), denseGAMatrix(f.rhocount) {
         //slowTruncFill(g);
-        fastFill(g, f, denseGAMatrix);
+        fastFill(g, f, denseGAMatrix, cache);
+        //cache->save("name",denseGAMatrix) FINISH HERE
     }
 
     static std::unique_ptr<GACalculator<RealT>>
-    create(const gridDomain &g, const functionGrid<RealT> &f) {
-        return std::make_unique<chebCPUDense>(g, f);
+    create(const gridDomain &g, const functionGrid<RealT> &f, fileCache *cache = nullptr) {
+        return std::make_unique<chebCPUDense>(g, f, cache);
     }
 
     // TODO(orebas):there are some unecessary copies and allocating in the below.
@@ -1402,13 +1507,13 @@ class chebGPUDense
    public:
     friend class GACalculator<RealT>;
 
-    explicit chebGPUDense(const gridDomain &g, const functionGrid<RealT> &f)
+    explicit chebGPUDense(const gridDomain &g, const functionGrid<RealT> &f, fileCache *cache)
         : plan(f.rhocount, f.xcount, f.ycount, FFTW_REDFT00),
           GPUMatrices(f.rhocount, viennacl::matrix<RealT>(f.xcount * f.ycount, f.xcount * f.ycount)),
           GPUSource(f.xcount * f.ycount),
           GPUTarget(f.xcount * f.ycount) {
         std::vector<Eigen::Matrix<RealT, Eigen::Dynamic, Eigen::Dynamic>> denseGAMatrix(f.rhocount);
-        OOGA::chebCPUDense<RealT>::fastFill(g, f, denseGAMatrix);
+        OOGA::chebCPUDense<RealT>::fastFill(g, f, denseGAMatrix, cache);  //TODO(orebas) add caching
 
         for (size_t r = 0; r < GPUMatrices.size(); ++r) {
             viennacl::copy(denseGAMatrix[r], GPUMatrices[r]);
@@ -1418,8 +1523,8 @@ class chebGPUDense
     }
 
     static std::unique_ptr<GACalculator<RealT>>
-    create(const gridDomain &g, const functionGrid<RealT> &f) {
-        return std::make_unique<chebGPUDense>(g, f);
+    create(const gridDomain &g, const functionGrid<RealT> &f, fileCache *cache) {
+        return std::make_unique<chebGPUDense>(g, f, cache);
     }
 
     functionGrid<RealT> calculate(
@@ -1854,7 +1959,7 @@ class linearDotProductGPU
 template <class RealT>
 std::unique_ptr<GACalculator<RealT>>
 GACalculator<RealT>::Factory::newCalculator(
-    calculatorType c, const gridDomain &g, functionGrid<RealT> &f, int padcount) {
+    calculatorType c, const gridDomain &g, functionGrid<RealT> &f, fileCache *cache, int padcount) {
     switch (c) {
         case (calculatorType::linearCPU):
             return linearCPUCalculator<RealT>::create();
@@ -1876,9 +1981,9 @@ GACalculator<RealT>::Factory::newCalculator(
         case (calculatorType::linearDotProductGPU):
             return linearDotProductGPU<RealT>::create(f);
         case (calculatorType::chebCPUDense):
-            return chebCPUDense<RealT>::create(g, f);
+            return chebCPUDense<RealT>::create(g, f, cache);
         case (calculatorType::chebGPUDense):
-            return chebGPUDense<RealT>::create(g, f);
+            return chebGPUDense<RealT>::create(g, f, cache);
 
         default:
             return linearCPUCalculator<RealT>::create();
