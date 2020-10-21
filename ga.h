@@ -1,3 +1,5 @@
+
+
 //TODO(orebas): triangular cheb matrices
 //TODO(orebas): harder functions (franke, runge, etc)
 //TODO(orebas):  clean up header dependencies
@@ -7,13 +9,14 @@
 
 #include <fftw3.h>
 #include <omp.h>
+#include <sys/stat.h>
 
-#include <iostream>
 #include <boost/math/special_functions/bessel.hpp>
 #include <boost/math/special_functions/chebyshev_transform.hpp>
 #include <boost/math/special_functions/next.hpp>
 #include <boost/optional.hpp>
 #include <exception>
+#include <iostream>
 #include <new>
 #include <sstream>
 //#include <eigen/test/main.h>
@@ -70,12 +73,31 @@ struct fileCache {
     }
     template <class T>
     std::vector<T> read(const std::string &name) {
+        std::vector<T> targetVec;
+        std::string filename = cacheDir + name;
+        std::ifstream file(filename, std::ifstream::binary);
+
+        if (!file) {
+            std::cout << filename << " could not be opened." << std::endl;
+            std::vector<T> t;
+            return t;
+        }
+        file.seekg(0, file.end);
+        int total_size = file.tellg();
+        file.seekg(0, file.beg);
+
+        targetVec.resize(total_size / sizeof(T));
+        file.read(reinterpret_cast<char *>(targetVec.data()), total_size);
+        if (!file) {
+            targetVec.resize(file.gcount() / sizeof(T));
+        }
+        file.close();
+        return targetVec;
+        /*
+        
         try {
             boost::iostreams::mapped_file_params params;
             params.path = cacheDir + name;
-            //params.length = 512; // default: complete file
-            //params.new_file_size = pow(1024, 2);  // 1 MB
-            //DO I NEED the above line?
             params.flags =
                 boost::iostreams::mapped_file::mapmode::readonly;
             boost::iostreams::mapped_file_source mf;
@@ -102,7 +124,7 @@ struct fileCache {
         } catch (std::exception &e) {
             std::vector<T> t;
             return t;
-        }
+        }*/
     }
 };  // namespace OOGA
 
