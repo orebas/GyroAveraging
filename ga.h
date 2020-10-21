@@ -1397,15 +1397,15 @@ class chebCPUDense
             for (int rho_iter = 0; rho_iter < paramf.rhocount; ++rho_iter) {
                 std::ostringstream fullname;
                 fullname << calcname << "." << paramf.xcount << "." << paramf.ycount << "." << std::to_string(rhoset[rho_iter]);
-                //std::cout << "attempting to read from " << fullname.str() << std::endl;
+                std::cout << "attempting to read from " << fullname.str() << std::endl;
                 std::vector<RealT> check;
                 check = cache->read<RealT>(fullname.str());
                 if (check.size() == paramf.xcount * paramf.ycount * paramf.xcount * paramf.ycount) {
-                    //std::cout << "Succesful read" << std::endl;
+                    std::cout << "Succesful read" << std::endl;
                     Eigen::Map<Eigen::Matrix<RealT, Eigen::Dynamic, Eigen::Dynamic>> m(check.data(), paramf.xcount * paramf.ycount, paramf.xcount * paramf.ycount);
                     dgma[rho_iter] = m;
                 } else {
-                    //std::cout << "Failed  read " << check.size() << std::endl;
+                    std::cout << "Failed  read " << check.size() << std::endl;
 
                     needNewData = true;
                 }
@@ -1458,7 +1458,7 @@ class chebCPUDense
                 std::cout << "didn't try to cache\n";
             }
         } else {
-            //std::cout << "Fully read from cache!" << std::endl;
+            std::cout << "Fully read from cache!" << std::endl;
         }
     }
 
