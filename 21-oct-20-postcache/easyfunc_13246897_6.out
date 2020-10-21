@@ -1,0 +1,246 @@
+calculator chosen: 6
+func chosen: 1
+cache dir chosen: /scratch/ob749/GA/cache/
+FunctionName, Calculator,N,Init time (s), Calc.time(s), Calc.Freq(hz), Bytes, MaxError, FirstBlank, Err1, Err2, Err3, Blank
+attempting to read from ChebCache.8.8.0.062500
+Succesful read
+attempting to read from ChebCache.8.8.0.475000
+Succesful read
+attempting to read from ChebCache.8.8.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,8,0.063,37537,26640.4,8, 0.692435,,0.670663,0.692435,0.677015,
+attempting to read from ChebCache.12.12.0.062500
+Succesful read
+attempting to read from ChebCache.12.12.0.475000
+Succesful read
+attempting to read from ChebCache.12.12.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,12,0.045,162704,6146.13,8, 0.239812,,0.239812,0.197559,0.204463,
+attempting to read from ChebCache.16.16.0.062500
+Succesful read
+attempting to read from ChebCache.16.16.0.475000
+Succesful read
+attempting to read from ChebCache.16.16.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,16,1.81,581086,1720.92,8, 0.0614392,,0.0597624,0.0614392,0.0583091,
+attempting to read from ChebCache.20.20.0.062500
+Succesful read
+attempting to read from ChebCache.20.20.0.475000
+Succesful read
+attempting to read from ChebCache.20.20.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,20,0.064,1.04438e+06,957.509,8, 0.011308,,0.0109348,0.0101213,0.011308,
+attempting to read from ChebCache.24.24.0.062500
+Succesful read
+attempting to read from ChebCache.24.24.0.475000
+Succesful read
+attempting to read from ChebCache.24.24.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,24,2.879,5.47569e+06,182.625,8, 0.0019714,,0.00177997,0.00171022,0.0019714,
+attempting to read from ChebCache.28.28.0.062500
+Succesful read
+attempting to read from ChebCache.28.28.0.475000
+Succesful read
+attempting to read from ChebCache.28.28.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,28,1.231,1.69645e+07,58.9467,8, 0.00039512,,0.000199943,0.00039512,0.000261599,
+attempting to read from ChebCache.32.32.0.062500
+Succesful read
+attempting to read from ChebCache.32.32.0.475000
+Succesful read
+attempting to read from ChebCache.32.32.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,32,0.274,3.08697e+07,32.3942,8, 3.1775e-05,,1.50327e-05,2.78867e-05,3.1775e-05,
+attempting to read from ChebCache.36.36.0.062500
+Succesful read
+attempting to read from ChebCache.36.36.0.475000
+Succesful read
+attempting to read from ChebCache.36.36.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,36,0.187,4.24276e+07,23.5695,8, 2.90858e-06,,5.99514e-07,2.90858e-06,2.6313e-06,
+attempting to read from ChebCache.40.40.0.062500
+Succesful read
+attempting to read from ChebCache.40.40.0.475000
+Succesful read
+attempting to read from ChebCache.40.40.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,40,0.244,6.99764e+07,14.2905,8, 3.63794e-07,,3.86566e-08,3.63794e-07,2.20994e-07,
+attempting to read from ChebCache.44.44.0.062500
+Succesful read
+attempting to read from ChebCache.44.44.0.475000
+Succesful read
+attempting to read from ChebCache.44.44.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,44,0.313,9.68282e+07,10.3276,8, 1.39764e-08,,5.11908e-09,1.25458e-08,1.39764e-08,
+attempting to read from ChebCache.48.48.0.062500
+Succesful read
+attempting to read from ChebCache.48.48.0.475000
+Succesful read
+attempting to read from ChebCache.48.48.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,48,0.43,1.6952e+08,5.89901,8, 1.11919e-09,,4.87089e-10,1.11919e-09,8.03418e-10,
+attempting to read from ChebCache.52.52.0.062500
+Succesful read
+attempting to read from ChebCache.52.52.0.475000
+Succesful read
+attempting to read from ChebCache.52.52.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,52,2.104,2.04837e+08,4.88193,8, 6.09446e-11,,3.16489e-11,6.09446e-11,3.77833e-11,
+attempting to read from ChebCache.56.56.0.062500
+Succesful read
+attempting to read from ChebCache.56.56.0.475000
+Succesful read
+attempting to read from ChebCache.56.56.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,56,0.683,3.44279e+08,2.90462,8, 2.47715e-11,,5.01307e-12,5.91335e-12,2.47715e-11,
+attempting to read from ChebCache.60.60.0.062500
+Succesful read
+attempting to read from ChebCache.60.60.0.475000
+Succesful read
+attempting to read from ChebCache.60.60.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,60,1.953,4.54806e+08,2.19874,8, 2.43014e-11,,4.3147e-12,5.09714e-12,2.43014e-11,
+attempting to read from ChebCache.64.64.0.062500
+Succesful read
+attempting to read from ChebCache.64.64.0.475000
+Succesful read
+attempting to read from ChebCache.64.64.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,64,1.098,6.29492e+08,1.58858,8, 1.38934e-11,,3.73459e-12,5.32009e-12,1.38934e-11,
+attempting to read from ChebCache.68.68.0.062500
+Succesful read
+attempting to read from ChebCache.68.68.0.475000
+Succesful read
+attempting to read from ChebCache.68.68.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,68,1.387,7.98966e+08,1.25162,8, 1.98057e-11,,3.75133e-12,7.00632e-12,1.98057e-11,
+attempting to read from ChebCache.72.72.0.062500
+Succesful read
+attempting to read from ChebCache.72.72.0.475000
+Succesful read
+attempting to read from ChebCache.72.72.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,72,1.938,1.00679e+09,0.993255,8, 2.31934e-11,,4.81428e-12,8.83527e-12,2.31934e-11,
+attempting to read from ChebCache.76.76.0.062500
+Succesful read
+attempting to read from ChebCache.76.76.0.475000
+Succesful read
+attempting to read from ChebCache.76.76.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,76,3.552,1.07355e+09,0.931486,8, 2.44753e-11,,5.08981e-12,1.07746e-11,2.44753e-11,
+attempting to read from ChebCache.80.80.0.062500
+Succesful read
+attempting to read from ChebCache.80.80.0.475000
+Succesful read
+attempting to read from ChebCache.80.80.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,80,2.609,1.64805e+09,0.606779,8, 1.50017e-11,,5.13578e-12,6.45249e-12,1.50017e-11,
+attempting to read from ChebCache.84.84.0.062500
+Succesful read
+attempting to read from ChebCache.84.84.0.475000
+Succesful read
+attempting to read from ChebCache.84.84.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,84,2.723,1.83643e+09,0.544535,8, 1.71119e-11,,4.83056e-12,7.86685e-12,1.71119e-11,
+attempting to read from ChebCache.88.88.0.062500
+Succesful read
+attempting to read from ChebCache.88.88.0.475000
+Succesful read
+attempting to read from ChebCache.88.88.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,88,3.352,2.40142e+09,0.416421,8, 2.1498e-11,,4.35994e-12,9.32819e-12,2.1498e-11,
+attempting to read from ChebCache.92.92.0.062500
+Succesful read
+attempting to read from ChebCache.92.92.0.475000
+Succesful read
+attempting to read from ChebCache.92.92.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,92,3.729,2.72696e+09,0.366709,8, 2.46852e-11,,3.90435e-12,1.08225e-11,2.46852e-11,
+attempting to read from ChebCache.96.96.0.062500
+Succesful read
+attempting to read from ChebCache.96.96.0.475000
+Succesful read
+attempting to read from ChebCache.96.96.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,96,4.716,3.28252e+09,0.304644,8, 2.20603e-11,,3.33476e-12,1.23376e-11,2.20603e-11,
+attempting to read from ChebCache.100.100.0.062500
+Succesful read
+attempting to read from ChebCache.100.100.0.475000
+Succesful read
+attempting to read from ChebCache.100.100.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,100,5.068,3.78497e+09,0.264203,8, 1.38538e-11,,3.2859e-12,1.38538e-11,1.37238e-11,
+attempting to read from ChebCache.104.104.0.062500
+Succesful read
+attempting to read from ChebCache.104.104.0.475000
+Succesful read
+attempting to read from ChebCache.104.104.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,104,6.029,4.72845e+09,0.211486,8, 1.94763e-11,,4.25832e-12,7.59375e-12,1.94763e-11,
+attempting to read from ChebCache.108.108.0.062500
+Succesful read
+attempting to read from ChebCache.108.108.0.475000
+Succesful read
+attempting to read from ChebCache.108.108.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,108,6.93,5.22084e+09,0.19154,8, 2.20401e-11,,4.58868e-12,8.59521e-12,2.20401e-11,
+attempting to read from ChebCache.112.112.0.062500
+Succesful read
+attempting to read from ChebCache.112.112.0.475000
+Succesful read
+attempting to read from ChebCache.112.112.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,112,7.71,6.11012e+09,0.163663,8, 2.24668e-11,,4.49586e-12,9.57659e-12,2.24668e-11,
+attempting to read from ChebCache.116.116.0.062500
+Succesful read
+attempting to read from ChebCache.116.116.0.475000
+Succesful read
+attempting to read from ChebCache.116.116.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,116,8.935,6.96939e+09,0.143485,8, 1.23981e-11,,4.33312e-12,1.05317e-11,1.23981e-11,
+attempting to read from ChebCache.120.120.0.062500
+Succesful read
+attempting to read from ChebCache.120.120.0.475000
+Succesful read
+attempting to read from ChebCache.120.120.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,120,9.771,8.5292e+09,0.117244,8, 1.73141e-11,,3.97485e-12,1.14526e-11,1.73141e-11,
+attempting to read from ChebCache.124.124.0.062500
+Succesful read
+attempting to read from ChebCache.124.124.0.475000
+Succesful read
+attempting to read from ChebCache.124.124.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; CPU Dense Matrix ,124,11.821,9.16066e+09,0.109162,8, 1.93832e-11,,3.61017e-12,1.23331e-11,1.93832e-11,
+attempting to read from ChebCache.128.128.0.062500
+Finished a list. std::bad_alloc

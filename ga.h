@@ -11,6 +11,7 @@
 #include <omp.h>
 #include <sys/stat.h>
 
+#include <iostream>
 #include <boost/math/special_functions/bessel.hpp>
 #include <boost/math/special_functions/chebyshev_transform.hpp>
 #include <boost/math/special_functions/next.hpp>

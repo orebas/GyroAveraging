@@ -1,0 +1,206 @@
+calculator chosen: 9
+func chosen: 2
+cache dir chosen: /scratch/ob749/GA/cache/
+FunctionName, Calculator,N,Init time (s), Calc.time(s), Calc.Freq(hz), Bytes, MaxError, FirstBlank, Err1, Err2, Err3, Blank
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.8.8.0.062500
+/scratch/ob749/GA/cache/ChebCache.8.8.0.475000
+/scratch/ob749/GA/cache/ChebCache.8.8.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,8,0.148,122332,8174.48,8, 0.388045,,0.388045,0.257386,0.36278,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.12.12.0.062500
+/scratch/ob749/GA/cache/ChebCache.12.12.0.475000
+/scratch/ob749/GA/cache/ChebCache.12.12.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,12,0.047,136427,7329.93,8, 0.290809,,0.262559,0.290809,0.286287,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.16.16.0.062500
+/scratch/ob749/GA/cache/ChebCache.16.16.0.475000
+/scratch/ob749/GA/cache/ChebCache.16.16.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,16,0.049,139282,7179.68,8, 0.251783,,0.251783,0.153174,0.177527,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.20.20.0.062500
+/scratch/ob749/GA/cache/ChebCache.20.20.0.475000
+/scratch/ob749/GA/cache/ChebCache.20.20.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,20,0.106,292436,3419.55,8, 0.165419,,0.165419,0.123532,0.124864,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.24.24.0.062500
+/scratch/ob749/GA/cache/ChebCache.24.24.0.475000
+/scratch/ob749/GA/cache/ChebCache.24.24.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,24,0.154,319897,3126.01,8, 0.0882351,,0.0674527,0.0882351,0.0701531,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.28.28.0.062500
+/scratch/ob749/GA/cache/ChebCache.28.28.0.475000
+/scratch/ob749/GA/cache/ChebCache.28.28.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,28,0.211,326661,3061.28,8, 0.065695,,0.0442604,0.0609359,0.065695,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.32.32.0.062500
+/scratch/ob749/GA/cache/ChebCache.32.32.0.475000
+/scratch/ob749/GA/cache/ChebCache.32.32.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,32,0.276,423516,2361.19,8, 0.0452458,,0.0203919,0.0452458,0.0446643,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.36.36.0.062500
+/scratch/ob749/GA/cache/ChebCache.36.36.0.475000
+/scratch/ob749/GA/cache/ChebCache.36.36.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,36,0.499,497255,2011.04,8, 0.0519717,,0.0200555,0.0353673,0.0519717,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.40.40.0.062500
+/scratch/ob749/GA/cache/ChebCache.40.40.0.475000
+/scratch/ob749/GA/cache/ChebCache.40.40.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,40,0.679,606523,1648.74,8, 0.0448273,,0.0234305,0.0318937,0.0448273,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.44.44.0.062500
+/scratch/ob749/GA/cache/ChebCache.44.44.0.475000
+/scratch/ob749/GA/cache/ChebCache.44.44.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,44,0.795,950761,1051.79,8, 0.0288614,,0.0266712,0.0254104,0.0288614,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.48.48.0.062500
+/scratch/ob749/GA/cache/ChebCache.48.48.0.475000
+/scratch/ob749/GA/cache/ChebCache.48.48.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,48,1.22,1.19868e+06,834.249,8, 0.0338816,,0.0267606,0.0241866,0.0338816,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.52.52.0.062500
+/scratch/ob749/GA/cache/ChebCache.52.52.0.475000
+/scratch/ob749/GA/cache/ChebCache.52.52.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,52,1.629,1.33278e+06,750.311,8, 0.0392167,,0.0242054,0.0211978,0.0392167,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.56.56.0.062500
+/scratch/ob749/GA/cache/ChebCache.56.56.0.475000
+/scratch/ob749/GA/cache/ChebCache.56.56.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,56,2.048,1.56347e+06,639.605,8, 0.037668,,0.0205713,0.0189672,0.037668,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.60.60.0.062500
+/scratch/ob749/GA/cache/ChebCache.60.60.0.475000
+/scratch/ob749/GA/cache/ChebCache.60.60.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,60,2.833,2.40378e+06,416.011,8, 0.0310232,,0.0166728,0.0169082,0.0310232,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.64.64.0.062500
+/scratch/ob749/GA/cache/ChebCache.64.64.0.475000
+/scratch/ob749/GA/cache/ChebCache.64.64.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,64,3.558,2.35472e+06,424.679,8, 0.0257343,,0.0122755,0.017435,0.0257343,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.68.68.0.062500
+/scratch/ob749/GA/cache/ChebCache.68.68.0.475000
+/scratch/ob749/GA/cache/ChebCache.68.68.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,68,4.924,3.7266e+06,268.341,8, 0.0328543,,0.015122,0.016271,0.0328543,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.72.72.0.062500
+/scratch/ob749/GA/cache/ChebCache.72.72.0.475000
+/scratch/ob749/GA/cache/ChebCache.72.72.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,72,5.93,4.3877e+06,227.91,8, 0.0337365,,0.0171683,0.0173263,0.0337365,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.76.76.0.062500
+/scratch/ob749/GA/cache/ChebCache.76.76.0.475000
+/scratch/ob749/GA/cache/ChebCache.76.76.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,76,7.91,4.37576e+06,228.531,8, 0.0311825,,0.0191086,0.0168551,0.0311825,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.80.80.0.062500
+/scratch/ob749/GA/cache/ChebCache.80.80.0.475000
+/scratch/ob749/GA/cache/ChebCache.80.80.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,80,9.81,6.38639e+06,156.583,8, 0.0214514,,0.0202267,0.0179382,0.0214514,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.84.84.0.062500
+/scratch/ob749/GA/cache/ChebCache.84.84.0.475000
+/scratch/ob749/GA/cache/ChebCache.84.84.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,84,11.601,7.58026e+06,131.922,8, 0.0265272,,0.0197568,0.0169884,0.0265272,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.88.88.0.062500
+/scratch/ob749/GA/cache/ChebCache.88.88.0.475000
+/scratch/ob749/GA/cache/ChebCache.88.88.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,88,14.206,7.76834e+06,128.728,8, 0.0300106,,0.018418,0.0174738,0.0300106,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.92.92.0.062500
+/scratch/ob749/GA/cache/ChebCache.92.92.0.475000
+/scratch/ob749/GA/cache/ChebCache.92.92.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,92,18.999,8.67623e+06,115.257,8, 0.0312086,,0.0166489,0.018061,0.0312086,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.96.96.0.062500
+/scratch/ob749/GA/cache/ChebCache.96.96.0.475000
+/scratch/ob749/GA/cache/ChebCache.96.96.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,96,22.207,1.19791e+07,83.4789,8, 0.0253751,,0.0131469,0.0182532,0.0253751,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.100.100.0.062500
+/scratch/ob749/GA/cache/ChebCache.100.100.0.475000
+/scratch/ob749/GA/cache/ChebCache.100.100.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,100,25.901,1.16218e+07,86.0449,8, 0.0203568,,0.0117813,0.0183731,0.0203568,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.104.104.0.062500
+/scratch/ob749/GA/cache/ChebCache.104.104.0.475000
+/scratch/ob749/GA/cache/ChebCache.104.104.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,104,30.85,1.59895e+07,62.541,8, 0.026378,,0.0140738,0.0170566,0.026378,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.108.108.0.062500
+/scratch/ob749/GA/cache/ChebCache.108.108.0.475000
+/scratch/ob749/GA/cache/ChebCache.108.108.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,108,35.801,1.85311e+07,53.9632,8, 0.027664,,0.0158637,0.0168177,0.027664,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.112.112.0.062500
+/scratch/ob749/GA/cache/ChebCache.112.112.0.475000
+/scratch/ob749/GA/cache/ChebCache.112.112.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,112,45.37,1.86258e+07,53.689,8, 0.0261639,,0.0162301,0.0164979,0.0261639,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.116.116.0.062500
+/scratch/ob749/GA/cache/ChebCache.116.116.0.475000
+/scratch/ob749/GA/cache/ChebCache.116.116.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,116,53.757,2.10053e+07,47.607,8, 0.0176495,,0.0161213,0.017037,0.0176495,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.120.120.0.062500
+/scratch/ob749/GA/cache/ChebCache.120.120.0.475000
+/scratch/ob749/GA/cache/ChebCache.120.120.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,120,59.968,2.37293e+07,42.1421,8, 0.0229393,,0.0152084,0.0171622,0.0229393,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.124.124.0.062500
+/scratch/ob749/GA/cache/ChebCache.124.124.0.475000
+/scratch/ob749/GA/cache/ChebCache.124.124.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,124,73.477,2.76529e+07,36.1626,8, 0.0243522,,0.0140659,0.0153736,0.0243522,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.128.128.0.062500
+/scratch/ob749/GA/cache/ChebCache.128.128.0.475000
+/scratch/ob749/GA/cache/ChebCache.128.128.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,128,81.38,3.45914e+07,28.9089,8, 0.0265554,,0.0123368,0.0153539,0.0265554,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.132.132.0.062500
+/scratch/ob749/GA/cache/ChebCache.132.132.0.475000
+/scratch/ob749/GA/cache/ChebCache.132.132.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,132,92.538,3.9253e+07,25.4758,8, 0.0190797,,0.0101236,0.0139501,0.0190797,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.136.136.0.062500
+/scratch/ob749/GA/cache/ChebCache.136.136.0.475000
+/scratch/ob749/GA/cache/ChebCache.136.136.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,136,108.977,3.75624e+07,26.6224,8, 0.0197823,,0.0120393,0.0126802,0.0197823,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.140.140.0.062500
+/scratch/ob749/GA/cache/ChebCache.140.140.0.475000
+/scratch/ob749/GA/cache/ChebCache.140.140.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,140,121.144,4.88039e+07,20.4902,8, 0.0240259,,0.0134411,0.0108508,0.0240259,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.144.144.0.062500
+/scratch/ob749/GA/cache/ChebCache.144.144.0.475000
+/scratch/ob749/GA/cache/ChebCache.144.144.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,144,140.557,4.71319e+07,21.217,8, 0.0235598,,0.0139388,0.0112685,0.0235598,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.148.148.0.062500
+/scratch/ob749/GA/cache/ChebCache.148.148.0.475000
+/scratch/ob749/GA/cache/ChebCache.148.148.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,148,164.672,5.23201e+07,19.1131,8, 0.0202988,,0.0136013,0.0116197,0.0202988,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.152.152.0.062500
+/scratch/ob749/GA/cache/ChebCache.152.152.0.475000
+/scratch/ob749/GA/cache/ChebCache.152.152.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,152,186.109,6.65865e+07,15.0181,8, 0.0168123,,0.0130044,0.0109587,0.0168123,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.156.156.0.062500
+/scratch/ob749/GA/cache/ChebCache.156.156.0.475000
+/scratch/ob749/GA/cache/ChebCache.156.156.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,156,197.465,6.54676e+07,15.2747,8, 0.0207243,,0.0116953,0.0127945,0.0207243,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.160.160.0.062500
+/scratch/ob749/GA/cache/ChebCache.160.160.0.475000
+/scratch/ob749/GA/cache/ChebCache.160.160.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,160,234.906,7.33166e+07,13.6395,8, 0.0236334,,0.0103431,0.0124199,0.0236334,
+attempting to cache
+/scratch/ob749/GA/cache/ChebCache.164.164.0.062500
+/scratch/ob749/GA/cache/ChebCache.164.164.0.475000
+/scratch/ob749/GA/cache/ChebCache.164.164.0.887500
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; GPU Dense Matrix ,164,272.368,8.94239e+07,11.1827,8, 0.0211681,,0.00904401,0.0126539,0.0211681,
+Finished a list. ./viennacl/backend/cuda.hpp(106): : CUDA Runtime API error 2: out of memory
+

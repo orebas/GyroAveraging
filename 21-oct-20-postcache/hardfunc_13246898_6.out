@@ -1,0 +1,246 @@
+calculator chosen: 6
+func chosen: 2
+cache dir chosen: /scratch/ob749/GA/cache/
+FunctionName, Calculator,N,Init time (s), Calc.time(s), Calc.Freq(hz), Bytes, MaxError, FirstBlank, Err1, Err2, Err3, Blank
+attempting to read from ChebCache.8.8.0.062500
+Succesful read
+attempting to read from ChebCache.8.8.0.475000
+Succesful read
+attempting to read from ChebCache.8.8.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,8,0.036,38481,25986.9,8, 0.388045,,0.388045,0.257386,0.36278,
+attempting to read from ChebCache.12.12.0.062500
+Succesful read
+attempting to read from ChebCache.12.12.0.475000
+Succesful read
+attempting to read from ChebCache.12.12.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,12,0.632,279649,3575.91,8, 0.290809,,0.262559,0.290809,0.286287,
+attempting to read from ChebCache.16.16.0.062500
+Succesful read
+attempting to read from ChebCache.16.16.0.475000
+Succesful read
+attempting to read from ChebCache.16.16.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,16,0.064,866142,1154.55,8, 0.251783,,0.251783,0.153174,0.177527,
+attempting to read from ChebCache.20.20.0.062500
+Succesful read
+attempting to read from ChebCache.20.20.0.475000
+Succesful read
+attempting to read from ChebCache.20.20.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,20,0.071,1.26708e+06,789.217,8, 0.165419,,0.165419,0.123532,0.124864,
+attempting to read from ChebCache.24.24.0.062500
+Succesful read
+attempting to read from ChebCache.24.24.0.475000
+Succesful read
+attempting to read from ChebCache.24.24.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,24,0.087,3.07546e+06,325.154,8, 0.0882351,,0.0674527,0.0882351,0.0701531,
+attempting to read from ChebCache.28.28.0.062500
+Succesful read
+attempting to read from ChebCache.28.28.0.475000
+Succesful read
+attempting to read from ChebCache.28.28.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,28,0.491,1.01701e+07,98.3272,8, 0.065695,,0.0442604,0.0609359,0.065695,
+attempting to read from ChebCache.32.32.0.062500
+Succesful read
+attempting to read from ChebCache.32.32.0.475000
+Succesful read
+attempting to read from ChebCache.32.32.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,32,0.158,2.39509e+07,41.752,8, 0.0452458,,0.0203919,0.0452458,0.0446643,
+attempting to read from ChebCache.36.36.0.062500
+Succesful read
+attempting to read from ChebCache.36.36.0.475000
+Succesful read
+attempting to read from ChebCache.36.36.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,36,0.236,2.94093e+07,34.0028,8, 0.0519717,,0.0200555,0.0353673,0.0519717,
+attempting to read from ChebCache.40.40.0.062500
+Succesful read
+attempting to read from ChebCache.40.40.0.475000
+Succesful read
+attempting to read from ChebCache.40.40.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,40,0.291,5.67399e+07,17.6243,8, 0.0448273,,0.0234305,0.0318937,0.0448273,
+attempting to read from ChebCache.44.44.0.062500
+Succesful read
+attempting to read from ChebCache.44.44.0.475000
+Succesful read
+attempting to read from ChebCache.44.44.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,44,0.977,5.8893e+07,16.9799,8, 0.0288614,,0.0266712,0.0254104,0.0288614,
+attempting to read from ChebCache.48.48.0.062500
+Succesful read
+attempting to read from ChebCache.48.48.0.475000
+Succesful read
+attempting to read from ChebCache.48.48.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,48,0.508,9.49105e+07,10.5362,8, 0.0338816,,0.0267606,0.0241866,0.0338816,
+attempting to read from ChebCache.52.52.0.062500
+Succesful read
+attempting to read from ChebCache.52.52.0.475000
+Succesful read
+attempting to read from ChebCache.52.52.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,52,0.973,8.26724e+07,12.0959,8, 0.0392167,,0.0242054,0.0211978,0.0392167,
+attempting to read from ChebCache.56.56.0.062500
+Succesful read
+attempting to read from ChebCache.56.56.0.475000
+Succesful read
+attempting to read from ChebCache.56.56.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,56,0.739,1.7709e+08,5.64685,8, 0.037668,,0.0205713,0.0189672,0.037668,
+attempting to read from ChebCache.60.60.0.062500
+Succesful read
+attempting to read from ChebCache.60.60.0.475000
+Succesful read
+attempting to read from ChebCache.60.60.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,60,0.926,1.53181e+08,6.52823,8, 0.0310232,,0.0166728,0.0169082,0.0310232,
+attempting to read from ChebCache.64.64.0.062500
+Succesful read
+attempting to read from ChebCache.64.64.0.475000
+Succesful read
+attempting to read from ChebCache.64.64.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,64,1.158,2.88265e+08,3.46903,8, 0.0257343,,0.0122755,0.017435,0.0257343,
+attempting to read from ChebCache.68.68.0.062500
+Succesful read
+attempting to read from ChebCache.68.68.0.475000
+Succesful read
+attempting to read from ChebCache.68.68.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,68,1.347,2.6365e+08,3.7929,8, 0.0328543,,0.015122,0.016271,0.0328543,
+attempting to read from ChebCache.72.72.0.062500
+Succesful read
+attempting to read from ChebCache.72.72.0.475000
+Succesful read
+attempting to read from ChebCache.72.72.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,72,1.854,4.85446e+08,2.05996,8, 0.0337365,,0.0171683,0.0173263,0.0337365,
+attempting to read from ChebCache.76.76.0.062500
+Succesful read
+attempting to read from ChebCache.76.76.0.475000
+Succesful read
+attempting to read from ChebCache.76.76.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,76,2.027,4.68648e+08,2.1338,8, 0.0311825,,0.0191086,0.0168551,0.0311825,
+attempting to read from ChebCache.80.80.0.062500
+Succesful read
+attempting to read from ChebCache.80.80.0.475000
+Succesful read
+attempting to read from ChebCache.80.80.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,80,2.59,7.76189e+08,1.28835,8, 0.0214514,,0.0202267,0.0179382,0.0214514,
+attempting to read from ChebCache.84.84.0.062500
+Succesful read
+attempting to read from ChebCache.84.84.0.475000
+Succesful read
+attempting to read from ChebCache.84.84.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,84,2.993,6.85347e+08,1.45912,8, 0.0265272,,0.0197568,0.0169884,0.0265272,
+attempting to read from ChebCache.88.88.0.062500
+Succesful read
+attempting to read from ChebCache.88.88.0.475000
+Succesful read
+attempting to read from ChebCache.88.88.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,88,3.588,1.12631e+09,0.887854,8, 0.0300106,,0.018418,0.0174738,0.0300106,
+attempting to read from ChebCache.92.92.0.062500
+Succesful read
+attempting to read from ChebCache.92.92.0.475000
+Succesful read
+attempting to read from ChebCache.92.92.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,92,4.008,9.5857e+08,1.04322,8, 0.0312086,,0.0166489,0.018061,0.0312086,
+attempting to read from ChebCache.96.96.0.062500
+Succesful read
+attempting to read from ChebCache.96.96.0.475000
+Succesful read
+attempting to read from ChebCache.96.96.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,96,5.399,1.58708e+09,0.630089,8, 0.0253751,,0.0131469,0.0182532,0.0253751,
+attempting to read from ChebCache.100.100.0.062500
+Succesful read
+attempting to read from ChebCache.100.100.0.475000
+Succesful read
+attempting to read from ChebCache.100.100.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,100,7.018,1.34442e+09,0.743812,8, 0.0203568,,0.0117813,0.0183731,0.0203568,
+attempting to read from ChebCache.104.104.0.062500
+Succesful read
+attempting to read from ChebCache.104.104.0.475000
+Succesful read
+attempting to read from ChebCache.104.104.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,104,10.184,2.20573e+09,0.453364,8, 0.026378,,0.0140738,0.0170566,0.026378,
+attempting to read from ChebCache.108.108.0.062500
+Succesful read
+attempting to read from ChebCache.108.108.0.475000
+Succesful read
+attempting to read from ChebCache.108.108.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,108,8.04,1.82097e+09,0.549157,8, 0.027664,,0.0158637,0.0168177,0.027664,
+attempting to read from ChebCache.112.112.0.062500
+Succesful read
+attempting to read from ChebCache.112.112.0.475000
+Succesful read
+attempting to read from ChebCache.112.112.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,112,9.101,3.23545e+09,0.309076,8, 0.0261639,,0.0162301,0.0164979,0.0261639,
+attempting to read from ChebCache.116.116.0.062500
+Succesful read
+attempting to read from ChebCache.116.116.0.475000
+Succesful read
+attempting to read from ChebCache.116.116.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,116,12.374,4.76342e+09,0.209933,8, 0.0176495,,0.0161213,0.017037,0.0176495,
+attempting to read from ChebCache.120.120.0.062500
+Succesful read
+attempting to read from ChebCache.120.120.0.475000
+Succesful read
+attempting to read from ChebCache.120.120.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,120,10.122,3.77446e+09,0.264939,8, 0.0229393,,0.0152084,0.0171622,0.0229393,
+attempting to read from ChebCache.124.124.0.062500
+Succesful read
+attempting to read from ChebCache.124.124.0.475000
+Succesful read
+attempting to read from ChebCache.124.124.0.887500
+Succesful read
+Fully read from cache!
+Non-smooth: Wendland CSRBF+Runge,chebyshev interp; CPU Dense Matrix ,124,12.195,3.05445e+09,0.327391,8, 0.0243522,,0.0140659,0.0153736,0.0243522,
+attempting to read from ChebCache.128.128.0.062500
+Finished a list. std::bad_alloc

@@ -1,0 +1,1 @@
+/opt/slurm/data/slurmd/job13246902/slurm_script: line 68:  3076 Segmentation fault      $SRCDIR/GyroAverage-CUDA --calc=$SLURM_ARRAY_TASK_ID --func=1 --cache=/scratch/ob749/GA/cache/

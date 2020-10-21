@@ -1,0 +1,246 @@
+calculator chosen: 9
+func chosen: 1
+cache dir chosen: /scratch/ob749/GA/cache/
+FunctionName, Calculator,N,Init time (s), Calc.time(s), Calc.Freq(hz), Bytes, MaxError, FirstBlank, Err1, Err2, Err3, Blank
+attempting to read from ChebCache.8.8.0.062500
+Succesful read
+attempting to read from ChebCache.8.8.0.475000
+Succesful read
+attempting to read from ChebCache.8.8.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,8,0.285,172242,5805.78,8, 0.692435,,0.670663,0.692435,0.677015,
+attempting to read from ChebCache.12.12.0.062500
+Succesful read
+attempting to read from ChebCache.12.12.0.475000
+Succesful read
+attempting to read from ChebCache.12.12.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,12,0.229,183783,5441.2,8, 0.239812,,0.239812,0.197559,0.204463,
+attempting to read from ChebCache.16.16.0.062500
+Succesful read
+attempting to read from ChebCache.16.16.0.475000
+Succesful read
+attempting to read from ChebCache.16.16.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,16,0.075,174989,5714.64,8, 0.0614392,,0.0597624,0.0614392,0.0583091,
+attempting to read from ChebCache.20.20.0.062500
+Succesful read
+attempting to read from ChebCache.20.20.0.475000
+Succesful read
+attempting to read from ChebCache.20.20.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,20,0.068,220726,4530.5,8, 0.011308,,0.0109348,0.0101213,0.011308,
+attempting to read from ChebCache.24.24.0.062500
+Succesful read
+attempting to read from ChebCache.24.24.0.475000
+Succesful read
+attempting to read from ChebCache.24.24.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,24,0.208,356513,2804.95,8, 0.0019714,,0.00177997,0.00171022,0.0019714,
+attempting to read from ChebCache.28.28.0.062500
+Succesful read
+attempting to read from ChebCache.28.28.0.475000
+Succesful read
+attempting to read from ChebCache.28.28.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,28,0.327,404423,2472.66,8, 0.00039512,,0.000199943,0.00039512,0.000261599,
+attempting to read from ChebCache.32.32.0.062500
+Succesful read
+attempting to read from ChebCache.32.32.0.475000
+Succesful read
+attempting to read from ChebCache.32.32.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,32,0.134,572805,1745.79,8, 3.1775e-05,,1.50327e-05,2.78867e-05,3.1775e-05,
+attempting to read from ChebCache.36.36.0.062500
+Succesful read
+attempting to read from ChebCache.36.36.0.475000
+Succesful read
+attempting to read from ChebCache.36.36.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,36,0.258,560656,1783.62,8, 2.90858e-06,,5.99514e-07,2.90858e-06,2.6313e-06,
+attempting to read from ChebCache.40.40.0.062500
+Succesful read
+attempting to read from ChebCache.40.40.0.475000
+Succesful read
+attempting to read from ChebCache.40.40.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,40,0.415,653192,1530.94,8, 3.63794e-07,,3.86566e-08,3.63794e-07,2.20994e-07,
+attempting to read from ChebCache.44.44.0.062500
+Succesful read
+attempting to read from ChebCache.44.44.0.475000
+Succesful read
+attempting to read from ChebCache.44.44.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,44,0.462,981009,1019.36,8, 1.39764e-08,,5.11908e-09,1.25458e-08,1.39764e-08,
+attempting to read from ChebCache.48.48.0.062500
+Succesful read
+attempting to read from ChebCache.48.48.0.475000
+Succesful read
+attempting to read from ChebCache.48.48.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,48,0.873,1.18613e+06,843.08,8, 1.11919e-09,,4.8709e-10,1.11919e-09,8.03417e-10,
+attempting to read from ChebCache.52.52.0.062500
+Succesful read
+attempting to read from ChebCache.52.52.0.475000
+Succesful read
+attempting to read from ChebCache.52.52.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,52,0.814,1.34203e+06,745.141,8, 6.09443e-11,,3.16497e-11,6.09443e-11,3.77828e-11,
+attempting to read from ChebCache.56.56.0.062500
+Succesful read
+attempting to read from ChebCache.56.56.0.475000
+Succesful read
+attempting to read from ChebCache.56.56.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,56,1.133,1.60516e+06,622.989,8, 2.47714e-11,,5.01314e-12,5.91326e-12,2.47714e-11,
+attempting to read from ChebCache.60.60.0.062500
+Succesful read
+attempting to read from ChebCache.60.60.0.475000
+Succesful read
+attempting to read from ChebCache.60.60.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,60,1.887,2.44228e+06,409.454,8, 2.43015e-11,,4.31473e-12,5.09732e-12,2.43015e-11,
+attempting to read from ChebCache.64.64.0.062500
+Succesful read
+attempting to read from ChebCache.64.64.0.475000
+Succesful read
+attempting to read from ChebCache.64.64.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,64,1.963,2.37195e+06,421.594,8, 1.38934e-11,,3.73459e-12,5.31982e-12,1.38934e-11,
+attempting to read from ChebCache.68.68.0.062500
+Succesful read
+attempting to read from ChebCache.68.68.0.475000
+Succesful read
+attempting to read from ChebCache.68.68.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,68,2.405,3.67767e+06,271.911,8, 1.98055e-11,,3.75135e-12,7.00677e-12,1.98055e-11,
+attempting to read from ChebCache.72.72.0.062500
+Succesful read
+attempting to read from ChebCache.72.72.0.475000
+Succesful read
+attempting to read from ChebCache.72.72.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,72,3.72,4.43878e+06,225.287,8, 2.31933e-11,,4.81423e-12,8.83527e-12,2.31933e-11,
+attempting to read from ChebCache.76.76.0.062500
+Succesful read
+attempting to read from ChebCache.76.76.0.475000
+Succesful read
+attempting to read from ChebCache.76.76.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,76,3.79,4.34298e+06,230.257,8, 2.44753e-11,,5.0898e-12,1.07746e-11,2.44753e-11,
+attempting to read from ChebCache.80.80.0.062500
+Succesful read
+attempting to read from ChebCache.80.80.0.475000
+Succesful read
+attempting to read from ChebCache.80.80.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,80,4.388,6.43382e+06,155.429,8, 1.50018e-11,,5.13573e-12,6.45267e-12,1.50018e-11,
+attempting to read from ChebCache.84.84.0.062500
+Succesful read
+attempting to read from ChebCache.84.84.0.475000
+Succesful read
+attempting to read from ChebCache.84.84.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,84,5.375,7.65683e+06,130.602,8, 1.71119e-11,,4.83057e-12,7.86703e-12,1.71119e-11,
+attempting to read from ChebCache.88.88.0.062500
+Succesful read
+attempting to read from ChebCache.88.88.0.475000
+Succesful read
+attempting to read from ChebCache.88.88.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,88,6.201,7.82754e+06,127.754,8, 2.14978e-11,,4.35995e-12,9.32764e-12,2.14978e-11,
+attempting to read from ChebCache.92.92.0.062500
+Succesful read
+attempting to read from ChebCache.92.92.0.475000
+Succesful read
+attempting to read from ChebCache.92.92.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,92,7.086,8.81371e+06,113.46,8, 2.46853e-11,,3.90436e-12,1.08225e-11,2.46853e-11,
+attempting to read from ChebCache.96.96.0.062500
+Succesful read
+attempting to read from ChebCache.96.96.0.475000
+Succesful read
+attempting to read from ChebCache.96.96.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,96,9.858,1.04956e+07,95.2783,8, 2.20603e-11,,3.33476e-12,1.23374e-11,2.20603e-11,
+attempting to read from ChebCache.100.100.0.062500
+Succesful read
+attempting to read from ChebCache.100.100.0.475000
+Succesful read
+attempting to read from ChebCache.100.100.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,100,10.094,1.16054e+07,86.167,8, 1.38536e-11,,3.28587e-12,1.38536e-11,1.37239e-11,
+attempting to read from ChebCache.104.104.0.062500
+Succesful read
+attempting to read from ChebCache.104.104.0.475000
+Succesful read
+attempting to read from ChebCache.104.104.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,104,12.151,1.62008e+07,61.7254,8, 1.94764e-11,,4.25831e-12,7.59393e-12,1.94764e-11,
+attempting to read from ChebCache.108.108.0.062500
+Succesful read
+attempting to read from ChebCache.108.108.0.475000
+Succesful read
+attempting to read from ChebCache.108.108.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,108,14.885,1.8473e+07,54.133,8, 2.20402e-11,,4.58871e-12,8.59502e-12,2.20402e-11,
+attempting to read from ChebCache.112.112.0.062500
+Succesful read
+attempting to read from ChebCache.112.112.0.475000
+Succesful read
+attempting to read from ChebCache.112.112.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,112,15.731,1.87983e+07,53.1962,8, 2.24669e-11,,4.4958e-12,9.5764e-12,2.24669e-11,
+attempting to read from ChebCache.116.116.0.062500
+Succesful read
+attempting to read from ChebCache.116.116.0.475000
+Succesful read
+attempting to read from ChebCache.116.116.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,116,18.253,2.09118e+07,47.8199,8, 1.2398e-11,,4.33317e-12,1.05319e-11,1.2398e-11,
+attempting to read from ChebCache.120.120.0.062500
+Succesful read
+attempting to read from ChebCache.120.120.0.475000
+Succesful read
+attempting to read from ChebCache.120.120.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,120,21.027,2.3571e+07,42.4251,8, 1.7314e-11,,3.97483e-12,1.14526e-11,1.7314e-11,
+attempting to read from ChebCache.124.124.0.062500
+Succesful read
+attempting to read from ChebCache.124.124.0.475000
+Succesful read
+attempting to read from ChebCache.124.124.0.887500
+Succesful read
+Fully read from cache!
+Smooth exp(-Ar^2-b*rho^2),chebyshev interp; GPU Dense Matrix ,124,23.382,2.74791e+07,36.3913,8, 1.93832e-11,,3.61013e-12,1.23338e-11,1.93832e-11,
+attempting to read from ChebCache.128.128.0.062500
+Finished a list. std::bad_alloc
