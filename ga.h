@@ -6,8 +6,6 @@
 //TODO(orebas): zero case seems to fail with some calculators.  hardcode it?  exclude it?
 #ifndef GYROAVERAGING_GA_H
 #define GYROAVERAGING_GA_H
-#include <iostream>
-
 #include <fftw3.h>
 #include <omp.h>
 #include <sys/stat.h>
@@ -53,6 +51,21 @@ struct fileCache {
     fileCache(std::string cdir) : cacheDir(cdir) {
     }
     void save(std::string name, void *data, long size) {  //size is in BYTES very important.
+        std::string filename = cacheDir + name;
+        try {
+            std::ofstream file;
+            file.open(filename, std::ofstream::binary | std::ofstream::trunc | std::ofstream::out);
+
+            if (!file) {
+                std::cout << filename << " could not be opened." << std::endl;
+                return;
+            }
+
+            if (file.is_open()) {
+                file.write(reinterpret_cast<char *>(data), size);
+                file.close();
+            }
+            /*
         try {
             boost::iostreams::mapped_file_params params;
             params.path = cacheDir + name;
@@ -69,6 +82,8 @@ struct fileCache {
                 }
                 mf.close();
             }
+        } catch (std::exception &e) {
+        }*/
         } catch (std::exception &e) {
         }
     }
