@@ -6,6 +6,7 @@
 //TODO(orebas): zero case seems to fail with some calculators.  hardcode it?  exclude it?
 #ifndef GYROAVERAGING_GA_H
 #define GYROAVERAGING_GA_H
+#include <iostream>
 
 #include <fftw3.h>
 #include <omp.h>

@@ -400,9 +400,9 @@ int main(int argc, char* argv[]) {
     using std::max;
 
     auto mediumfunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
-        double r = 2.0 * abs(ex - why);
-        double l = max(0.0, 0.5 - r);  //   (0.5-r>0? 0.5-r,0);   //std::max(0.0d,0.5-r)
-        return l * l * l * l * (4 * r + 1) + 1.0 / (1 + 100 * ((ex - 0.2) * (ex - 0.2) + (why - 0.5) * (why - 0.5)));
+        double r =  abs(ex - why);
+        double l = max(0.0, 0.75 - r);  //   (0.5-r>0? 0.5-r,0);   //std::max(0.0d,0.5-r)
+        return l * l * l * l * (4 * r + 1) + 1.0 / (1 + 25 * ((ex - 0.2) * (ex - 0.2) + (why - 0.5) * (why - 0.5)));
     };
 
     auto crazyhardfunc = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
