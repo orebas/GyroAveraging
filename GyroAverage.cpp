@@ -58,8 +58,8 @@
 
 template <class RealT = double>
 struct resultsRecord {
-    OOGA::calculatorType type = OOGA::calculatorType::linearCPU;
     std::string function_name;
+    OOGA::calculatorType type = OOGA::calculatorType::linearCPU;
     int N = 0;
     std::vector<RealT> rhoset;
     double initTime = 0;
@@ -274,7 +274,7 @@ void cache_testing(std::string directory) {
     using OOGA::fileCache;
     fileCache fc(directory);
     std::vector<double> a(5, 10);
-    for (int i = 0; i < a.size(); ++i)
+    for (size_t i = 0; i < a.size(); ++i)
         a[i] = i + 100;
     std::cout << a << std::endl;
 
@@ -438,7 +438,7 @@ int main(int argc, char* argv[]) {
   return (30 * std::exp(1 / (temp / 25.0 - 1.0)));
 };*/
 
-    if (calc_option < 0 || calc_option >= calclist.size()) {
+    if (calc_option < 0 || calc_option >= static_cast<int>(calclist.size())) {
         std::cout << "That's not a valid calculator." << std::endl;
         return 1;
     }

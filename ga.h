@@ -11,7 +11,6 @@
 #include <omp.h>
 #include <sys/stat.h>
 
-#include <iostream>
 #include <boost/math/special_functions/bessel.hpp>
 #include <boost/math/special_functions/chebyshev_transform.hpp>
 #include <boost/math/special_functions/next.hpp>
@@ -56,7 +55,7 @@ struct fileCache {
         try {
             boost::iostreams::mapped_file_params params;
             params.path = cacheDir + name;
-            std::cout << params.path << std::endl;
+            //std::cout << params.path << std::endl;
             params.new_file_size = size;  // 1 MB
             params.flags =
                 boost::iostreams::mapped_file::mapmode::readwrite;
@@ -94,39 +93,72 @@ struct fileCache {
         }
         file.close();
         return targetVec;
-        /*
-        
-        try {
-            boost::iostreams::mapped_file_params params;
-            params.path = cacheDir + name;
-            params.flags =
-                boost::iostreams::mapped_file::mapmode::readonly;
-            boost::iostreams::mapped_file_source mf;
-            mf.open(params);
-            if (mf.is_open()) {
-                long file_size = mf.size();
-                long width = sizeof(T);
-                long vecsize = file_size / width;
-                if (file_size % width) {
-                    vecsize++;
-                }
-                std::vector<T> targetVec(vecsize);
-                char *start_ptr = reinterpret_cast<char *>(targetVec.data());
-                char *bytes = (char *)mf.data();
-
-                std::copy(mf.begin(), mf.end(), start_ptr);
-                //std::cout << targetVec << std::endl;
-                mf.close();
-                return targetVec;
-            } else {
-                std::vector<T> t;
-                return t;
-            }
-        } catch (std::exception &e) {
-            std::vector<T> t;
-            return t;
-        }*/
     }
+
+    template <typename T, int whatever, typename IND>
+    void Serialize(Eigen::SparseMatrix<T, whatever, IND> &m, std::string name) {
+        using Trip = Eigen::Triplet<int>;
+
+        std::string filename = cacheDir + name;
+        std::vector<Trip> res;
+        int sz = m.nonZeros();
+        m.makeCompressed();
+
+        std::fstream writeFile;
+        writeFile.open(filename, std::ios::binary | std::ios::out);
+
+        if (writeFile.is_open()) {
+            IND rows, cols, nnzs, outS, innS;
+            rows = m.rows();
+            cols = m.cols();
+            nnzs = m.nonZeros();
+            outS = m.outerSize();
+            innS = m.innerSize();
+
+            writeFile.write((const char *)&(rows), sizeof(IND));
+            writeFile.write((const char *)&(cols), sizeof(IND));
+            writeFile.write((const char *)&(nnzs), sizeof(IND));
+            writeFile.write((const char *)&(outS), sizeof(IND));
+            writeFile.write((const char *)&(innS), sizeof(IND));
+
+            writeFile.write((const char *)(m.valuePtr()), sizeof(T) * m.nonZeros());
+            writeFile.write((const char *)(m.outerIndexPtr()), sizeof(IND) * m.outerSize());
+            writeFile.write((const char *)(m.innerIndexPtr()), sizeof(IND) * m.nonZeros());
+
+            writeFile.close();
+        }
+    }
+
+    template <typename T, int whatever, typename IND>
+    bool Deserialize(Eigen::SparseMatrix<T, whatever, IND> &m, std::string name) {
+        std::fstream readFile;
+        std::string filename = cacheDir + name;
+
+        readFile.open(filename, std::ios::binary | std::ios::in);
+        if (readFile.is_open()) {
+            IND rows, cols, nnz, inSz, outSz;
+            readFile.read((char *)&rows, sizeof(IND));
+            readFile.read((char *)&cols, sizeof(IND));
+            readFile.read((char *)&nnz, sizeof(IND));
+            readFile.read((char *)&outSz, sizeof(IND));
+            readFile.read((char *)&inSz, sizeof(IND));
+
+            m.resize(rows, cols);
+            m.makeCompressed();
+            m.resizeNonZeros(nnz);
+
+            readFile.read((char *)(m.valuePtr()), sizeof(T) * nnz);
+            readFile.read((char *)(m.outerIndexPtr()), sizeof(IND) * outSz);
+            readFile.read((char *)(m.innerIndexPtr()), sizeof(IND) * nnz);
+
+            m.finalize();
+            readFile.close();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 };  // namespace OOGA
 
 //The below class holds function values without reference to the function itself.  It contains the code for calculating finite differences,
@@ -766,12 +798,32 @@ class linearDotProductCPU
     friend class GACalculator<RealT>;
 
     static std::unique_ptr<GACalculator<RealT>>
-    create(const functionGrid<RealT> &f) {
-        return std::make_unique<linearDotProductCPU>(f);
+    create(const functionGrid<RealT> &f, fileCache *cache) {
+        return std::make_unique<linearDotProductCPU>(f, cache);
     }
-    static Eigen::SparseMatrix<RealT, Eigen::RowMajor> assembleFastGACalc(const functionGrid<RealT> &ftocopy) {
-        auto f = ftocopy;
+    static Eigen::SparseMatrix<RealT, Eigen::RowMajor> assembleFastGACalc(const functionGrid<RealT> &ftocopy, fileCache *cache) {
         Eigen::SparseMatrix<RealT, Eigen::RowMajor> LTOffsetTensor;
+        auto f = ftocopy;
+
+        std::string calcname = "Linear-Sparse";
+        std::string cacheFileName;
+
+        std::ostringstream fullname;
+        fullname << calcname << "."
+                 << sizeof(RealT) << "."
+                 << f.xcount << "."
+                 << f.ycount << "."
+                 << f.rhocount << "."
+                 << f.rhoset.front() << "."
+                 << f.rhoset.back();
+
+        if (cache) {
+            bool readFromCache = cache->Deserialize(LTOffsetTensor, fullname.str());
+            if (readFromCache) {
+                return LTOffsetTensor;
+            }
+        }
+
         LTOffsetTensor.setZero();
 
         int max_threads = omp_get_max_threads() + 1;
@@ -856,8 +908,8 @@ class linearDotProductCPU
                         std::array<RealT, 4> coeffs = arcIntegral(rho, xc, yc, s0, s1);
                         f.interpIndexSearch(xmid, ymid, xInterpIndex, yInterpIndex);
 
-                        if (!((xInterpIndex == (f.xset.size() - 1)) &&
-                              (yInterpIndex == (f.yset.size() - 1)))) {
+                        if (!((xInterpIndex == (static_cast<long>(f.xset.size()) - 1)) &&
+                              (yInterpIndex == (static_cast<long>(f.yset.size()) - 1)))) {
                             RealT x = f.xset[xInterpIndex],
                                   a = f.xset[xInterpIndex + 1];
                             RealT y = f.yset[yInterpIndex],
@@ -916,7 +968,7 @@ class linearDotProductCPU
         std::vector<Eigen::Triplet<RealT>>
             Triplets;
 
-        for (int i = 0; i < TripletVecVec.size(); i++) {
+        for (size_t i = 0; i < TripletVecVec.size(); i++) {
             for (auto iter = TripletVecVec[i].begin();
                  iter != TripletVecVec[i].end(); ++iter) {
                 Triplets.emplace_back(*iter);
@@ -926,14 +978,18 @@ class linearDotProductCPU
         LTOffsetTensor.resize(f.rhocount * f.xcount * f.ycount,
                               f.rhocount * f.xcount * f.ycount);
         LTOffsetTensor.setFromTriplets(Triplets.begin(), Triplets.end());
+
+        if (cache) {
+            cache->Serialize(LTOffsetTensor, fullname.str());
+        }
         return LTOffsetTensor;
 
         // std::cout << "Number of RealT  products needed for LT calc: " <<
         // LTOffsetTensor.nonZeros() << " and rough memory usage is " <<
         // LTOffsetTensor.nonZeros() * (sizeof(RealT) + sizeof(long)) << std::endl;
     }  // namespace OOGA
-    explicit linearDotProductCPU(const functionGrid<RealT> &f) {
-        linearSparseTensor = assembleFastGACalc(f);
+    explicit linearDotProductCPU(const functionGrid<RealT> &f, fileCache *cache) {
+        linearSparseTensor = assembleFastGACalc(f, cache);
     };
 
     functionGrid<RealT> calculate(
@@ -1418,17 +1474,17 @@ class chebCPUDense
         if (cache) {
             std::string calcname = "ChebCache";
             for (int rho_iter = 0; rho_iter < paramf.rhocount; ++rho_iter) {
-                std::ostringstream fullname;
-                fullname << calcname << "." << paramf.xcount << "." << paramf.ycount << "." << std::to_string(rhoset[rho_iter]);
-                std::cout << "attempting to read from " << fullname.str() << std::endl;
+                std::ostringstream fullname;  //unfortunately this needs to be maintained in two places.  TODO(orebas) make it a lambda
+                fullname << calcname << "." << sizeof(RealT) << "." << paramf.xcount << "." << paramf.ycount << "." << std::to_string(rhoset[rho_iter]);
+                //std::cout << "attempting to read from " << fullname.str() << std::endl;
                 std::vector<RealT> check;
                 check = cache->read<RealT>(fullname.str());
-                if (check.size() == paramf.xcount * paramf.ycount * paramf.xcount * paramf.ycount) {
-                    std::cout << "Succesful read" << std::endl;
+                if (static_cast<long int>(check.size()) == paramf.xcount * paramf.ycount * paramf.xcount * paramf.ycount) {
+                    //std::cout << "Succesful read" << std::endl;
                     Eigen::Map<Eigen::Matrix<RealT, Eigen::Dynamic, Eigen::Dynamic>> m(check.data(), paramf.xcount * paramf.ycount, paramf.xcount * paramf.ycount);
                     dgma[rho_iter] = m;
                 } else {
-                    std::cout << "Failed  read " << check.size() << std::endl;
+                    //std::cout << "Failed  read " << check.size() << std::endl;
 
                     needNewData = true;
                 }
@@ -1470,18 +1526,18 @@ class chebCPUDense
                 }
             }
             if (cache) {
-                std::cout << "attempting to cache\n";
+                //std::cout << "attempting to cache\n";
                 for (int rho_iter = 0; rho_iter < paramf.rhocount; ++rho_iter) {
                     std::string calcname = "ChebCache";
-                    std::ostringstream fullname;
-                    fullname << calcname << "." << paramf.xcount << "." << paramf.ycount << "." << std::to_string(rhoset[rho_iter]);
+                    std::ostringstream fullname;  //unfortunately this needs to be maintained in two places.  TODO(orebas) make it a lambda
+                    fullname << calcname << "." << sizeof(RealT) << "." << paramf.xcount << "." << paramf.ycount << "." << std::to_string(rhoset[rho_iter]);
                     cache->save(fullname.str(), dgma[rho_iter].data(), dgma[rho_iter].size() * sizeof(RealT));
                 }
             } else {
-                std::cout << "didn't try to cache\n";
+                //std::cout << "didn't try to cache\n";
             }
         } else {
-            std::cout << "Fully read from cache!" << std::endl;
+            //std::cout << "Fully read from cache!" << std::endl;
         }
     }
 
@@ -1493,7 +1549,7 @@ class chebCPUDense
     }
 
     static std::unique_ptr<GACalculator<RealT>>
-    create(const gridDomain &g, const functionGrid<RealT> &f, fileCache *cache = nullptr) {
+    create(const gridDomain &g, const functionGrid<RealT> &f, fileCache *cache) {
         return std::make_unique<chebCPUDense>(g, f, cache);
     }
 
@@ -1730,18 +1786,37 @@ class bicubicDotProductCPU
 
    public:
     friend class GACalculator<RealT>;
-    explicit bicubicDotProductCPU(const functionGrid<RealT> &f) {
-        BCSparseOperator = assembleFastBCCalc(f);
+    explicit bicubicDotProductCPU(const functionGrid<RealT> &f, fileCache *cache) {
+        BCSparseOperator = assembleFastBCCalc(f, cache);
     };
 
     static std::unique_ptr<GACalculator<RealT>>
-    create(const functionGrid<RealT> &f) {
-        return std::make_unique<bicubicDotProductCPU>(f);
+    create(const functionGrid<RealT> &f, fileCache *cache) {
+        return std::make_unique<bicubicDotProductCPU>(f, cache);
     }
 
-    static Eigen::SparseMatrix<RealT, Eigen::RowMajor> assembleFastBCCalc(const functionGrid<RealT> &ftocopy) {
-        auto f = ftocopy;
+    static Eigen::SparseMatrix<RealT, Eigen::RowMajor> assembleFastBCCalc(const functionGrid<RealT> &ftocopy, fileCache *cache) {
         Eigen::SparseMatrix<RealT, Eigen::RowMajor> BCOffsetTensor;
+        auto f = ftocopy;
+        std::string calcname = "Bicubic-Sparse";
+        std::string cacheFileName;
+
+        std::ostringstream fullname;
+        fullname << calcname << "."
+                 << sizeof(RealT) << "."
+                 << f.xcount << "."
+                 << f.ycount << "."
+                 << f.rhocount << "."
+                 << f.rhoset.front() << "."
+                 << f.rhoset.back();
+
+        if (cache) {
+            bool readFromCache = cache->Deserialize(BCOffsetTensor, fullname.str());
+            if (readFromCache) {
+                return BCOffsetTensor;
+            }
+        }
+
         BCOffsetTensor.setZero();
         const int myxcount = f.xcount;
         const int myycount = f.ycount;
@@ -1854,7 +1929,7 @@ class bicubicDotProductCPU
             }
         }
         std::vector<Eigen::Triplet<RealT>> Triplets;
-        for (int i = 0; i < TripletVecVec.size(); i++) {
+        for (size_t i = 0; i < TripletVecVec.size(); i++) {
             for (auto iter = TripletVecVec[i].begin();
                  iter != TripletVecVec[i].end(); ++iter) {
                 //Eigen::Triplet<RealT> lto(*iter);
@@ -1866,6 +1941,9 @@ class bicubicDotProductCPU
         BCOffsetTensor.setFromTriplets(Triplets.begin(), Triplets.end());
 
         //std::cout << "Number of RealT  products needed for BC calc: " << BCOffsetTensor.nonZeros() << " and rough memory usage is " << BCOffsetTensor.nonZeros() * (sizeof(RealT) + sizeof(long)) << std::endl;
+        if (cache) {
+            cache->Serialize(BCOffsetTensor, fullname.str());
+        }
         return BCOffsetTensor;
     }
 
@@ -1893,9 +1971,9 @@ class bicubicDotProductGPU
 
    public:
     friend class GACalculator<RealT>;
-    explicit bicubicDotProductGPU(const functionGrid<RealT> &f)
+    explicit bicubicDotProductGPU(const functionGrid<RealT> &f, fileCache *cache)
         : vcl_sparse_matrix(f.xcount * f.ycount * f.rhocount, f.xcount * f.ycount * f.rhocount * 16) {
-        Eigen::SparseMatrix<RealT, Eigen::RowMajor> BCSparseOperator = bicubicDotProductCPU<RealT>::assembleFastBCCalc(f);
+        Eigen::SparseMatrix<RealT, Eigen::RowMajor> BCSparseOperator = bicubicDotProductCPU<RealT>::assembleFastBCCalc(f, cache);
         viennacl::copy(BCSparseOperator, vcl_sparse_matrix);
         typename functionGrid<RealT>::bicubicParameterGrid b = functionGrid<RealT>::setupBicubicGrid(f);
         //gpu_source.resize(b.data.size());
@@ -1909,8 +1987,8 @@ class bicubicDotProductGPU
     };
 
     static std::unique_ptr<GACalculator<RealT>>
-    create(const functionGrid<RealT> &f) {
-        return std::make_unique<bicubicDotProductGPU>(f);
+    create(const functionGrid<RealT> &f, fileCache *cache) {
+        return std::make_unique<bicubicDotProductGPU>(f, cache);
     }
 
     functionGrid<RealT> calculate(
@@ -1942,9 +2020,9 @@ class linearDotProductGPU
 
    public:
     friend class GACalculator<RealT>;
-    explicit linearDotProductGPU(const functionGrid<RealT> &f)
+    explicit linearDotProductGPU(const functionGrid<RealT> &f, fileCache *cache)
         : vcl_sparse_matrix(f.xcount * f.ycount * f.rhocount, f.xcount * f.ycount * f.rhocount) {
-        Eigen::SparseMatrix<RealT, Eigen::RowMajor> GASparseOperator = linearDotProductCPU<RealT>::assembleFastGACalc(f);
+        Eigen::SparseMatrix<RealT, Eigen::RowMajor> GASparseOperator = linearDotProductCPU<RealT>::assembleFastGACalc(f, cache);
         viennacl::copy(GASparseOperator, vcl_sparse_matrix);
         //typename functionGrid<RealT> ::linearParameterGrid b = functionGrid<RealT> ::setuplinearGrid(f);
         //std::cout << "no fail 1" << std::endl;
@@ -1955,8 +2033,8 @@ class linearDotProductGPU
     };
 
     static std::unique_ptr<GACalculator<RealT>>
-    create(const functionGrid<RealT> &f) {
-        return std::make_unique<linearDotProductGPU>(f);
+    create(const functionGrid<RealT> &f, fileCache *cache) {
+        return std::make_unique<linearDotProductGPU>(f, cache);
     }
 
     functionGrid<RealT> calculate(
@@ -1994,15 +2072,15 @@ GACalculator<RealT>::Factory::newCalculator(
         case (calculatorType::DCTCPUCalculator2):
             return DCTCPUCalculator2<RealT>::create(g, f);
         case (calculatorType::linearDotProductCPU):
-            return linearDotProductCPU<RealT>::create(f);
+            return linearDotProductCPU<RealT>::create(f, cache);
         case (calculatorType::bicubicDotProductCPU):
-            return bicubicDotProductCPU<RealT>::create(f);
+            return bicubicDotProductCPU<RealT>::create(f, cache);
         case (calculatorType::DCTCPUPaddedCalculator2):
             return DCTCPUPaddedCalculator<RealT>::create(g, f, padcount);
         case (calculatorType::bicubicDotProductGPU):
-            return bicubicDotProductGPU<RealT>::create(f);
+            return bicubicDotProductGPU<RealT>::create(f, cache);
         case (calculatorType::linearDotProductGPU):
-            return linearDotProductGPU<RealT>::create(f);
+            return linearDotProductGPU<RealT>::create(f, cache);
         case (calculatorType::chebCPUDense):
             return chebCPUDense<RealT>::create(g, f, cache);
         case (calculatorType::chebGPUDense):
