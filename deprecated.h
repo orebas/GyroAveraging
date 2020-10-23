@@ -134,7 +134,7 @@ class GyroAveragingGrid {
                              yc - rhoset[i] * std::cos(x));
                 };
                 RealT result =
-                    TrapezoidIntegrate(0.0, 2 * pi, new_f) / (2 * pi);
+                    GSLIntegrate(0.0, 2 * pi, new_f) / (2 * pi);
                 return result;
             });
     }
@@ -152,7 +152,7 @@ class GyroAveragingGrid {
                 if ((why < yset[0]) || (why > yset.back())) return 0;
                 return f(rhoset[i], ex, why);
             };
-            RealT result = TrapezoidIntegrate(0.0, 2 * pi, new_f) / (2 * pi);
+            RealT result = GSLIntegrate(0.0, 2 * pi, new_f) / (2 * pi);
             return result;
         });
     }
@@ -169,7 +169,7 @@ class GyroAveragingGrid {
                 return interp2d(i, xc + rhoset[i] * std::sin(x),
                                 yc - rhoset[i] * std::cos(x));
             };
-            RealT result = TrapezoidIntegrate(0.0, 2 * pi, new_f) / (2 * pi);
+            RealT result = GSLIntegrate(0.0, 2 * pi, new_f) / (2 * pi);
             return result;
         });
     }
@@ -184,7 +184,7 @@ class GyroAveragingGrid {
                 return interpNaiveBicubic(i, xc + rhoset[i] * std::sin(x),
                                           yc - rhoset[i] * std::cos(x));
             };
-            RealT result = TrapezoidIntegrate(0.0, 2 * pi, new_f) / (2 * pi);
+            RealT result = GSLIntegrate(0.0, 2 * pi, new_f) / (2 * pi);
             return result;
         });
     }

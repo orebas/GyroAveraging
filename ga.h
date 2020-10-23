@@ -309,7 +309,7 @@ class functionGrid {
                          yc - rhoset[i] * std::cos(x));
             };
             RealT result =
-                TrapezoidIntegrate(0.0, 2 * pi, new_f) / (2 * pi);
+                GSLIntegrate(0.0, 2 * pi, new_f) / (2 * pi);
             return result;
         });
     }
@@ -333,7 +333,7 @@ class functionGrid {
                 }
                 return f(rhoset[i], ex, why);
             };
-            RealT result = TrapezoidIntegrate(0.0, 2 * pi, new_f) / (2 * pi);  //we can use trapezoid here too.
+            RealT result = GSLIntegrate(0.0, 2 * pi, new_f) / (2 * pi);  //we can use trapezoid here too.
             return result;
         });
     }
@@ -367,7 +367,7 @@ class functionGrid {
                 return interpNaiveBicubic(i, xc + rhoset[i] * std::sin(x),
                                           yc - rhoset[i] * std::cos(x));
             };
-            RealT result = TrapezoidIntegrate(0.0, 2 * pi, new_f) / (2 * pi);
+            RealT result = GSLIntegrate(0.0, 2 * pi, new_f) / (2 * pi);
             return result;
         });
     }
@@ -798,7 +798,7 @@ class linearCPUCalculator
                 return f.interp2d(i, xc + f.rhoset[i] * std::sin(x),
                                   yc - f.rhoset[i] * std::cos(x));
             };
-            RealT result = TrapezoidIntegrate(0.0, 2 * pi, new_f) / (2 * pi);
+            RealT result = GSLIntegrate(0.0, 2 * pi, new_f) / (2 * pi);
             return result;
         });
         return m;
@@ -1072,7 +1072,7 @@ class bicubicCPUCalculator
                 return this->interpNaiveBicubic(f, b, i, xc + f.rhoset[i] * std::sin(x),
                                                 yc - f.rhoset[i] * std::cos(x));
             };
-            RealT result = TrapezoidIntegrate(0.0, 2 * pi, new_f) / (2 * pi);
+            RealT result = GSLIntegrate(0.0, 2 * pi, new_f) / (2 * pi);
             return result;
         });
         return m;

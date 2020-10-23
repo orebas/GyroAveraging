@@ -5,7 +5,7 @@
 CPP = g++
 CFLAGS=-I. -Wall -std=c++2A 
 DEPS = ga.h
-LIBS = -lm -lfftw3 -lfftw3f -lboost_program_options -lboost_iostreams
+LIBS = -lm -lfftw3 -lfftw3f -lboost_program_options -lboost_iostreams -lgsl
 
 GyroAverage-OpenCL: GyroAverage.cpp ga.h  gautils.h
 	$(CPP) GyroAverage.cpp   -std=c++14 -Wall   -O3  -I. -D_GLIBCXX_USE_CXX11_ABI=0  -fopenmp -march=native -o GyroAverage-OpenCL -DVIENNACL_WITH_OPENCL -lOpenCL -I/usr/include/boost169 $(LIBS)
