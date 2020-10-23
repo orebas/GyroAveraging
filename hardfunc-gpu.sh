@@ -48,6 +48,9 @@ module load fftw/intel/3.3.5
 module load cuda/10.1.105
 module load gcc/6.3.0
   
+
+module load gsl/intel/2.3
+
 ulimit -c 0
 
 

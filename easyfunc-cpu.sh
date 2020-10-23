@@ -47,6 +47,8 @@ module load fftw/intel/3.3.5
 module load cuda/10.1.105
 module load gcc/6.3.0
 
+module load gsl/intel/2.3
+
 ulimit -c 0
   
 # next we create a unique directory to run this job in. We will record its

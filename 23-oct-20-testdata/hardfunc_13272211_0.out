@@ -1,0 +1,22 @@
+calculator chosen: 0
+func chosen: 2
+cache dir chosen: /scratch/ob749/GA/cache/
+FunctionName, Calculator,N,Init time (s), Calc.time(s), Calc.Freq(hz), Bytes, MaxError, FirstBlank, Err1, Err2, Err3, Blank
+Non-smooth: Wendland CSRBF+Runge,linear interp; trapezoid rule; CPU ,8,0,2.804e+07,35.6633,8, 0.367776,,0.367776,0.146157,0.19796,
+Non-smooth: Wendland CSRBF+Runge,linear interp; trapezoid rule; CPU ,12,0,1.15947e+08,8.62462,8, 0.233767,,0.233767,0.0926242,0.173806,
+Non-smooth: Wendland CSRBF+Runge,linear interp; trapezoid rule; CPU ,16,0,3.53717e+08,2.82712,8, 0.153698,,0.153698,0.0602691,0.0793127,
+Non-smooth: Wendland CSRBF+Runge,linear interp; trapezoid rule; CPU ,20,0,7.59939e+08,1.3159,8, 0.0878289,,0.0878289,0.0442987,0.0422255,
+Non-smooth: Wendland CSRBF+Runge,linear interp; trapezoid rule; CPU ,24,0,1.41158e+09,0.708424,8, 0.0531909,,0.0531909,0.0374021,0.0475604,
+Non-smooth: Wendland CSRBF+Runge,linear interp; trapezoid rule; CPU ,28,0,2.70844e+09,0.369216,8, 0.0657198,,0.0245292,0.0342397,0.0657198,
+Non-smooth: Wendland CSRBF+Runge,linear interp; trapezoid rule; CPU ,32,0,4.4312e+09,0.225673,8, 0.036225,,0.00734902,0.0249741,0.036225,
+Non-smooth: Wendland CSRBF+Runge,linear interp; trapezoid rule; CPU ,36,0,6.87021e+09,0.145556,8, 0.0378704,,0.0378704,0.0227959,0.0166538,
+Non-smooth: Wendland CSRBF+Runge,linear interp; trapezoid rule; CPU ,40,0,1.02773e+10,0.097302,8, 0.0395793,,0.0395793,0.0215388,0.0206273,
+Non-smooth: Wendland CSRBF+Runge,linear interp; trapezoid rule; CPU ,44,0,1.45718e+10,0.0686259,8, 0.0348944,,0.0348944,0.016765,0.0155759,
+Non-smooth: Wendland CSRBF+Runge,linear interp; trapezoid rule; CPU ,48,0,1.94595e+10,0.0513888,8, 0.0264895,,0.0264895,0.0132887,0.0234277,
+Non-smooth: Wendland CSRBF+Runge,linear interp; trapezoid rule; CPU ,52,0,2.64013e+10,0.0378769,8, 0.0169558,,0.0169558,0.00971223,0.0109054,
+Non-smooth: Wendland CSRBF+Runge,linear interp; trapezoid rule; CPU ,56,0,3.50863e+10,0.0285012,8, 0.0102296,,0.00881761,0.00786281,0.0102296,
+Non-smooth: Wendland CSRBF+Runge,linear interp; trapezoid rule; CPU ,60,0,4.39859e+10,0.0227345,8, 0.0111648,,0.00413669,0.0111648,0.0109266,
+Non-smooth: Wendland CSRBF+Runge,linear interp; trapezoid rule; CPU ,64,0,5.34289e+10,0.0187165,8, 0.0190385,,0.00785484,0.016187,0.0190385,
+Non-smooth: Wendland CSRBF+Runge,linear interp; trapezoid rule; CPU ,68,0,6.67251e+10,0.0149869,8, 0.0123521,,0.0116937,0.0123521,0.00869079,
+Non-smooth: Wendland CSRBF+Runge,linear interp; trapezoid rule; CPU ,72,0,8.50226e+10,0.0117616,8, 0.0148625,,0.0148625,0.00905229,0.00497884,
+Non-smooth: Wendland CSRBF+Runge,linear interp; trapezoid rule; CPU ,76,0,1.0223e+11,0.00978189,8, 0.0133676,,0.0133676,0.00626667,0.00769997,
