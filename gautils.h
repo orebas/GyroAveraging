@@ -14,8 +14,62 @@
 #include <boost/math/quadrature/tanh_sinh.hpp>
 #include <boost/math/quadrature/trapezoidal.hpp>
 #include <boost/math/special_functions/bessel.hpp>
+#include <boost/math/quadrature/gauss_kronrod.hpp>
 #include <boost/math/special_functions/next.hpp>
 #include <chrono>
+
+template <typename F>
+class gsl_quad_old {
+    F f;
+    int limit;
+    std::unique_ptr<gsl_integration_workspace,
+                    std::function<void(gsl_integration_workspace *)> >
+        workspace;
+
+    static double gsl_wrapper(double x, void *p) {
+        gsl_quad_old *t = reinterpret_cast<gsl_quad_old *>(p);
+        return t->f(x);
+    }
+
+   public:
+    gsl_quad_old(F f, int limit)
+        : f(f), limit(limit), workspace(gsl_integration_workspace_alloc(limit), gsl_integration_workspace_free) {}
+
+    double integrate(double min, double max, double epsabs, double epsrel) {
+        gsl_function gsl_f;
+        gsl_f.function = &gsl_wrapper;
+        gsl_f.params = this;
+
+        double result, error;
+        if (!std::isinf(min) && !std::isinf(max)) {
+            gsl_integration_qags(&gsl_f, min, max,
+                                 epsabs, epsrel, limit,
+                                 workspace.get(), &result, &error);
+        } else if (std::isinf(min) && !std::isinf(max)) {
+            gsl_integration_qagil(&gsl_f, max,
+                                  epsabs, epsrel, limit,
+                                  workspace.get(), &result, &error);
+        } else if (!std::isinf(min) && std::isinf(max)) {
+            gsl_integration_qagiu(&gsl_f, min,
+                                  epsabs, epsrel, limit,
+                                  workspace.get(), &result, &error);
+        } else {
+            gsl_integration_qagi(&gsl_f,
+                                 epsabs, epsrel, limit,
+                                 workspace.get(), &result, &error);
+        }
+
+        return result;
+    }
+};
+
+template <typename F>
+double quad_old(F func,
+                std::pair<double, double> const &range,
+                double epsabs = 1.49e-12, double epsrel = 1.49e-12,
+                int limit = 10000) {
+    return gsl_quad_old<F>(func, limit).integrate(range.first, range.second, epsabs, epsrel);
+}  //end
 
 template <typename F>
 class gsl_quad {
@@ -39,7 +93,7 @@ class gsl_quad {
         gsl_f.function = &gsl_wrapper;
         gsl_f.params = this;
 
-        double result, error;
+        double result = 0, error = 0;
 
         gsl_integration_cquad(&gsl_f, min, max,
                               epsabs, epsrel, workspace.get(), &result, &error, nullptr);
@@ -69,8 +123,8 @@ class gsl_quad {
 template <typename F>
 double quad(F func,
             std::pair<double, double> const &range,
-            double epsabs = 1.49e-12, double epsrel = 1.49e-12,
-            int limit = 100000) {
+            double epsabs = 1.49e-15, double epsrel = 1.49e-15,
+            int limit = 10000) {
     return gsl_quad<F>(func, limit).integrate(range.first, range.second, epsabs, epsrel);
 }
 
@@ -242,7 +296,19 @@ inline RealT BilinearInterpolation(RealT q11, RealT q12, RealT q21, RealT q22,
 template <typename TFunc, class RealT = double>
 inline RealT TrapezoidIntegrate(RealT x, RealT y, TFunc f) {
     using boost::math::quadrature::trapezoidal;
-    return trapezoidal(f, x, y);
+    return trapezoidal(f, x, y, 1e-12, 20);
+
+    //boost::math::quadrature::tanh_sinh<RealT> integrator;
+    //return integrator.integrate(f, x, y);  //TODO REPLACE
+}
+
+template <typename TFunc, class RealT = double>
+inline RealT BOOSTGKIntegrate(RealT x, RealT y, TFunc f) {
+    using boost::math::quadrature::gauss_kronrod;
+    double error;
+    double Q = gauss_kronrod<double, 15>::integrate(f, x, y, 16, 1e-12, &error);
+
+    return Q;
 
     //boost::math::quadrature::tanh_sinh<RealT> integrator;
     //return integrator.integrate(f, x, y);  //TODO REPLACE
@@ -250,7 +316,19 @@ inline RealT TrapezoidIntegrate(RealT x, RealT y, TFunc f) {
 
 template <typename TFunc, class RealT = double>
 inline RealT GSLIntegrate(RealT x, RealT y, TFunc f) {
-    return quad(f, {x, y});
+    double newq = quad(f, {x, y});
+    //double oldq = quad_old(f, {x, y});
+    //double trap = TrapezoidIntegrate(x, y, f);
+    //double GK = BOOSTGKIntegrate(x, y, f);
+    //double tanhsinh = TanhSinhIntegrate(x, y, f);
+    //std::array<double, 3> values = {0, oldq - newq, GK - newq};
+    //double localmin = *std::min_element(values.begin(), values.end());
+    //double localmax = *std::max_element(values.begin(), values.end());
+    //if (localmax - localmin > 1e-6) {
+    //   std::cout << "Quadrature accuracy in question: " << "value:" << newq << " " << localmax - localmin << " " << values << std::endl;
+    //abort();
+    //}
+    return newq;
 }
 
 template <class T = double>

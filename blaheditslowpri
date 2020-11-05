@@ -1,0 +1,401 @@
+Error while trying to load a compilation database:
+Could not auto-detect compilation database for file "GyroAverage.cpp"
+No compilation database found in /home/orebas/GyroAveraging or any parent directory
+fixed-compilation-database: Error while opening fixed database: No such file or directory
+json-compilation-database: Error while opening JSON database: No such file or directory
+Running without flags.
+93310 warnings generated.
+./eigen3/Eigen/src/SparseCore/CompressedStorage.h:121:80: warning: Returning null reference [clang-analyzer-core.uninitialized.UndefReturn]
+    inline StorageIndex& index(Index i) { eigen_internal_assert(m_indices!=0); return m_indices[i]; }
+                                                                               ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:163:47: note: Calling 'Factory::newCalculator'
+    auto func = [&]() -> void { calculator = (GACalculator<RealT>::Factory::newCalculator(calcType, g, exact, cache, xcount / 2)); };
+                                              ^
+./ga.h:2127:5: note: Control jumps to 'case linearDotProductCPU:'  at line 2137
+    switch (c) {
+    ^
+./ga.h:2138:20: note: Calling 'linearDotProductCPU::create'
+            return linearDotProductCPU<RealT>::create(f, cache);
+                   ^
+./ga.h:865:16: note: Calling 'make_unique<OOGA::linearDotProductCPU<double>, const OOGA::functionGrid<double> &, OOGA::fileCache *&>'
+        return std::make_unique<linearDotProductCPU>(f, cache);
+               ^
+/usr/lib/gcc/x86_64-linux-gnu/10/../../../../include/c++/10/bits/unique_ptr.h:962:34: note: Calling constructor for 'linearDotProductCPU<double>'
+    { return unique_ptr<_Tp>(new _Tp(std::forward<_Args>(__args)...)); }
+                                 ^
+./ga.h:1055:30: note: Calling 'linearDotProductCPU::assembleFastGACalc'
+        linearSparseTensor = assembleFastGACalc(f, cache);
+                             ^
+./ga.h:883:13: note: Assuming 'cache' is null
+        if (cache) {
+            ^
+./ga.h:883:9: note: Taking false branch
+        if (cache) {
+        ^
+./ga.h:897:26: note: Assuming 'i' is >= field 'rhocount'
+        for (auto i = 0; i < f.rhocount; i++) {
+                         ^
+./ga.h:897:9: note: Loop condition is false. Execution continues on line 1032
+        for (auto i = 0; i < f.rhocount; i++) {
+        ^
+./ga.h:1034:28: note: Assuming the condition is false
+        for (size_t i = 0; i < TripletVecVec.size(); i++) {
+                           ^
+./ga.h:1034:9: note: Loop condition is false. Execution continues on line 1041
+        for (size_t i = 0; i < TripletVecVec.size(); i++) {
+        ^
+./ga.h:1043:9: note: Calling 'SparseMatrix::setFromTriplets'
+        LTOffsetTensor.setFromTriplets(Triplets.begin(), Triplets.end());
+        ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:996:3: note: Calling 'set_from_triplets<__gnu_cxx::__normal_iterator<Eigen::Triplet<double, int> *, std::vector<Eigen::Triplet<double, int>, std::allocator<Eigen::Triplet<double, int> > > >, Eigen::SparseMatrix<double, 1, int>, Eigen::internal::scalar_sum_op<double, double>>'
+  internal::set_from_triplets<InputIterators, SparseMatrix<Scalar,_Options,_StorageIndex> >(begin, end, *this, internal::scalar_sum_op<Scalar,Scalar>());
+  ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:926:66: note: Calling constructor for 'SparseMatrix<double, 0, int>'
+  SparseMatrix<Scalar,IsRowMajor?ColMajor:RowMajor,StorageIndex> trMat(mat.rows(),mat.cols());
+                                                                 ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:668:12: note: Calling default constructor for 'CompressedStorage<double, int>'
+    inline SparseMatrix(Index rows, Index cols)
+           ^
+./eigen3/Eigen/src/SparseCore/CompressedStorage.h:36:22: note: Null pointer value stored to 'trMat.m_data.m_indices'
+      : m_values(0), m_indices(0), m_size(0), m_allocatedSize(0)
+                     ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:668:12: note: Returning from default constructor for 'CompressedStorage<double, int>'
+    inline SparseMatrix(Index rows, Index cols)
+           ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:926:66: note: Returning from constructor for 'SparseMatrix<double, 0, int>'
+  SparseMatrix<Scalar,IsRowMajor?ColMajor:RowMajor,StorageIndex> trMat(mat.rows(),mat.cols());
+                                                                 ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:928:3: note: Taking true branch
+  if(begin!=end)
+  ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:933:5: note: Loop condition is false. Execution continues on line 940
+    for(InputIterator it(begin); it!=end; ++it)
+    ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:940:5: note: Calling 'SparseMatrix::reserve'
+    trMat.reserve(wi);
+    ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:292:7: note: Calling 'SparseMatrix::reserveInnerVectors'
+      reserveInnerVectors(reserveSizes);
+      ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:299:7: note: Taking true branch
+      if(isCompressed())
+      ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:304:13: note: Assuming field 'm_innerNonZeros' is non-null
+        if (!m_innerNonZeros) internal::throw_std_bad_alloc();
+            ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:304:9: note: Taking false branch
+        if (!m_innerNonZeros) internal::throw_std_bad_alloc();
+        ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:310:24: note: 'j' is >= field 'm_outerSize'
+        for(Index j=0; j<m_outerSize; ++j)
+                       ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:310:9: note: Loop condition is false. Execution continues on line 316
+        for(Index j=0; j<m_outerSize; ++j)
+        ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:318:36: note: Assuming 'j' is >= 0
+        for(Index j=m_outerSize-1; j>=0; --j)
+                                   ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:318:9: note: Loop condition is true.  Entering loop body
+        for(Index j=m_outerSize-1; j>=0; --j)
+        ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:321:35: note: Assuming 'i' is >= 0
+          for(Index i=innerNNZ-1; i>=0; --i)
+                                  ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:321:11: note: Loop condition is true.  Entering loop body
+          for(Index i=innerNNZ-1; i>=0; --i)
+          ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:323:48: note: Calling 'CompressedStorage::index'
+            m_data.index(newOuterIndex[j]+i) = m_data.index(m_outerIndex[j]+i);
+                                               ^
+./eigen3/Eigen/src/SparseCore/CompressedStorage.h:121:80: note: Returning null reference
+    inline StorageIndex& index(Index i) { eigen_internal_assert(m_indices!=0); return m_indices[i]; }
+                                                                               ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:303:54: warning: Call to 'malloc' has an allocation size of 0 bytes [clang-analyzer-optin.portability.UnixAPI]
+        m_innerNonZeros = static_cast<StorageIndex*>(std::malloc(m_outerSize * sizeof(StorageIndex)));
+                                                     ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:163:47: note: Calling 'Factory::newCalculator'
+    auto func = [&]() -> void { calculator = (GACalculator<RealT>::Factory::newCalculator(calcType, g, exact, cache, xcount / 2)); };
+                                              ^
+./ga.h:2127:5: note: Control jumps to 'case linearDotProductCPU:'  at line 2137
+    switch (c) {
+    ^
+./ga.h:2138:20: note: Calling 'linearDotProductCPU::create'
+            return linearDotProductCPU<RealT>::create(f, cache);
+                   ^
+./ga.h:865:16: note: Calling 'make_unique<OOGA::linearDotProductCPU<double>, const OOGA::functionGrid<double> &, OOGA::fileCache *&>'
+        return std::make_unique<linearDotProductCPU>(f, cache);
+               ^
+/usr/lib/gcc/x86_64-linux-gnu/10/../../../../include/c++/10/bits/unique_ptr.h:962:34: note: Calling constructor for 'linearDotProductCPU<double>'
+    { return unique_ptr<_Tp>(new _Tp(std::forward<_Args>(__args)...)); }
+                                 ^
+./ga.h:1055:30: note: Calling 'linearDotProductCPU::assembleFastGACalc'
+        linearSparseTensor = assembleFastGACalc(f, cache);
+                             ^
+./ga.h:883:13: note: Assuming 'cache' is null
+        if (cache) {
+            ^
+./ga.h:883:9: note: Taking false branch
+        if (cache) {
+        ^
+./ga.h:897:26: note: Assuming 'i' is >= field 'rhocount'
+        for (auto i = 0; i < f.rhocount; i++) {
+                         ^
+./ga.h:897:9: note: Loop condition is false. Execution continues on line 1032
+        for (auto i = 0; i < f.rhocount; i++) {
+        ^
+./ga.h:1034:28: note: Assuming the condition is false
+        for (size_t i = 0; i < TripletVecVec.size(); i++) {
+                           ^
+./ga.h:1034:9: note: Loop condition is false. Execution continues on line 1041
+        for (size_t i = 0; i < TripletVecVec.size(); i++) {
+        ^
+./ga.h:1043:9: note: Calling 'SparseMatrix::setFromTriplets'
+        LTOffsetTensor.setFromTriplets(Triplets.begin(), Triplets.end());
+        ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:996:3: note: Calling 'set_from_triplets<__gnu_cxx::__normal_iterator<Eigen::Triplet<double, int> *, std::vector<Eigen::Triplet<double, int>, std::allocator<Eigen::Triplet<double, int> > > >, Eigen::SparseMatrix<double, 1, int>, Eigen::internal::scalar_sum_op<double, double>>'
+  internal::set_from_triplets<InputIterators, SparseMatrix<Scalar,_Options,_StorageIndex> >(begin, end, *this, internal::scalar_sum_op<Scalar,Scalar>());
+  ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:928:3: note: Taking true branch
+  if(begin!=end)
+  ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:933:5: note: Loop condition is false. Execution continues on line 940
+    for(InputIterator it(begin); it!=end; ++it)
+    ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:940:5: note: Calling 'SparseMatrix::reserve'
+    trMat.reserve(wi);
+    ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:292:7: note: Calling 'SparseMatrix::reserveInnerVectors'
+      reserveInnerVectors(reserveSizes);
+      ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:299:10: note: Calling 'SparseCompressedBase::isCompressed'
+      if(isCompressed())
+         ^
+./eigen3/Eigen/src/SparseCore/SparseCompressedBase.h:107:40: note: Returning the value 1, which participates in a condition later
+    inline bool isCompressed() const { return innerNonZeroPtr()==0; }
+                                       ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:299:10: note: Returning from 'SparseCompressedBase::isCompressed'
+      if(isCompressed())
+         ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:299:7: note: Taking true branch
+      if(isCompressed())
+      ^
+./eigen3/Eigen/src/SparseCore/SparseMatrix.h:303:54: note: Call to 'malloc' has an allocation size of 0 bytes
+        m_innerNonZeros = static_cast<StorageIndex*>(std::malloc(m_outerSize * sizeof(StorageIndex)));
+                                                     ^
+/home/orebas/GyroAveraging/./gautils.h:3:9: warning: header guard does not follow preferred style [llvm-header-guard]
+#ifndef GYROAVERAGING_UTILS_H
+        ^~~~~~~~~~~~~~~~~~~~~
+        _HOME_OREBAS_GYROAVERAGING_GAUTILS_H
+/home/orebas/GyroAveraging/./gautils.h:6:1: warning: #includes are not sorted properly [llvm-include-order]
+#include <iostream>
+^        ~~~~~~~~~~
+         <cmath>
+/home/orebas/GyroAveraging/./gautils.h:9:1: warning: #includes are not sorted properly [llvm-include-order]
+#include <functional>
+^        ~~~~~~~~~~~~
+         <boost/math/quadrature/gauss_kronrod.hpp>
+/home/orebas/GyroAveraging/./gautils.h:30:9: warning: use auto when initializing with a cast to avoid duplicating the type name [hicpp-use-auto]
+        gsl_quad_old *t = reinterpret_cast<gsl_quad_old *>(p);
+        ^
+note: this fix will not be applied because it overlaps with another fix
+/home/orebas/GyroAveraging/./gautils.h:30:9: warning: use auto when initializing with a cast to avoid duplicating the type name [modernize-use-auto]
+note: this fix will not be applied because it overlaps with another fix
+/home/orebas/GyroAveraging/./gautils.h:30:27: warning: do not use reinterpret_cast [cppcoreguidelines-pro-type-reinterpret-cast]
+        gsl_quad_old *t = reinterpret_cast<gsl_quad_old *>(p);
+                          ^
+/home/orebas/GyroAveraging/./gautils.h:43:16: warning: variable 'result' is not initialized [cppcoreguidelines-init-variables]
+        double result, error;
+               ^
+                      = NAN
+/home/orebas/GyroAveraging/./gautils.h:43:24: warning: variable 'error' is not initialized [cppcoreguidelines-init-variables]
+        double result, error;
+                       ^
+                             = NAN
+/home/orebas/GyroAveraging/./gautils.h:69:17: warning: declaring a parameter with a default argument is disallowed [fuchsia-default-arguments-declarations]
+                double epsabs = 1.49e-12, double epsrel = 1.49e-12,
+                ^            ~~~~~~~~~~~
+/home/orebas/GyroAveraging/./gautils.h:69:43: warning: declaring a parameter with a default argument is disallowed [fuchsia-default-arguments-declarations]
+                double epsabs = 1.49e-12, double epsrel = 1.49e-12,
+                                          ^            ~~~~~~~~~~~
+/home/orebas/GyroAveraging/./gautils.h:70:17: warning: declaring a parameter with a default argument is disallowed [fuchsia-default-arguments-declarations]
+                int limit = 10000) {
+                ^        ~~~~~~~~
+/home/orebas/GyroAveraging/./gautils.h:83:9: warning: use auto when initializing with a cast to avoid duplicating the type name [hicpp-use-auto]
+        gsl_quad *t = reinterpret_cast<gsl_quad *>(p);
+        ^
+note: this fix will not be applied because it overlaps with another fix
+/home/orebas/GyroAveraging/./gautils.h:83:9: warning: use auto when initializing with a cast to avoid duplicating the type name [modernize-use-auto]
+note: this fix will not be applied because it overlaps with another fix
+/home/orebas/GyroAveraging/./gautils.h:83:23: warning: do not use reinterpret_cast [cppcoreguidelines-pro-type-reinterpret-cast]
+        gsl_quad *t = reinterpret_cast<gsl_quad *>(p);
+                      ^
+/home/orebas/GyroAveraging/./gautils.h:96:16: warning: variable 'result' is not initialized [cppcoreguidelines-init-variables]
+        double result, error;
+               ^
+                      = NAN
+/home/orebas/GyroAveraging/./gautils.h:96:24: warning: variable 'error' is not initialized [cppcoreguidelines-init-variables]
+        double result, error;
+                       ^
+                             = NAN
+/home/orebas/GyroAveraging/./gautils.h:126:13: warning: declaring a parameter with a default argument is disallowed [fuchsia-default-arguments-declarations]
+            double epsabs = 1.49e-15, double epsrel = 1.49e-15,
+            ^            ~~~~~~~~~~~
+/home/orebas/GyroAveraging/./gautils.h:126:39: warning: declaring a parameter with a default argument is disallowed [fuchsia-default-arguments-declarations]
+            double epsabs = 1.49e-15, double epsrel = 1.49e-15,
+                                      ^            ~~~~~~~~~~~
+/home/orebas/GyroAveraging/./gautils.h:127:13: warning: declaring a parameter with a default argument is disallowed [fuchsia-default-arguments-declarations]
+            int limit = 10000) {
+            ^        ~~~~~~~~
+/home/orebas/GyroAveraging/./gautils.h:141:1: warning: overloading 'operator<<' is disallowed [fuchsia-overloaded-operator]
+std::ostream &operator<<(std::ostream &out, const std::vector<T> &v) {
+^
+/home/orebas/GyroAveraging/./gautils.h:141:1: warning: overloading 'operator<<<double>' is disallowed [fuchsia-overloaded-operator]
+/home/orebas/GyroAveraging/./gautils.h:151:1: warning: overloading 'operator<<' is disallowed [fuchsia-overloaded-operator]
+std::ostream &operator<<(std::ostream &out, const std::array<T, s> &v) {
+^
+/home/orebas/GyroAveraging/./gautils.h:186:9: warning: consider replacing 'long' with 'int64' [google-runtime-int]
+        long iters = 1000.0 / (duration.count() + 1);
+        ^
+/home/orebas/GyroAveraging/./gautils.h:186:22: warning: narrowing conversion from 'double' to 'long' [bugprone-narrowing-conversions]
+        long iters = 1000.0 / (duration.count() + 1);
+                     ^
+/home/orebas/GyroAveraging/./gautils.h:186:22: warning: narrowing conversion from 'double' to 'long' [cppcoreguidelines-narrowing-conversions]
+/home/orebas/GyroAveraging/./gautils.h:186:31: warning: narrowing conversion from 'long' to 'double' [bugprone-narrowing-conversions]
+        long iters = 1000.0 / (duration.count() + 1);
+                              ^
+/home/orebas/GyroAveraging/./gautils.h:186:31: warning: narrowing conversion from 'long' to 'double' [cppcoreguidelines-narrowing-conversions]
+/home/orebas/GyroAveraging/./gautils.h:189:14: warning: consider replacing 'long' with 'int64' [google-runtime-int]
+        for (long i = 0; i < iters; ++i) {
+             ^
+/home/orebas/GyroAveraging/./gautils.h:199:11: warning: member variable 'xvalue' has public visibility [misc-non-private-member-variables-in-classes]
+    RealT xvalue = 0;
+          ^
+/home/orebas/GyroAveraging/./gautils.h:200:11: warning: member variable 'yvalue' has public visibility [misc-non-private-member-variables-in-classes]
+    RealT yvalue = 0;
+          ^
+/home/orebas/GyroAveraging/./gautils.h:201:11: warning: member variable 's' has public visibility [misc-non-private-member-variables-in-classes]
+    RealT s = 0;  // from 0 to 2*Pi only please.
+          ^
+/home/orebas/GyroAveraging/./gautils.h:202:27: warning: declaring a parameter with a default argument is disallowed [fuchsia-default-arguments-declarations]
+    explicit indexedPoint(RealT x = 0, RealT y = 0, RealT row = 0)
+                          ^      ~~~~
+/home/orebas/GyroAveraging/./gautils.h:202:40: warning: declaring a parameter with a default argument is disallowed [fuchsia-default-arguments-declarations]
+    explicit indexedPoint(RealT x = 0, RealT y = 0, RealT row = 0)
+                                       ^      ~~~~
+/home/orebas/GyroAveraging/./gautils.h:202:53: warning: declaring a parameter with a default argument is disallowed [fuchsia-default-arguments-declarations]
+    explicit indexedPoint(RealT x = 0, RealT y = 0, RealT row = 0)
+                                                    ^        ~~~~
+/home/orebas/GyroAveraging/./gautils.h:308:12: warning: variable 'error' is not initialized [cppcoreguidelines-init-variables]
+    double error;
+           ^
+                 = NAN
+/home/orebas/GyroAveraging/./gautils.h:342:20: warning: member variable 'data' has public visibility [cppcoreguidelines-non-private-member-variables-in-classes]
+    std::vector<T> data;
+                   ^
+/home/orebas/GyroAveraging/./gautils.h:342:20: warning: member variable 'data' has public visibility [misc-non-private-member-variables-in-classes]
+/home/orebas/GyroAveraging/./gautils.h:352:5: warning: overloading 'operator()' is disallowed [fuchsia-overloaded-operator]
+    inline T &operator()(int x, int y, int z) {
+    ^
+/home/orebas/GyroAveraging/./gautils.h:356:5: warning: overloading 'operator()' is disallowed [fuchsia-overloaded-operator]
+    inline T operator()(int x, int y, int z) const {
+    ^
+/home/orebas/GyroAveraging/./gautils.h:373:20: warning: member variable 'data' has public visibility [cppcoreguidelines-non-private-member-variables-in-classes]
+    std::vector<T> data;
+                   ^
+/home/orebas/GyroAveraging/./gautils.h:373:20: warning: member variable 'data' has public visibility [misc-non-private-member-variables-in-classes]
+/home/orebas/GyroAveraging/./gautils.h:385:5: warning: overloading 'operator()' is disallowed [fuchsia-overloaded-operator]
+    inline T &operator()(int x, int y, int z, int t) {
+    ^
+/home/orebas/GyroAveraging/./gautils.h:389:5: warning: overloading 'operator()' is disallowed [fuchsia-overloaded-operator]
+    inline T operator()(int x, int y, int z, int t) const {
+    ^
+/home/orebas/GyroAveraging/./gautils.h:442:1: warning: overloading 'operator+' is disallowed [fuchsia-overloaded-operator]
+inline std::array<double, 4> operator+(const std::array<double, 4> &l, const std::array<double, 4> &r) {
+^
+/home/orebas/GyroAveraging/./gautils.h:451:1: warning: overloading 'operator+' is disallowed [fuchsia-overloaded-operator]
+inline std::array<float, 4> operator+(const std::array<float, 4> &l, const std::array<float, 4> &r) {
+^
+/home/orebas/GyroAveraging/GyroAverage.cpp:7:9: warning: macro 'VIENNACL_WITH_UBLAS' used to declare a constant; consider using a 'constexpr' constant [cppcoreguidelines-macro-usage]
+#define VIENNACL_WITH_UBLAS 1
+        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:8:9: warning: macro 'VIENNACL_HAVE_EIGEN' used to declare a constant; consider using a 'constexpr' constant [cppcoreguidelines-macro-usage]
+#define VIENNACL_HAVE_EIGEN 1
+        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:61:17: warning: member variable 'function_name' has public visibility [misc-non-private-member-variables-in-classes]
+    std::string function_name;
+                ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:62:26: warning: member variable 'type' has public visibility [misc-non-private-member-variables-in-classes]
+    OOGA::calculatorType type = OOGA::calculatorType::linearCPU;
+                         ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:63:9: warning: member variable 'N' has public visibility [misc-non-private-member-variables-in-classes]
+    int N = 0;
+        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:64:24: warning: member variable 'rhoset' has public visibility [misc-non-private-member-variables-in-classes]
+    std::vector<RealT> rhoset;
+                       ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:65:12: warning: member variable 'initTime' has public visibility [misc-non-private-member-variables-in-classes]
+    double initTime = 0;
+           ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:66:12: warning: member variable 'calcTime' has public visibility [misc-non-private-member-variables-in-classes]
+    double calcTime = 0;
+           ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:67:9: warning: member variable 'bits' has public visibility [misc-non-private-member-variables-in-classes]
+    int bits = 0;
+        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:68:25: warning: member variable 'error' has public visibility [misc-non-private-member-variables-in-classes]
+    std ::vector<RealT> error;
+                        ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:69:5: warning: overloading 'operator<<' is disallowed [fuchsia-overloaded-operator]
+    friend std::ostream& operator<<(std::ostream& output, const resultsRecord<RealT>& r) {
+    ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:85:19: warning: pass by value and use std::move [modernize-pass-by-value]
+    resultsRecord(const std::string& fn, OOGA::calculatorType t_i, int N_i, std ::vector<RealT> rhoset_i, double initTime_i, double calcTime_i, int bits_i)
+                  ^~~~~~~~~~~~~~~~~~
+                  std::string 
+/home/orebas/GyroAveraging/GyroAverage.cpp:91:1: warning: overloading 'operator<<' is disallowed [fuchsia-overloaded-operator]
+std::ostream& operator<<(std::ostream& output, const std::vector<resultsRecord<RealT>>& r) {
+^
+/home/orebas/GyroAveraging/GyroAverage.cpp:91:1: warning: overloading 'operator<<<double>' is disallowed [fuchsia-overloaded-operator]
+/home/orebas/GyroAveraging/GyroAverage.cpp:99:96: warning: non-const reference parameter 'g', make it const or use a pointer [google-runtime-references]
+resultsRecord<RealT> testConvergence(TFunc1 testfunc, const std::string& fn, OOGA::gridDomain& g, int rhocount) {
+                                                                                               ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:131:160: warning: declaring a parameter with a default argument is disallowed [fuchsia-default-arguments-declarations]
+resultsRecord<RealT> testRun(const std::string& function_name, OOGA::calculatorType calcType, TFunc1 testfunc, const OOGA::gridDomain& g, int N, int rhocount, OOGA::fileCache* cache = nullptr, bool cheb = false) {
+                                                                                                                                                               ^                     ~~~~~~~~~~
+/home/orebas/GyroAveraging/GyroAverage.cpp:131:194: warning: declaring a parameter with a default argument is disallowed [fuchsia-default-arguments-declarations]
+resultsRecord<RealT> testRun(const std::string& function_name, OOGA::calculatorType calcType, TFunc1 testfunc, const OOGA::gridDomain& g, int N, int rhocount, OOGA::fileCache* cache = nullptr, bool cheb = false) {
+                                                                                                                                                                                                 ^        ~~~~~~~~
+/home/orebas/GyroAveraging/GyroAverage.cpp:226:126: warning: declaring a parameter with a default argument is disallowed [fuchsia-default-arguments-declarations]
+void testRunList(const std::string function_name, OOGA::calculatorType calcType, TFunc1 testfunc, const OOGA::gridDomain& g, OOGA::fileCache* cache = nullptr, bool cheb = false) {
+                                                                                                                             ^                     ~~~~~~~~~~
+/home/orebas/GyroAveraging/GyroAverage.cpp:226:160: warning: declaring a parameter with a default argument is disallowed [fuchsia-default-arguments-declarations]
+void testRunList(const std::string function_name, OOGA::calculatorType calcType, TFunc1 testfunc, const OOGA::gridDomain& g, OOGA::fileCache* cache = nullptr, bool cheb = false) {
+                                                                                                                                                               ^        ~~~~~~~~
+/home/orebas/GyroAveraging/GyroAverage.cpp:283:33: warning: narrowing conversion from 'unsigned long' to signed type 'long' is implementation-defined [bugprone-narrowing-conversions]
+    fc.save("A2.123", a.data(), sizeof(double) * a.size());
+                                ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:283:33: warning: narrowing conversion from 'unsigned long' to signed type 'long' is implementation-defined [cppcoreguidelines-narrowing-conversions]
+/home/orebas/GyroAveraging/GyroAverage.cpp:290:5: warning: an exception may be thrown in function 'main' which should not throw exceptions [bugprone-exception-escape]
+int main(int argc, char* argv[]) {
+    ^
+/home/orebas/GyroAveraging/GyroAverage.cpp:316:9: warning: implicit conversion 'std::map<std::__cxx11::basic_string<char>, boost::program_options::variable_value, std::less<std::__cxx11::basic_string<char> >, std::allocator<std::pair<const std::__cxx11::basic_string<char>, boost::program_options::variable_value> > >::size_type' (aka 'unsigned long') -> bool [readability-implicit-bool-conversion]
+    if (vm.count("help")) {
+        ^
+                         != 0u
+/home/orebas/GyroAveraging/GyroAverage.cpp:321:9: warning: implicit conversion 'std::map<std::__cxx11::basic_string<char>, boost::program_options::variable_value, std::less<std::__cxx11::basic_string<char> >, std::allocator<std::pair<const std::__cxx11::basic_string<char>, boost::program_options::variable_value> > >::size_type' (aka 'unsigned long') -> bool [readability-implicit-bool-conversion]
+    if (vm.count("calc")) {
+        ^
+                         != 0u
+/home/orebas/GyroAveraging/GyroAverage.cpp:330:9: warning: implicit conversion 'std::map<std::__cxx11::basic_string<char>, boost::program_options::variable_value, std::less<std::__cxx11::basic_string<char> >, std::allocator<std::pair<const std::__cxx11::basic_string<char>, boost::program_options::variable_value> > >::size_type' (aka 'unsigned long') -> bool [readability-implicit-bool-conversion]
+    if (vm.count("func")) {
+        ^
+                         != 0u
+/home/orebas/GyroAveraging/GyroAverage.cpp:338:9: warning: implicit conversion 'std::map<std::__cxx11::basic_string<char>, boost::program_options::variable_value, std::less<std::__cxx11::basic_string<char> >, std::allocator<std::pair<const std::__cxx11::basic_string<char>, boost::program_options::variable_value> > >::size_type' (aka 'unsigned long') -> bool [readability-implicit-bool-conversion]
+    if (vm.count("cache")) {
+        ^
+                          != 0u
+/home/orebas/GyroAveraging/GyroAverage.cpp:640:48: warning: do not use pointer arithmetic [cppcoreguidelines-pro-bounds-pointer-arithmetic]
+            std::copy(plan.fftout, plan.fftout + rhocount * xcount * ycount, m.gridValues.data.begin());  //add division by 4
+                                               ^
+Suppressed 93146 warnings (93146 in non-user code).
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.

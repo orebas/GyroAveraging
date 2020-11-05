@@ -128,7 +128,7 @@ resultsRecord<RealT> testConvergence(TFunc1 testfunc, const std::string& fn, OOG
 }
 
 template <class RealT, typename TFunc1>
-resultsRecord<RealT> testRun(const std::string& function_name, OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomain& g, int N, int rhocount, OOGA::fileCache* cache = nullptr, bool cheb = false) {
+resultsRecord<RealT> testRun(const std::string& function_name, OOGA::calculatorType calcType, TFunc1 testfunc, const OOGA::gridDomain& g, int N, int rhocount, OOGA::fileCache* cache = nullptr, bool cheb = false) {
     using OOGA::functionGrid;
     using OOGA::GACalculator;
     using OOGA::gridDomain;
@@ -223,12 +223,13 @@ return runResults;
 }*/
 
 template <int rhocount, class RealT, typename TFunc1>
-void testRunList(const std::string function_name, OOGA::calculatorType calcType, TFunc1 testfunc, OOGA::gridDomain& g, OOGA::fileCache* cache = nullptr, bool cheb = false) {
+void testRunList(const std::string function_name, OOGA::calculatorType calcType, TFunc1 testfunc, const OOGA::gridDomain& g, OOGA::fileCache* cache = nullptr, bool cheb = false) {
     try {
         for (int i = 8; i < 518; i += 4) {  //go to 385 or farther?
             auto r = testRun<RealT>(function_name, calcType, testfunc, g, i, rhocount, cache, cheb);
-            if (r.initTime > 5000 * 1000 || r.calcTime > 9e10)
+            if (r.initTime > 5000 * 1000 || r.calcTime > 9e10) {
                 break;
+            }
         }
 
     } catch (std::exception& e) {
@@ -270,12 +271,13 @@ return fullResult;
 }
 }*/
 
-void cache_testing(std::string directory) {
+void cache_testing(const std::string& directory) {
     using OOGA::fileCache;
     fileCache fc(directory);
     std::vector<double> a(5, 10);
-    for (size_t i = 0; i < a.size(); ++i)
+    for (size_t i = 0; i < a.size(); ++i) {
         a[i] = i + 100;
+    }
     std::cout << a << std::endl;
 
     fc.save("A2.123", a.data(), sizeof(double) * a.size());
@@ -286,7 +288,7 @@ void cache_testing(std::string directory) {
 }
 
 int main(int argc, char* argv[]) {
-       //fft_testing();
+    //fft_testing();
     //chebDevel();
     //fftw_cleanup();
     // return 0;
@@ -298,6 +300,7 @@ int main(int argc, char* argv[]) {
     using OOGA::LinearSpacedArray;
     namespace po = boost::program_options;
     using mainReal = double;
+    gsl_set_error_handler_off();
 
     po::options_description desc("Allowed options");
     desc.add_options()("help", "produce help message")("calc", po::value<int>(), "choose which calculator to test run")("func", po::value<int>(), "choose which function to test run")("cache", po::value<std::string>(), "choose the cache directory");
@@ -392,27 +395,46 @@ int main(int argc, char* argv[]) {
     //constexpr mainReal padtest = xcount * mainRhoMax / std::abs(mainxyMax - mainxyMin);
     //constexpr int padcount = mymax(8, 4 + static_cast<int>(std::ceil(padtest)));
 
-    auto easyfunc = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
+    auto easyFunc = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
         return Normalizer * exp(-A * (ex * ex + why * why)) * exp(-B * row * row);
     };
 
     using std::abs;
     using std::max;
 
-    auto mediumfunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
-        double r = abs(ex - why);
-        double l = max(0.0, 0.75 - r);  //   (0.5-r>0? 0.5-r,0);   //std::max(0.0d,0.5-r)
-        return l * l * l * l * (4 * r + 1) + 1.0 / (1 + 25 * ((ex - 0.2) * (ex - 0.2) + (why - 0.5) * (why - 0.5)));
+    auto rungeFunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
+        return ((1.0 - 0 * ex * ex) * (1.0 - 0 * why * why)) / (1 + 25 * ((ex - 0.2) * (ex - 0.2) + (why + 0.5) * (why + 0.5)));
     };
 
-    auto crazyhardfunc = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
+    auto sqrtFunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
+        double r = (ex - 0.2) * (ex - 0.2) + (why + 0.5) * (why + 0.5);
+
+        return std::sqrt(std::sqrt(r));
+    };
+
+    auto stripFunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
+        double r = abs(ex - why);
+        double l = max(0.0, 0.75 - r);
+        return (l * l * l * l * (4 * r + 1)) * (1.0 - ex * ex) * (1.0 - why * why);
+    };
+
+    auto hardFunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
+        double r = abs(ex - why);
+        double l = max(0.0, 0.75 - r);
+        return (l * l * l * l * (4 * r + 1) + 1.0 / (1 + 25 * ((ex - 0.2) * (ex - 0.2) + (why + 0.5) * (why + 0.5)))) *
+               std::cbrt(1.0 - ex * ex) * std::cbrt(1.0 - why * why);
+    };
+
+    auto crazyhardFunc = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
         auto dist = ex * ex + why * why;
         auto hard = exp(dist) * pow(
                                     (1.0 / cosh(4.0 * sin(40.0 * dist))),
                                     exp(dist));
         hard += exp(ex) *
                 pow((1.0 / cosh(4.0 * sin(40.0 * ex))), exp(ex));
-        if (why + ex / 2.0 < 00.0) hard += 1.5;
+        if (why + ex / 2.0 < 00.0) {
+            hard += 1.5;
+        }
         hard *= (1.0 - ex * ex);
         hard *= (1.0 - why * why);
         return hard;
@@ -449,23 +471,34 @@ int main(int argc, char* argv[]) {
     std::cout
         << "FunctionName, Calculator,N,Init time (s), Calc.time(s), Calc.Freq(hz), Bytes, MaxError, FirstBlank, Err1, Err2, Err3, Blank" << std::endl;
     switch (func_option) {
-        case 1:
+        case 0:
 
-            function_name = "Smooth exp(-Ar^2-b*rho^2)";
-            testRunList<rhocount, double>(function_name, calclist[calc_option], easyfunc, g, &cache, cheb_grid_needed);
+            function_name = "Smooth:exp(-Ar^2-b*rho^2)";
+            testRunList<rhocount, double>(function_name, calclist[calc_option], easyFunc, g, &cache, cheb_grid_needed);
             //testRunList<rhocount, float>(function_name, calclist[calc_option], easyfunc, g, cheb_grid_needed);
 
             break;
 
+        case 1:
+            function_name = "Nonsmooth:sqrt(r)";
+            testRunList<rhocount, double>(function_name, calclist[calc_option], sqrtFunc, g, &cache, cheb_grid_needed);
+            //testRunList<rhocount, float>(function_name, calclist[calc_option], mediumfunc, g, cheb_grid_needed);
+            break;
         case 2:
-            function_name = "Non-smooth: Wendland CSRBF+Runge";
-            testRunList<rhocount, double>(function_name, calclist[calc_option], mediumfunc, g, &cache, cheb_grid_needed);
+            function_name = "Smooth:Runge";
+            testRunList<rhocount, double>(function_name, calclist[calc_option], rungeFunc, g, &cache, cheb_grid_needed);
             //testRunList<rhocount, float>(function_name, calclist[calc_option], mediumfunc, g, cheb_grid_needed);
             break;
         case 3:
-            function_name = "Discontinuous - hard to approximate";
+            function_name = "Nonsmooth:abs()";
 
-            testRunList<rhocount, double>(function_name, calclist[calc_option], crazyhardfunc, g, &cache, cheb_grid_needed);
+            testRunList<rhocount, double>(function_name, calclist[calc_option], stripFunc, g, &cache, cheb_grid_needed);
+            //testRunList<rhocount, float>(function_name, calclist[calc_option], crazyhardfunc, g, cheb_grid_needed);
+            break;
+        case 4:
+            function_name = "Nonsmooth+Runge";
+
+            testRunList<rhocount, double>(function_name, calclist[calc_option], hardFunc, g, &cache, cheb_grid_needed);
             //testRunList<rhocount, float>(function_name, calclist[calc_option], crazyhardfunc, g, cheb_grid_needed);
             break;
         default:

@@ -49,9 +49,9 @@ struct gridDomain {
 
 struct fileCache {
     std::string cacheDir;
-    fileCache(std::string cdir) : cacheDir(cdir) {
+    explicit fileCache(const std::string &cdir) : cacheDir(cdir) {
     }
-    void save(std::string name, void *data, long size) {  //size is in BYTES very important.
+    const void save(std::string name, void *data, long size) {  //size is in BYTES very important.
         std::string filename = cacheDir + name;
         try {
             std::ofstream file;
@@ -113,12 +113,12 @@ struct fileCache {
     }
 
     template <typename T, int whatever, typename IND>
-    void Serialize(Eigen::SparseMatrix<T, whatever, IND> &m, std::string name) {
+    void Serialize(Eigen::SparseMatrix<T, whatever, IND> &m, const std::string &name) {
         using Trip = Eigen::Triplet<int>;
 
         std::string filename = cacheDir + name;
         std::vector<Trip> res;
-        int sz = m.nonZeros();
+        //int sz = m.nonZeros();
         m.makeCompressed();
 
         std::fstream writeFile;
@@ -132,48 +132,47 @@ struct fileCache {
             outS = m.outerSize();
             innS = m.innerSize();
 
-            writeFile.write((const char *)&(rows), sizeof(IND));
-            writeFile.write((const char *)&(cols), sizeof(IND));
-            writeFile.write((const char *)&(nnzs), sizeof(IND));
-            writeFile.write((const char *)&(outS), sizeof(IND));
-            writeFile.write((const char *)&(innS), sizeof(IND));
+            writeFile.write(reinterpret_cast<const char *>(&(rows)), sizeof(IND));
+            writeFile.write(reinterpret_cast<const char *>(&(cols)), sizeof(IND));
+            writeFile.write(reinterpret_cast<const char *>(&(nnzs)), sizeof(IND));
+            writeFile.write(reinterpret_cast<const char *>(&(outS)), sizeof(IND));
+            writeFile.write(reinterpret_cast<const char *>(&(innS)), sizeof(IND));
 
-            writeFile.write((const char *)(m.valuePtr()), sizeof(T) * m.nonZeros());
-            writeFile.write((const char *)(m.outerIndexPtr()), sizeof(IND) * m.outerSize());
-            writeFile.write((const char *)(m.innerIndexPtr()), sizeof(IND) * m.nonZeros());
+            writeFile.write(reinterpret_cast<const char *>((m.valuePtr())), sizeof(T) * m.nonZeros());
+            writeFile.write(reinterpret_cast<const char *>((m.outerIndexPtr())), sizeof(IND) * m.outerSize());
+            writeFile.write(reinterpret_cast<const char *>((m.innerIndexPtr())), sizeof(IND) * m.nonZeros());
 
             writeFile.close();
         }
     }
 
     template <typename T, int whatever, typename IND>
-    bool Deserialize(Eigen::SparseMatrix<T, whatever, IND> &m, std::string name) {
+    bool Deserialize(Eigen::SparseMatrix<T, whatever, IND> &m, const std::string &name) {
         std::fstream readFile;
         std::string filename = cacheDir + name;
 
         readFile.open(filename, std::ios::binary | std::ios::in);
         if (readFile.is_open()) {
             IND rows, cols, nnz, inSz, outSz;
-            readFile.read((char *)&rows, sizeof(IND));
-            readFile.read((char *)&cols, sizeof(IND));
-            readFile.read((char *)&nnz, sizeof(IND));
-            readFile.read((char *)&outSz, sizeof(IND));
-            readFile.read((char *)&inSz, sizeof(IND));
+            readFile.read(reinterpret_cast<char *>(&rows), sizeof(IND));
+            readFile.read(reinterpret_cast<char *>(&cols), sizeof(IND));
+            readFile.read(reinterpret_cast<char *>(&nnz), sizeof(IND));
+            readFile.read(reinterpret_cast<char *>(&outSz), sizeof(IND));
+            readFile.read(reinterpret_cast<char *>(&inSz), sizeof(IND));
 
             m.resize(rows, cols);
             m.makeCompressed();
             m.resizeNonZeros(nnz);
 
-            readFile.read((char *)(m.valuePtr()), sizeof(T) * nnz);
-            readFile.read((char *)(m.outerIndexPtr()), sizeof(IND) * outSz);
-            readFile.read((char *)(m.innerIndexPtr()), sizeof(IND) * nnz);
+            readFile.read(reinterpret_cast<char *>((m.valuePtr())), sizeof(T) * nnz);
+            readFile.read(reinterpret_cast<char *>(m.outerIndexPtr()), sizeof(IND) * outSz);
+            readFile.read(reinterpret_cast<char *>((m.innerIndexPtr())), sizeof(IND) * nnz);
 
             m.finalize();
             readFile.close();
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
 };  // namespace OOGA
@@ -190,7 +189,6 @@ class functionGrid {
     int ycount;
     int rhocount;
 
-   public:
     using fullgrid = Array3d<RealT>;              // rhocount, xcount, ycount,
     using fullgridInterp = Array4d<RealT>;        //rhocount, xcount, ycount, 4,
     using derivsGrid = Array4d<RealT>;            // at each rho,x,y calculate [f,f_x,f_y,f_xy] // rhocount, xcount, ycount, 4,
@@ -333,8 +331,56 @@ class functionGrid {
                 }
                 return f(rhoset[i], ex, why);
             };
-            RealT result = GSLIntegrate(0.0, 2 * pi, new_f) / (2 * pi);  //we can use trapezoid here too.
-            return result;
+            std::array<RealT, 4> breakpoints = {0, 0, 0, 0};
+            breakpoints[0] = (1.0 - xc) / rhoset[i];
+            breakpoints[1] = (-1.0 - xc) / rhoset[i];
+            breakpoints[2] = (yc - 1) / rhoset[i];
+            breakpoints[3] = (yc + 1) / rhoset[i];
+            std::vector<RealT> breakrho;
+            breakrho.reserve(12);
+            breakrho.push_back(0);
+            if (std::abs(breakpoints[0]) <= 1.0) {
+                auto th = std::asin(breakpoints[0]);
+                breakrho.push_back(pi - th);
+                if (th < 0) {
+                    breakrho.push_back(th + 2 * pi);
+                } else {
+                    breakrho.push_back(th);
+                }
+            }
+            if (std::abs(breakpoints[1]) <= 1.0) {
+                auto th = std::asin(breakpoints[1]);
+                breakrho.push_back(pi - th);
+                if (th < 0) {
+                    breakrho.push_back(th + 2 * pi);
+                } else {
+                    breakrho.push_back(th);
+                }
+            }
+
+            if (std::abs(breakpoints[2]) <= 1.0) {
+                auto th = std::acos(breakpoints[2]);
+                breakrho.push_back(th);
+                breakrho.push_back(2 * pi - th);
+            }
+
+            if (std::abs(breakpoints[3]) <= 1.0) {
+                auto th = std::acos(breakpoints[3]);
+                breakrho.push_back(th);
+                breakrho.push_back(2 * pi - th);
+            }
+            breakrho.push_back(2 * pi);
+            std::sort(breakrho.begin(), breakrho.end());
+            RealT result = 0;
+            //std::cout << "vec: " << breakrho << std::endl;
+            for (size_t i = 0; i < breakrho.size() - 1; ++i) {
+                if (breakrho[i] != breakrho[i + 1]) {
+                    result += GSLIntegrate(breakrho[i], breakrho[i + 1], new_f);
+                }
+            }
+
+            //RealT result = GSLIntegrate(0.0, 2 * pi, new_f) / (2 * pi);  //we can use trapezoid here too.
+            return result / (2 * pi);
         });
     }
 
@@ -490,7 +536,7 @@ class functionGrid {
                     (3.0 * g(i, xcount - 1, k) + 10.0 * g(i, xcount - 2, k) +
                      -18.0 * g(i, xcount - 3, k) + 6.0 * g(i, xcount - 4, k) +
                      -1.0 * g(i, xcount - 5, k)) /
-                    (12.0 * xdenom);  //TODO: fails for 4x4
+                    (12.0 * xdenom);  //TODO (orebas): fails for 4x4
                 for (int j = 2; j <= xcount - 3; j++) {
                     derivs(i, j, k, 1) =
                         (1.0 * g(i, j - 2, k) + -8.0 * g(i, j - 1, k) +
@@ -834,7 +880,7 @@ class linearDotProductCPU
                  << f.rhoset.front() << "."
                  << f.rhoset.back();
 
-        if (cache) {
+        if (cache != nullptr) {
             bool readFromCache = cache->Deserialize(LTOffsetTensor, fullname.str());
             if (readFromCache) {
                 return LTOffsetTensor;
@@ -996,7 +1042,7 @@ class linearDotProductCPU
                               f.rhocount * f.xcount * f.ycount);
         LTOffsetTensor.setFromTriplets(Triplets.begin(), Triplets.end());
 
-        if (cache) {
+        if (cache != nullptr) {
             cache->Serialize(LTOffsetTensor, fullname.str());
         }
         return LTOffsetTensor;
@@ -1488,7 +1534,7 @@ class chebCPUDense
         xset = LinearSpacedArray<RealT>(g.xmin, g.xmax, paramf.xcount);
         yset = LinearSpacedArray<RealT>(g.ymin, g.ymax, paramf.ycount);
 
-        if (cache) {
+        if (cache != nullptr) {
             std::string calcname = "ChebCache";
             for (int rho_iter = 0; rho_iter < paramf.rhocount; ++rho_iter) {
                 std::ostringstream fullname;  //unfortunately this needs to be maintained in two places.  TODO(orebas) make it a lambda
@@ -1542,7 +1588,7 @@ class chebCPUDense
                     }
                 }
             }
-            if (cache) {
+            if (cache != nullptr) {
                 //std::cout << "attempting to cache\n";
                 for (int rho_iter = 0; rho_iter < paramf.rhocount; ++rho_iter) {
                     std::string calcname = "ChebCache";
@@ -1827,7 +1873,7 @@ class bicubicDotProductCPU
                  << f.rhoset.front() << "."
                  << f.rhoset.back();
 
-        if (cache) {
+        if (cache != nullptr) {
             bool readFromCache = cache->Deserialize(BCOffsetTensor, fullname.str());
             if (readFromCache) {
                 return BCOffsetTensor;
@@ -1958,7 +2004,7 @@ class bicubicDotProductCPU
         BCOffsetTensor.setFromTriplets(Triplets.begin(), Triplets.end());
 
         //std::cout << "Number of RealT  products needed for BC calc: " << BCOffsetTensor.nonZeros() << " and rough memory usage is " << BCOffsetTensor.nonZeros() * (sizeof(RealT) + sizeof(long)) << std::endl;
-        if (cache) {
+        if (cache != nullptr) {
             cache->Serialize(BCOffsetTensor, fullname.str());
         }
         return BCOffsetTensor;
