@@ -1,0 +1,4 @@
+calculator chosen: 4
+func chosen: 5
+cache dir chosen: /scratch/ob749/GA/cache/
+FunctionName, Calculator,N,Init time (s), Calc.time(s), Calc.Freq(hz), Bytes, MaxError, FirstBlank, Err1, Err2, Err3, Blank

@@ -1,0 +1,22 @@
+calculator chosen: 0
+func chosen: 2
+cache dir chosen: /scratch/ob749/GA/cache/
+FunctionName, Calculator,N,Init time (s), Calc.time(s), Calc.Freq(hz), Bytes, MaxError, FirstBlank, Err1, Err2, Err3, Blank
+Smooth:Runge,linear interp; trapezoid rule; CPU ,8,0,3.62475e+07,27.5881,8, 0.394791,,0.394791,0.192902,0.253047,
+Smooth:Runge,linear interp; trapezoid rule; CPU ,12,0,1.53785e+08,6.50261,8, 0.274694,,0.274694,0.128912,0.174949,
+Smooth:Runge,linear interp; trapezoid rule; CPU ,16,0,4.46819e+08,2.23804,8, 0.19117,,0.19117,0.0767348,0.0907916,
+Smooth:Runge,linear interp; trapezoid rule; CPU ,20,0,1.02189e+09,0.978583,8, 0.108165,,0.108165,0.0506739,0.0556892,
+Smooth:Runge,linear interp; trapezoid rule; CPU ,24,0,1.83521e+09,0.544896,8, 0.073198,,0.0651341,0.0417498,0.073198,
+Smooth:Runge,linear interp; trapezoid rule; CPU ,28,0,3.17625e+09,0.314836,8, 0.0656453,,0.0288507,0.0358144,0.0656453,
+Smooth:Runge,linear interp; trapezoid rule; CPU ,32,0,5.161e+09,0.193761,8, 0.0325441,,0.00772952,0.0311583,0.0325441,
+Smooth:Runge,linear interp; trapezoid rule; CPU ,36,0,7.76406e+09,0.128799,8, 0.0474038,,0.0474038,0.0276397,0.0234903,
+Smooth:Runge,linear interp; trapezoid rule; CPU ,40,0,1.12938e+10,0.0885439,8, 0.049338,,0.049338,0.0237317,0.0283921,
+Smooth:Runge,linear interp; trapezoid rule; CPU ,44,0,1.56697e+10,0.0638173,8, 0.0439783,,0.0439783,0.0212485,0.0222325,
+Smooth:Runge,linear interp; trapezoid rule; CPU ,48,0,2.0715e+10,0.0482743,8, 0.0326538,,0.0326538,0.0171554,0.0222279,
+Smooth:Runge,linear interp; trapezoid rule; CPU ,52,0,2.76914e+10,0.0361123,8, 0.0241534,,0.0210343,0.0117493,0.0241534,
+Smooth:Runge,linear interp; trapezoid rule; CPU ,56,0,3.63887e+10,0.027481,8, 0.0185347,,0.0106094,0.0131739,0.0185347,
+Smooth:Runge,linear interp; trapezoid rule; CPU ,60,0,4.5671e+10,0.0218958,8, 0.0207752,,0.00340494,0.0166367,0.0207752,
+Smooth:Runge,linear interp; trapezoid rule; CPU ,64,0,5.49556e+10,0.0181965,8, 0.0219353,,0.00737503,0.0219353,0.0197287,
+Smooth:Runge,linear interp; trapezoid rule; CPU ,68,0,6.84076e+10,0.0146183,8, 0.02189,,0.0145927,0.0206096,0.02189,
+Smooth:Runge,linear interp; trapezoid rule; CPU ,72,0,8.63775e+10,0.0115771,8, 0.0187152,,0.0187152,0.0138417,0.0179159,
+Smooth:Runge,linear interp; trapezoid rule; CPU ,76,0,1.03919e+11,0.00962284,8, 0.019845,,0.0166748,0.0131095,0.019845,

@@ -1,0 +1,5 @@
+calculator chosen: 2
+func chosen: 3
+cache dir chosen: /scratch/ob749/GA/cache/
+FunctionName, Calculator,N,Init time (s), Calc.time(s), Calc.Freq(hz), Bytes, MaxError, FirstBlank, Err1, Err2, Err3, Blank
+Nonsmooth:abs(),bicubic interp; trapezoid rule; CPU,8,0,2.15636e+11,0.00463745,8, 0.132369,,0.0538025,0.132369,0.0763922,

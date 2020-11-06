@@ -11,7 +11,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=20
-#SBATCH --array=5-6
+#SBATCH --array=0-35
    
 # we expect the job to finish within 5 hours. If it takes longer than 5
 # hours, SLURM can kill it:
@@ -64,8 +64,11 @@ SRCDIR=$HOME/GyroAveraging
 # we will be reading data in from somewhere, so define that too:
 #DATADIR=$SCRATCH/my_project/data
   
+A=$((SLURM_ARRAY_TASK_ID/5)) # A = [0-4]+1 = [1-5]
+B=$((SLURM_ARRAY_TASK_ID%7)) # B = [0-5]+3 = [3-8]
+
 # the script will have started running in $HOME, so we need to move into the
 # unique directory we just created
 cd $RUNDIR
-$SRCDIR/GyroAverage-CUDA --calc=$SLURM_ARRAY_TASK_ID --func=1 --cache=/scratch/ob749/GA/cache/
+$SRCDIR/GyroAverage-CUDA --calc=$B --func=$A --cache=/scratch/ob749/GA/cache/
 
