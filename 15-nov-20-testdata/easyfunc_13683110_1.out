@@ -1,0 +1,22 @@
+calculator chosen: 0
+func chosen: 1
+cache dir chosen: /scratch/ob749/GA/cache/
+FunctionName, Calculator,N,Init time (s), Calc.time(s), Calc.Freq(hz), Bytes, MaxError, FirstBlank, Err1, Err2, Err3, Blank
+Nonsmooth:sqrt(r),linear interp; trapezoid rule; CPU ,8,0,4.87752e+07,20.5022,8, 0.140203,,0.140203,0.0284706,0.0263023,
+Nonsmooth:sqrt(r),linear interp; trapezoid rule; CPU ,12,0,1.75953e+08,5.68333,8, 0.0870173,,0.0870173,0.0174278,0.0156695,
+Nonsmooth:sqrt(r),linear interp; trapezoid rule; CPU ,16,0,4.65536e+08,2.14806,8, 0.0611646,,0.0611646,0.0105458,0.00628547,
+Nonsmooth:sqrt(r),linear interp; trapezoid rule; CPU ,20,0,1.02672e+09,0.973972,8, 0.0424922,,0.0424922,0.00959417,0.0113698,
+Nonsmooth:sqrt(r),linear interp; trapezoid rule; CPU ,24,0,1.80878e+09,0.552858,8, 0.0587647,,0.022176,0.00692942,0.0587647,
+Nonsmooth:sqrt(r),linear interp; trapezoid rule; CPU ,28,0,3.09316e+09,0.323294,8, 0.0347357,,0.0126838,0.00617913,0.0347357,
+Nonsmooth:sqrt(r),linear interp; trapezoid rule; CPU ,32,0,5.00118e+09,0.199953,8, 0.0438909,,0.00665559,0.0266598,0.0438909,
+Nonsmooth:sqrt(r),linear interp; trapezoid rule; CPU ,36,0,7.51841e+09,0.133007,8, 0.0458164,,0.0178522,0.0198212,0.0458164,
+Nonsmooth:sqrt(r),linear interp; trapezoid rule; CPU ,40,0,1.08926e+10,0.0918058,8, 0.0539212,,0.0194846,0.0419156,0.0539212,
+Nonsmooth:sqrt(r),linear interp; trapezoid rule; CPU ,44,0,1.51034e+10,0.0662104,8, 0.052277,,0.0194069,0.052277,0.0384121,
+Nonsmooth:sqrt(r),linear interp; trapezoid rule; CPU ,48,0,1.99414e+10,0.0501469,8, 0.0448321,,0.0156433,0.00939624,0.0448321,
+Nonsmooth:sqrt(r),linear interp; trapezoid rule; CPU ,52,0,2.65575e+10,0.0376542,8, 0.064908,,0.0100522,0.0243915,0.064908,
+Nonsmooth:sqrt(r),linear interp; trapezoid rule; CPU ,56,0,3.49608e+10,0.0286034,8, 0.0519904,,0.00742297,0.0374756,0.0519904,
+Nonsmooth:sqrt(r),linear interp; trapezoid rule; CPU ,60,0,4.37517e+10,0.0228563,8, 0.0571644,,0.00704867,0.0300582,0.0571644,
+Nonsmooth:sqrt(r),linear interp; trapezoid rule; CPU ,64,0,5.24687e+10,0.019059,8, 0.0482514,,0.0102224,0.0405664,0.0482514,
+Nonsmooth:sqrt(r),linear interp; trapezoid rule; CPU ,68,0,6.52097e+10,0.0153351,8, 0.0605247,,0.00749387,0.0510202,0.0605247,
+Nonsmooth:sqrt(r),linear interp; trapezoid rule; CPU ,72,0,8.21439e+10,0.0121738,8, 0.0508986,,0.010161,0.0228193,0.0508986,
+Nonsmooth:sqrt(r),linear interp; trapezoid rule; CPU ,76,0,9.90075e+10,0.0101002,8, 0.0549989,,0.00835845,0.0326063,0.0549989,

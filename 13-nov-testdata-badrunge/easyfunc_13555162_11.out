@@ -1,0 +1,1 @@
+/home/ob749/GyroAveraging/GyroAverage-CUDA --calc=4 --func=2 --cache=/scratch/ob749/GA/cache/

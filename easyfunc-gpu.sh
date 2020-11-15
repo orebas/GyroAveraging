@@ -11,7 +11,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=10
-#SBATCH --array=0-15
+#SBATCH --array=0-14
 #SBATCH --gres=gpu:p40:1
    
 # we expect the job to finish within 5 hours. If it takes longer than 5
@@ -67,7 +67,7 @@ SRCDIR=$HOME/GyroAveraging
 # we will be reading data in from somewhere, so define that too:
 #DATADIR=$SCRATCH/my_project/data
   
-A=$((SLURM_ARRAY_TASK_ID/5)) # A = [0-4]+1 = [1-5]
+A=$((SLURM_ARRAY_TASK_ID/3)) # A = [0-4]+1 = [1-5]
 B=$((SLURM_ARRAY_TASK_ID%3+7)) # B = [0-5]+3 = [3-8]
 
 

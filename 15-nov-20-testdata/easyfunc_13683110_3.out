@@ -1,0 +1,26 @@
+calculator chosen: 0
+func chosen: 3
+cache dir chosen: /scratch/ob749/GA/cache/
+FunctionName, Calculator,N,Init time (s), Calc.time(s), Calc.Freq(hz), Bytes, MaxError, FirstBlank, Err1, Err2, Err3, Blank
+Nonsmooth:abs(),linear interp; trapezoid rule; CPU ,8,0,1.86113e+07,53.7308,8, 0.485522,,0.485522,0.247273,0.209918,
+Nonsmooth:abs(),linear interp; trapezoid rule; CPU ,12,0,6.15914e+07,16.236,8, 0.342779,,0.342779,0.179592,0.291579,
+Nonsmooth:abs(),linear interp; trapezoid rule; CPU ,16,0,1.52844e+08,6.54263,8, 0.21116,,0.21116,0.0688375,0.138171,
+Nonsmooth:abs(),linear interp; trapezoid rule; CPU ,20,0,3.31643e+08,3.01529,8, 0.119104,,0.119104,0.0502252,0.0671137,
+Nonsmooth:abs(),linear interp; trapezoid rule; CPU ,24,0,5.90305e+08,1.69404,8, 0.0556338,,0.0556338,0.0455307,0.0464228,
+Nonsmooth:abs(),linear interp; trapezoid rule; CPU ,28,0,1.02928e+09,0.971557,8, 0.107093,,0.0104521,0.0379346,0.107093,
+Nonsmooth:abs(),linear interp; trapezoid rule; CPU ,32,0,1.67952e+09,0.59541,8, 0.0579327,,0.0229865,0.0328418,0.0579327,
+Nonsmooth:abs(),linear interp; trapezoid rule; CPU ,36,0,2.66871e+09,0.374713,8, 0.0539657,,0.0539657,0.0317307,0.0277991,
+Nonsmooth:abs(),linear interp; trapezoid rule; CPU ,40,0,3.88147e+09,0.257634,8, 0.0650082,,0.0650082,0.0293879,0.0211753,
+Nonsmooth:abs(),linear interp; trapezoid rule; CPU ,44,0,5.81528e+09,0.171961,8, 0.0610852,,0.0610852,0.0281061,0.0230719,
+Nonsmooth:abs(),linear interp; trapezoid rule; CPU ,48,0,7.67295e+09,0.130328,8, 0.0441459,,0.0441459,0.0228763,0.0342495,
+Nonsmooth:abs(),linear interp; trapezoid rule; CPU ,52,0,1.06369e+10,0.0940122,8, 0.0213317,,0.0213317,0.0147998,0.0181887,
+Nonsmooth:abs(),linear interp; trapezoid rule; CPU ,56,0,1.4142e+10,0.0707114,8, 0.0139183,,0.0105061,0.0139183,0.0117515,
+Nonsmooth:abs(),linear interp; trapezoid rule; CPU ,60,0,1.83901e+10,0.054377,8, 0.0292516,,0.0140029,0.0292516,0.011407,
+Nonsmooth:abs(),linear interp; trapezoid rule; CPU ,64,0,2.31226e+10,0.0432478,8, 0.0341708,,0.0277109,0.0341708,0.0256358,
+Nonsmooth:abs(),linear interp; trapezoid rule; CPU ,68,0,2.95155e+10,0.0338805,8, 0.0295274,,0.0185351,0.0295274,0.0130315,
+Nonsmooth:abs(),linear interp; trapezoid rule; CPU ,72,0,3.75208e+10,0.0266519,8, 0.0294548,,0.0294548,0.0236479,0.00967033,
+Nonsmooth:abs(),linear interp; trapezoid rule; CPU ,76,0,4.69333e+10,0.0213068,8, 0.0242026,,0.0242026,0.0157517,0.0102329,
+Nonsmooth:abs(),linear interp; trapezoid rule; CPU ,80,0,5.80699e+10,0.0172206,8, 0.0167336,,0.0167336,0.0137343,0.0107722,
+Nonsmooth:abs(),linear interp; trapezoid rule; CPU ,84,0,6.87976e+10,0.0145354,8, 0.0131646,,0.00951428,0.00926763,0.0131646,
+Nonsmooth:abs(),linear interp; trapezoid rule; CPU ,88,0,8.26611e+10,0.0120976,8, 0.0096741,,0.0048582,0.00638353,0.0096741,
+Nonsmooth:abs(),linear interp; trapezoid rule; CPU ,92,0,1.01498e+11,0.00985245,8, 0.0127896,,0.00621814,0.00554551,0.0127896,
