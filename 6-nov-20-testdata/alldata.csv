@@ -1,6 +1,3 @@
-calculator chosen: 0
-func chosen: 0
-cache dir chosen: /scratch/ob749/GA/cache/
 FunctionName, Calculator,N,Init time (s), Calc.time(s), Calc.Freq(hz), Bytes, MaxError, FirstBlank, Err1, Err2, Err3, Blank
 Smooth:exp(-Ar^2-b*rho^2),linear interp; trapezoid rule; CPU ,8,0,3.81494e+07,26.2127,8, 0.484378,,0.484378,0.431963,0.429232,
 Smooth:exp(-Ar^2-b*rho^2),linear interp; trapezoid rule; CPU ,12,0,9.33425e+07,10.7132,8, 0.356146,,0.356146,0.253128,0.345279,

@@ -403,7 +403,7 @@ int main(int argc, char* argv[]) {
     using std::max;
 
     auto rungeFunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
-        return ((1.0 - 0 * ex * ex) * (1.0 - 0 * why * why)) / (1 + 25 * ((ex - 0.2) * (ex - 0.2) + (why + 0.5) * (why + 0.5)));
+        return ((1.0 - ex * ex) * (1.0 - why * why)) / (1 + 25 * ((ex - 0.2) * (ex - 0.2) + (why + 0.5) * (why + 0.5)));
     };
 
     auto sqrtFunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
