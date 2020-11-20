@@ -58,7 +58,7 @@ struct fileCache {
             file.open(filename, std::ofstream::binary | std::ofstream::trunc | std::ofstream::out);
 
             if (!file) {
-                std::cout << filename << " could not be opened." << std::endl;
+                //std::cout << filename << " could not be opened." << std::endl;
                 return;
             }
 
@@ -95,7 +95,7 @@ struct fileCache {
         std::ifstream file(filename, std::ifstream::binary);
 
         if (!file) {
-            std::cout << filename << " could not be opened." << std::endl;
+            //std::cout << filename << " could not be opened." << std::endl;
             std::vector<T> t;
             return t;
         }

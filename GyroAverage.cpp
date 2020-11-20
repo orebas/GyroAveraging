@@ -303,7 +303,7 @@ int main(int argc, char* argv[]) {
     gsl_set_error_handler_off();
 
     po::options_description desc("Allowed options");
-    desc.add_options()("help", "produce help message")("calc", po::value<int>(), "choose which calculator to test run")("func", po::value<int>(), "choose which function to test run")("cache", po::value<std::string>(), "choose the cache directory");
+    desc.add_options()("help", "produce help message")("calc", po::value<int>(), "choose which calculator to test run")("func", po::value<int>(), "choose which function to test run")("cache", po::value<std::string>(), "choose the cache directory")("bits", po::value<int>(), "choose 32 or 64 (for float or double)")("diag", po::value<int>(), "set to 1 for diagnostic");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -311,6 +311,8 @@ int main(int argc, char* argv[]) {
 
     int calc_option = -1;
     int func_option = -1;
+    int bits_option = -1;
+    int diag_option = -1;
     std::string cache_dir;
 
     if (vm.count("help")) {
@@ -319,7 +321,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (vm.count("calc")) {
-        std::cout << "calculator chosen: " << vm["calc"].as<int>() << std::endl;
+        // std::cout << "calculator chosen: " << vm["calc"].as<int>() << std::endl;
         calc_option = vm["calc"].as<int>();
 
     } else {
@@ -328,18 +330,29 @@ int main(int argc, char* argv[]) {
     }
 
     if (vm.count("func")) {
-        std::cout << "func chosen: " << vm["func"].as<int>() << std::endl;
+        // std::cout << "func chosen: " << vm["func"].as<int>() << std::endl;
         func_option = vm["func"].as<int>();
     } else {
         std::cout << "func not chosen.  Please pick one." << std::endl;
         return 1;
     }
 
+    if (vm.count("bits")) {
+        bits_option = vm["bits"].as<int>();
+    } else {
+        std::cout << "bits not chosen.  Please pick 32 or 64." << std::endl;
+        return 1;
+    }
+
+    if (vm.count("diag")) {
+        diag_option = vm["diag"].as<int>();
+    }
+
     if (vm.count("cache")) {
-        std::cout << "cache dir chosen: " << vm["cache"].as<std::string>() << std::endl;
+        //std::cout << "cache dir chosen: " << vm["cache"].as<std::string>() << std::endl;
         cache_dir = vm["cache"].as<std::string>();
     } else {
-        std::cout << "cache dir not specified.  We will continue without caching." << std::endl;
+        //std::cout << "cache dir not specified.  We will continue without caching." << std::endl;
     }
 
     //cache_testing(cache_dir);
@@ -395,6 +408,7 @@ int main(int argc, char* argv[]) {
     //constexpr mainReal padtest = xcount * mainRhoMax / std::abs(mainxyMax - mainxyMin);
     //constexpr int padcount = mymax(8, 4 + static_cast<int>(std::ceil(padtest)));
 
+    std::vector<std::function<mainReal(mainReal, mainReal, mainReal)>> functionVec;
     auto easyFunc = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
         return Normalizer * exp(-A * (ex * ex + why * why)) * exp(-B * row * row);
     };
@@ -404,6 +418,10 @@ int main(int argc, char* argv[]) {
 
     auto rungeFunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
         return ((1.0 - ex * ex) * (1.0 - why * why)) / (1 + 25 * ((ex - 0.2) * (ex - 0.2) + (why + 0.5) * (why + 0.5)));
+    };
+
+    auto polyFunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
+        return ((1.0 - ex * ex) * (1.0 - why * why) * (1 - 0.0 * 3.0 * ex * why));
     };
 
     auto sqrtFunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
@@ -439,6 +457,25 @@ int main(int argc, char* argv[]) {
         hard *= (1.0 - why * why);
         return hard;
     };
+    std::vector<std ::string> functionNameVec;
+    functionVec.push_back(easyFunc);
+    functionNameVec.push_back("Smooth_exp");
+
+    functionVec.push_back(polyFunc);
+    functionNameVec.push_back("Smooth_poly");
+
+    functionVec.push_back(rungeFunc);
+    functionNameVec.push_back("Smooth_runge");
+
+    functionVec.push_back(sqrtFunc);
+    functionNameVec.push_back("Nonsmooth_sqrt");
+
+    functionVec.push_back(stripFunc);
+    functionNameVec.push_back("Nonsmooth_abs");
+
+    functionVec.push_back(hardFunc);
+    functionNameVec.push_back("Nonsmooth_runge_abs");
+
     std::string function_name = "Constant Zero";
     auto func_lambda = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
         return 0;
@@ -469,41 +506,47 @@ int main(int argc, char* argv[]) {
         cheb_grid_needed = true;
     }
     std::cout
-        << "FunctionName, Calculator,N,Init time (s), Calc.time(s), Calc.Freq(hz), Bytes, MaxError, FirstBlank, Err1, Err2, Err3, Blank" << std::endl;
-    switch (func_option) {
+        << "function_name, calculator,N,init_time, calc_time, calc_hz, bytes, max_error, blank_column, err1, err2, err3, Blank" << std::endl;
+    if (bits_option == 64) {
+        testRunList<rhocount, double>(functionNameVec[func_option], calclist[calc_option], functionVec[func_option], g, &cache, cheb_grid_needed);
+    }
+    if (bits_option == 32) {
+        testRunList<rhocount, float>(functionNameVec[func_option], calclist[calc_option], functionVec[func_option], g, &cache, cheb_grid_needed);
+    }
+    /*switch (func_option) {
         case 0:
 
-            function_name = "Smooth:exp(-Ar^2-b*rho^2)";
+            function_name = "smooth_exp";
             testRunList<rhocount, double>(function_name, calclist[calc_option], easyFunc, g, &cache, cheb_grid_needed);
             //testRunList<rhocount, float>(function_name, calclist[calc_option], easyfunc, g, cheb_grid_needed);
 
             break;
 
         case 1:
-            function_name = "Nonsmooth:sqrt(r)";
+            function_name = "nonsmooth_sqrt_r";
             testRunList<rhocount, double>(function_name, calclist[calc_option], sqrtFunc, g, &cache, cheb_grid_needed);
             //testRunList<rhocount, float>(function_name, calclist[calc_option], mediumfunc, g, cheb_grid_needed);
             break;
         case 2:
-            function_name = "Smooth:Runge";
+            function_name = "smooth_runge";
             testRunList<rhocount, double>(function_name, calclist[calc_option], rungeFunc, g, &cache, cheb_grid_needed);
             //testRunList<rhocount, float>(function_name, calclist[calc_option], mediumfunc, g, cheb_grid_needed);
             break;
         case 3:
-            function_name = "Nonsmooth:abs()";
+            function_name = "nonsmooth_abs";
 
             testRunList<rhocount, double>(function_name, calclist[calc_option], stripFunc, g, &cache, cheb_grid_needed);
             //testRunList<rhocount, float>(function_name, calclist[calc_option], crazyhardfunc, g, cheb_grid_needed);
             break;
         case 4:
-            function_name = "Nonsmooth+Runge";
+            function_name = "nonsmooth_abs_plus_runge";
 
             testRunList<rhocount, double>(function_name, calclist[calc_option], hardFunc, g, &cache, cheb_grid_needed);
             //testRunList<rhocount, float>(function_name, calclist[calc_option], crazyhardfunc, g, cheb_grid_needed);
             break;
         default:
             break;
-    };
+    };*/
 
     fftw_cleanup();
 }
