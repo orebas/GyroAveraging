@@ -11,7 +11,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=10
-#SBATCH --array=0-14
+#SBATCH --array=0-17
 #SBATCH --gres=gpu:p40:1
    
 # we expect the job to finish within 5 hours. If it takes longer than 5
@@ -74,5 +74,5 @@ B=$((SLURM_ARRAY_TASK_ID%3+7)) # B = [0-5]+3 = [3-8]
 # the script will have started running in $HOME, so we need to move into the
 # unique directory we just created
 cd $RUNDIR
-$SRCDIR/GyroAverage-CUDA --calc=$B --func=$A --cache=/scratch/ob749/GA/cache/
+$SRCDIR/GyroAverage-CUDA --calc=$B --func=$A --cache=/scratch/ob749/GA/cache/ --bits=64
 

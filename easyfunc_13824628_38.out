@@ -1,0 +1,6 @@
+function_name, calculator,N,init_time, calc_time, calc_hz, bytes, max_error, blank_column, err1, err2, err3, Blank
+Smooth_runge,chebyshev interp; CPU Dense Matrix ,8,0.059,35880,27870.7,4, 0.306457,,0.306457,0.133957,0.175195,
+Smooth_runge,chebyshev interp; CPU Dense Matrix ,12,0.157,262372,3811.38,4, 0.127347,,0.127347,0.0931463,0.0909768,
+Smooth_runge,chebyshev interp; CPU Dense Matrix ,16,0.052,486986,2053.45,4, 0.0660409,,0.0660409,0.0282194,0.0340477,
+Smooth_runge,chebyshev interp; CPU Dense Matrix ,20,0.09,1.31761e+06,758.952,4, 0.0314829,,0.0314829,0.0126942,0.0141966,
+Smooth_runge,chebyshev interp; CPU Dense Matrix ,24,0.085,3.51994e+06,284.096,4, 0.0055622,,0.0055622,0.00508903,0.00480801,

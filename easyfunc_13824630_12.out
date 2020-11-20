@@ -1,0 +1,5 @@
+function_name, calculator,N,init_time, calc_time, calc_hz, bytes, max_error, blank_column, err1, err2, err3, Blank
+Nonsmooth_abs,linear interp; GPU Sparse Matrix   ,8,0.172,577673,1731.08,4, 0.485522,,0.485522,0.247273,0.209921,
+Nonsmooth_abs,linear interp; GPU Sparse Matrix   ,12,0.039,140231,7131.09,4, 0.342779,,0.342779,0.179593,0.291583,
+Nonsmooth_abs,linear interp; GPU Sparse Matrix   ,16,0.045,183480,5450.19,4, 0.21116,,0.21116,0.0688382,0.138176,
+Nonsmooth_abs,linear interp; GPU Sparse Matrix   ,20,0.047,148306,6742.82,4, 0.119104,,0.119104,0.0502259,0.0671144,
