@@ -1,0 +1,10 @@
+function_name, calculator,N,init_time, calc_time, calc_hz, bytes, max_error, blank_column, err1, err2, err3, Blank
+Smooth_runge,linear interp; CPU Sparse Matrix   ,8,0.001,20648,48430.8,4, 0.432059,,0.432059,0.224373,0.302186,
+Smooth_runge,linear interp; CPU Sparse Matrix   ,12,0.001,21804,45863.1,4, 0.285866,,0.285866,0.14927,0.214221,
+Smooth_runge,linear interp; CPU Sparse Matrix   ,16,0.001,94277,10607,4, 0.205543,,0.205543,0.0816539,0.103434,
+Smooth_runge,linear interp; CPU Sparse Matrix   ,20,0.002,48297,20705.2,4, 0.119723,,0.119723,0.0609181,0.0735341,
+Smooth_runge,linear interp; CPU Sparse Matrix   ,24,0.026,4.57852e+06,218.411,4, 0.0883814,,0.0692914,0.0476467,0.0883814,
+Smooth_runge,linear interp; CPU Sparse Matrix   ,28,0.004,95563,10464.3,4, 0.0773599,,0.0308931,0.0399957,0.0773599,
+Smooth_runge,linear interp; CPU Sparse Matrix   ,32,0.021,109998,9091.07,4, 0.0366882,,0.00820681,0.0357728,0.0366882,
+Smooth_runge,linear interp; CPU Sparse Matrix   ,36,0.033,113300,8826.13,4, 0.0501993,,0.0501993,0.0322605,0.0271721,
+Smooth_runge,linear interp; CPU Sparse Matrix   ,40,0.037,203668,4909.95,4, 0.0534608,,0.0534608,0.0275511,0.0353999,

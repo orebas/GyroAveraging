@@ -1,0 +1,7 @@
+function_name, calculator,N,init_time, calc_time, calc_hz, bytes, max_error, blank_column, err1, err2, err3, Blank
+Smooth_runge,DCT+Bessel+IDCT; on padded grid    ,8,0.004,44824,22309.5,4, 0.150861,,0.0173714,0.150861,0.139217,
+Smooth_runge,DCT+Bessel+IDCT; on padded grid    ,12,0.026,93656,10677.4,4, 0.0330363,,0.00541494,0.0330363,0.0254426,
+Smooth_runge,DCT+Bessel+IDCT; on padded grid    ,16,0.014,7.30617e+06,136.871,4, 0.0102803,,0.00498731,0.0102803,0.0100714,
+Smooth_runge,DCT+Bessel+IDCT; on padded grid    ,20,0.042,184783,5411.75,4, 0.00697122,,0.00324385,0.00468418,0.00697122,
+Smooth_runge,DCT+Bessel+IDCT; on padded grid    ,24,0.043,4.66195e+06,214.502,4, 0.00286931,,0.0024955,0.00235685,0.00286931,
+Smooth_runge,DCT+Bessel+IDCT; on padded grid    ,28,0.023,315565,3168.92,4, 0.00274698,,0.0018052,0.00180001,0.00274698,

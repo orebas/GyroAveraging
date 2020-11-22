@@ -1,0 +1,2 @@
+function_name, calculator,N,init_time, calc_time, calc_hz, bytes, max_error, blank_column, err1, err2, err3, Blank
+Smooth_poly,bicubic interp; trapezoid rule; CPU,8,0,2.2723e+11,0.00440084,4, 0.0517766,,0.0280514,0.0353025,0.0517766,
