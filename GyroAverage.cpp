@@ -287,6 +287,11 @@ void cache_testing(const std::string& directory) {
     //calculator = (GACalculator<RealT>::Factory::newCalculator(OOGA::calculatorType::chebCPUDense, g, exact, xcount / 2));
 }
 
+template <class RealT, typename TFunc1>
+class functionTemplateHack {
+    RealT operator()(RealT a, RealT b, RealT c) {}
+};
+
 int main(int argc, char* argv[]) {
     //fft_testing();
     //chebDevel();
@@ -375,9 +380,7 @@ int main(int argc, char* argv[]) {
     g.xmax = g.ymax = mainxyMax;
     //constexpr int xcount = 16, ycount = 16;
     constexpr int rhocount = 3;  // bump up to 64x64x35 later or 128x128x35
-    constexpr mainReal A = 24;
-    constexpr mainReal B = 1.1;
-    constexpr mainReal Normalizer = 50.0;
+
     std::vector<mainReal> rhoset;
     //std::vector<mainReal> xset;
     //std::vector<mainReal> yset;
@@ -408,8 +411,15 @@ int main(int argc, char* argv[]) {
     //constexpr mainReal padtest = xcount * mainRhoMax / std::abs(mainxyMax - mainxyMin);
     //constexpr int padcount = mymax(8, 4 + static_cast<int>(std::ceil(padtest)));
 
-    std::vector<std::function<mainReal(mainReal, mainReal, mainReal)>> functionVec;
-    auto easyFunc = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
+    //std::vector<std::function<mainReal(mainReal, mainReal, mainReal)>> functionVec;
+
+    using fp = mainReal (*)(mainReal row, mainReal ex, mainReal why);
+    std::vector<fp> functionVec;
+
+    auto easyFunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
+        constexpr mainReal A = 24;
+        constexpr mainReal B = 1.1;
+        constexpr mainReal Normalizer = 50.0;
         return Normalizer * exp(-A * (ex * ex + why * why)) * exp(-B * row * row);
     };
 
@@ -443,7 +453,7 @@ int main(int argc, char* argv[]) {
                std::cbrt(1.0 - ex * ex) * std::cbrt(1.0 - why * why);
     };
 
-    auto crazyhardFunc = [Normalizer, A, B](mainReal row, mainReal ex, mainReal why) -> mainReal {
+    auto crazyhardFunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
         auto dist = ex * ex + why * why;
         auto hard = exp(dist) * pow(
                                     (1.0 / cosh(4.0 * sin(40.0 * dist))),
