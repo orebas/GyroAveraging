@@ -516,7 +516,7 @@ int main(int argc, char* argv[]) {
         cheb_grid_needed = true;
     }
     std::cout
-        << "function_name, calculator,N,init_time, calc_time, calc_hz, bytes, max_error, blank_column, err1, err2, err3, Blank" << std::endl;
+        << "function_name, calculator,N,init-time, calc-time, calc-hz, bytes, max-error, blank-column, err1, err2, err3, Blank" << std::endl;
     if (bits_option == 64) {
         testRunList<rhocount, double>(functionNameVec[func_option], calclist[calc_option], functionVec[func_option], g, &cache, cheb_grid_needed);
     }
@@ -698,4 +698,27 @@ void chebDevel() {
             std::cout << p << " " << q << " " << m.maxNormDiff(exact.gridValues, 0) << std::endl;
         }
     }
+}
+
+double temp(double f) {
+    double r2 = r * r;
+    double r3 = r * r * r;
+    double r4 = r * r * r * r;
+    double r5 = r * r * r * r * r;
+    double r6 = r * r * r * r * r * r;
+    double r7 = r * r * r * r * r * r * r;
+
+    double x2 = x * x;
+    double x3 = x * x * x;
+    double x4 = x * x * x * x;
+    double x5 = x * x * x * x * x;
+    double x6 = x * x * x * x * x * x;
+    double x7 = x * x * x * x * x * x * x;
+
+    double y2 = y * y;
+    double y3 = y * y * y;
+    double y4 = y * y * y * y;
+    double y5 = y * y * y * y * y;
+    double y6 = y * y * y * y * y * y;
+    double y7 = y * y * y * y * y * y * y;
 }

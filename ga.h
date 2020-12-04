@@ -764,27 +764,27 @@ enum class calculatorType { linearCPU,
 inline std::map<OOGA::calculatorType, std::string> calculatorNameMap() {
     std::map<OOGA::calculatorType, std::string> nameMap;
     nameMap[OOGA::calculatorType::linearCPU] =
-        "linear interp; trapezoid rule; CPU ";
+        "CPU-linear-quad";
     nameMap[OOGA::calculatorType::linearDotProductCPU] =
-        "linear interp; CPU Sparse Matrix   ";
+        "CPU-linear-sparse";
     nameMap[OOGA::calculatorType::bicubicCPU] =
-        "bicubic interp; trapezoid rule; CPU";
+        "CPU-bicubic-quad";
     nameMap[OOGA::calculatorType::bicubicDotProductCPU] =
-        "bicubic interp; CPU Sparse Matrix  ";
+        "CPU-bicubic-sparse";
     nameMap[OOGA::calculatorType::DCTCPUCalculator] =
-        "Very slow fourier Method ; deprecated";
+        "Very-slow-fourier-Method-deprecated";
     nameMap[OOGA::calculatorType::DCTCPUCalculator2] =
-        "DCT+Bessel+IDCT                    ";
+        "CPU-DCT-nopad";
     nameMap[OOGA::calculatorType::DCTCPUPaddedCalculator2] =
-        "DCT+Bessel+IDCT; on padded grid    ";
+        "CPU-DCT-padded";
     nameMap[OOGA::calculatorType::bicubicDotProductGPU] =
-        "bicubic interp; GPU Sparse Matrix  ";
+        "GPU-bicubic-sparse";
     nameMap[OOGA::calculatorType::linearDotProductGPU] =
-        "linear interp; GPU Sparse Matrix   ";
+        "GPU-linear-sparse";
     nameMap[OOGA::calculatorType::chebCPUDense] =
-        "chebyshev interp; CPU Dense Matrix ";
+        "CPU-cheb-dense";
     nameMap[OOGA::calculatorType::chebGPUDense] =
-        "chebyshev interp; GPU Dense Matrix ";
+        "GPU-cheb-dense";
 
     return nameMap;
 }
