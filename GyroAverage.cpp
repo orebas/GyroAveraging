@@ -178,6 +178,69 @@ resultsRecord<RealT> testRun(const std::string& function_name, OOGA::calculatorT
     return runResults;
 }
 
+template <int rhocount, class RealT, typename TFunc1>
+void testRunDiag(const std::string function_name, OOGA::calculatorType calcType, TFunc1 testfunc, const OOGA::gridDomain& g, OOGA::fileCache* cache = nullptr, bool cheb = false) {
+    constexpr int N = 64;
+    using OOGA::functionGrid;
+    using OOGA::GACalculator;
+    using OOGA::gridDomain;
+    using OOGA::LinearSpacedArray;
+    using OOGA::measure;
+
+    int xcount = N;
+    int ycount = N;
+    std::vector<RealT> rhoset;
+    std::vector<RealT> xset, lin_xset, lin_yset;
+    std::vector<RealT> yset;
+
+    rhoset = LinearSpacedArray<RealT>(g.rhomin, g.rhomax, rhocount);
+    if (!cheb) {
+        xset = LinearSpacedArray<RealT>(g.xmin, g.xmax, xcount);
+        yset = LinearSpacedArray<RealT>(g.ymin, g.ymax, ycount);
+    } else {
+        xset = chebPoints<RealT>(xcount);
+        yset = chebPoints<RealT>(ycount);
+    }
+
+    lin_xset = LinearSpacedArray<RealT>(g.xmin, g.xmax, xcount);
+    lin_yset = LinearSpacedArray<RealT>(g.ymin, g.ymax, ycount);
+
+    functionGrid<RealT>
+        f(rhoset, xset, yset),
+        exact(rhoset, lin_xset, lin_yset), result(rhoset, lin_xset, lin_yset);
+
+    std::unique_ptr<GACalculator<RealT>> calculator;
+    exact.fillTruncatedAlmostExactGA(testfunc);
+
+    auto func = [&]() -> void { calculator = (GACalculator<RealT>::Factory::newCalculator(calcType, g, exact, cache, xcount / 2)); };
+    double initTime = measure<std::chrono::milliseconds>::execution(func);
+    f.fill(testfunc);
+    auto& b = f;
+    auto func2 = [&]() -> void {
+        calculator->calculate(b);
+    };
+    double calcTime = measure<std::chrono::nanoseconds>::execution(func2);
+    result = (calculator->calculate(f));
+    resultsRecord<RealT> runResults(function_name, calcType, N, std::vector<RealT>(rhoset.begin(), rhoset.end()), initTime, calcTime, sizeof(RealT));
+
+    for (int k = 0; k < rhocount; ++k) {
+        std::cout << "rho is " << rhoset[k] << std::endl;
+        std::cout << "f: \n";
+        f.csvPrinter(k);
+        std::cout << "exact(trunc):\n";
+        exact.csvPrinter(k);
+        std::cout << "result\n";
+        result.csvPrinter(k);
+        std::cout << "diff\n";
+        exact.csvPrinterDiff(result, k);
+        std::cout << std::endl;
+
+        runResults.error[k] = exact.maxNormDiff(result.gridValues, k) / exact.maxNorm(k);
+    }
+    calculator.reset(nullptr);
+    std::cout << runResults << std::endl;
+}
+
 /*template <int N, int rhocount, class RealT, bool cheb = false, typename TFunc1>
   std::vector<resultsRecord<RealT>> testRunMultiple(const std::vector<OOGA::calculatorType>& calclist, TFunc1 testfunc, OOGA::gridDomain& g) {
 using OOGA::functionGrid, OOGA::GACalculator, OOGA::gridDomain, OOGA::LinearSpacedArray, OOGA::measure;
@@ -308,7 +371,11 @@ int main(int argc, char* argv[]) {
     gsl_set_error_handler_off();
 
     po::options_description desc("Allowed options");
-    desc.add_options()("help", "produce help message")("calc", po::value<int>(), "choose which calculator to test run")("func", po::value<int>(), "choose which function to test run")("cache", po::value<std::string>(), "choose the cache directory")("bits", po::value<int>(), "choose 32 or 64 (for float or double)")("diag", po::value<int>(), "set to 1 for diagnostic");
+    desc.add_options()("help", "produce help message")("calc", po::value<int>(), "choose which calculator to test run")
+        //whitespace because (see below)
+        ("func", po::value<int>(), "choose which function to test run")("cache", po::value<std::string>(), "choose the cache directory")
+        //whitespace because my editor wraps this poorly
+        ("bits", po::value<int>(), "choose 32 or 64 (for float or double)")("diag", po::value<int>(), "set to 1 for diagnostic");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -369,7 +436,7 @@ int main(int argc, char* argv[]) {
     //the below can in theory be command line args as well:
 
     constexpr mainReal mainRhoMin = 0.25 / 4.0;  //used to be 0.25/4
-    constexpr mainReal mainRhoMax = 3.55 / 4.0;  //used to be 3/4
+    constexpr mainReal mainRhoMax = 3.5 / 4.0;   //used to be 3/4
     constexpr mainReal mainxyMin = -1;
     constexpr mainReal mainxyMax = 1;
 
@@ -378,21 +445,11 @@ int main(int argc, char* argv[]) {
     g.rhomin = mainRhoMin;
     g.xmin = g.ymin = mainxyMin;
     g.xmax = g.ymax = mainxyMax;
-    //constexpr int xcount = 16, ycount = 16;
-    constexpr int rhocount = 3;  // bump up to 64x64x35 later or 128x128x35
+    constexpr int rhocount = 3;
 
     std::vector<mainReal> rhoset;
-    //std::vector<mainReal> xset;
-    //std::vector<mainReal> yset;
     auto nameMap = OOGA::calculatorNameMap();
 
-    //rhoset = LinearSpacedArray<mainReal>(g.rhomin, g.rhomax, rhocount);
-    //xset = LinearSpacedArray<mainReal>(g.xmin, g.xmax, xcount);
-    //yset = LinearSpacedArray<mainReal>(g.ymin, g.ymax, ycount);
-
-    //functionGrid<mainReal> f(rhoset, xset, yset),  exact(rhoset, xset, yset);
-
-    //std::vector<std::unique_ptr<GACalculator<mainReal>>> calcset;
     std::vector<OOGA::calculatorType> calclist;
     calclist.push_back(OOGA::calculatorType::linearCPU);
     calclist.push_back(OOGA::calculatorType::linearDotProductCPU);
@@ -405,19 +462,16 @@ int main(int argc, char* argv[]) {
     calclist.push_back(OOGA::calculatorType::bicubicDotProductGPU);
     calclist.push_back(OOGA::calculatorType::chebGPUDense);
 
-    //std::vector<OOGA::calculatorType> chebCalclist;
-    //chebCalclist.push_back(OOGA::calculatorType::chebCPUDense);
-    //chebCalclist.push_back(OOGA::calculatorType::chebGPUDense);
+    //the below is a relic of when padding was a parameter, and that's a reasonable thing to investigate.
     //constexpr mainReal padtest = xcount * mainRhoMax / std::abs(mainxyMax - mainxyMin);
     //constexpr int padcount = mymax(8, 4 + static_cast<int>(std::ceil(padtest)));
 
-    //std::vector<std::function<mainReal(mainReal, mainReal, mainReal)>> functionVec;
-
-    using fp = mainReal (*)(mainReal row, mainReal ex, mainReal why);
+    using fp = mainReal (*)(mainReal row, mainReal ex, mainReal why);  // pointer to function which takes 3 mainReals, and returns one.
+    //FYI capture-less lambdas can cast themselves to function pointers, but you can't if you capture.
     std::vector<fp> functionVec;
 
     auto easyFunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
-        constexpr mainReal A = 24;
+        constexpr mainReal A = 22;
         constexpr mainReal B = 1.1;
         constexpr mainReal Normalizer = 50.0;
         return Normalizer * exp(-A * (ex * ex + why * why)) * exp(-B * row * row);
@@ -517,6 +571,11 @@ int main(int argc, char* argv[]) {
     }
     std::cout
         << "function_name, calculator,N,init-time, calc-time, calc-hz, bytes, max-error, blank-column, err1, err2, err3, Blank" << std::endl;
+
+    if (diag_option == 1) {
+        testRunDiag<rhocount, double>(functionNameVec[func_option], calclist[calc_option], functionVec[func_option], g, &cache, cheb_grid_needed);
+        return 0;
+    }
     if (bits_option == 64) {
         testRunList<rhocount, double>(functionNameVec[func_option], calclist[calc_option], functionVec[func_option], g, &cache, cheb_grid_needed);
     }
@@ -699,8 +758,11 @@ void chebDevel() {
         }
     }
 }
-
+/*
 double temp(double f) {
+    double r = 0;
+    double x = 0;
+    double y = 0;
     double r2 = r * r;
     double r3 = r * r * r;
     double r4 = r * r * r * r;
@@ -721,4 +783,6 @@ double temp(double f) {
     double y5 = y * y * y * y * y;
     double y6 = y * y * y * y * y * y;
     double y7 = y * y * y * y * y * y * y;
-}
+
+    
+}*/
