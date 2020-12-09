@@ -16,7 +16,7 @@
 
 # we expect the job to finish within 5 hours. If it takes longer than 5
 # hours, SLURM can kill it:
-#SBATCH --time=8:00:00  
+#SBATCH --time=24:00:00  
 # change 1 to 10
    
 # we expect the job to use no more than 2GB of memory:

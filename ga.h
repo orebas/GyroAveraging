@@ -521,12 +521,18 @@ class functionGrid {
         for (int i = 0; i < rhocount; i++) {
             for (int j = 0; j < xcount; j++) {
                 for (int k = 0; k < ycount; k++) {
-                    derivs(i, j, k, 0) = g(i, j, k);
+                    derivs(i, j, k, 0) = g(i, j, k);  //first we zero everything
                 }
             }
-            for (int k = 0; k < ycount; k++) {
-                derivs(i, 0, k, 1) = 0;
-                derivs(i, xcount - 1, k, 1) = 0;
+            for (int k = 0; k < ycount; k++) {  //for all values of y
+                derivs(i, 0, k, 1) = (-25.0 / 12.0 * g(i, 0, k) + 4 * g(i, 1, k) - 3 * g(i, 2, k) +
+                                      (4.0 / 3.0) * g(i, 3, k) - 0.25 * g(i, 4, k)) /
+                                     (1.0 * xdenom);  //TODO(orebas): i, 0,k f_x being set to 0
+                derivs(i, xcount - 1, k, 1) =
+                    (25.0 / 12.0 * g(i, xcount - 1, k) - 4 * g(i, xcount - 2, k) +
+                     3.0 * g(i, xcount - 3, k) - (4.0 / 3.0) * g(i, xcount - 4, k) +
+                     0.25 * g(i, xcount - 5, k)) /
+                    (1.0 * xdenom);  // i,-1,k, f_x being set to 0 too
                 derivs(i, 1, k, 1) =
                     (-3.0 * g(i, 0, k) + -10.0 * g(i, 1, k) + 18 * g(i, 2, k) +
                      -6 * g(i, 3, k) + 1 * g(i, 4, k)) /
@@ -546,8 +552,15 @@ class functionGrid {
                 }
             }
             for (int j = 0; j < xcount; j++) {
-                derivs(i, j, 0, 2) = 0;
-                derivs(i, j, ycount - 1, 2) = 0;
+                derivs(i, j, 0, 2) =
+                    ((-25.0 / 12.0) * g(i, j, 0) + 4.0 * g(i, j, 1) +
+                     -3.0 * g(i, j, 2) + (4.0 / 3.0) * g(i, j, 3) - 0.25 * g(i, j, 4)) /
+                    (1.0 * ydenom);  //i,j,0 f_y being set to 0
+                derivs(i, j, ycount - 1, 2) =
+                    (25.0 / 12.0 * g(i, j, ycount - 1) - 4.0 * g(i, j, ycount - 2) +
+                     3.0 * g(i, j, ycount - 3) - (4.0 / 3.0) * g(i, j, ycount - 4) +
+                     0.25 * g(i, j, ycount - 5)) /
+                    (1.0 * ydenom);  //i,j,-1 f_y being set to 0
                 derivs(i, j, 1, 2) =
                     (-3.0 * g(i, j, 0) + -10.0 * g(i, j, 1) +
                      18.0 * g(i, j, 2) + -6.0 * g(i, j, 3) + 1.0 * g(i, j, 4)) /
@@ -600,6 +613,14 @@ class functionGrid {
                      g(i, xcount - 2 - 1, k + 1)) /
                     (4 * xdenom * ydenom);
             }
+            for (int j = 1; j < xcount - 1; j++) {
+                derivs(i, j, 0, 3) = (derivs(i, j + 1, 0, 2) - derivs(i, j - 1, 0, 2)) / 2.0;
+                derivs(i, j, ycount - 1, 3) = (derivs(i, j + 1, ycount - 1, 2) - derivs(i, j - 1, ycount - 1, 2)) / 2.0;
+            }
+            for (int k = 1; k < ycount - 1; k++) {
+                derivs(i, 0, k, 3) = (derivs(i, 0, k + 1, 1) - derivs(i, 0, k - 1, 1)) / 2.0;
+                derivs(i, xcount - 1, k, 3) = (derivs(i, xcount - 1, k + 1, 1) - derivs(i, xcount - 1, k - 1, 1)) / 2.0;
+            }  //TODO:calculate mixed derivatives at CORNERS.
         }
         return derivs;
     }
@@ -764,27 +785,27 @@ enum class calculatorType { linearCPU,
 inline std::map<OOGA::calculatorType, std::string> calculatorNameMap() {
     std::map<OOGA::calculatorType, std::string> nameMap;
     nameMap[OOGA::calculatorType::linearCPU] =
-        "linear interp; trapezoid rule; CPU ";
+        "CPU-linear-quad";
     nameMap[OOGA::calculatorType::linearDotProductCPU] =
-        "linear interp; CPU Sparse Matrix   ";
+        "CPU-linear-sparse";
     nameMap[OOGA::calculatorType::bicubicCPU] =
-        "bicubic interp; trapezoid rule; CPU";
+        "CPU-bicubic-quad";
     nameMap[OOGA::calculatorType::bicubicDotProductCPU] =
-        "bicubic interp; CPU Sparse Matrix  ";
+        "CPU-bicubic-sparse";
     nameMap[OOGA::calculatorType::DCTCPUCalculator] =
-        "Very slow fourier Method ; deprecated";
+        "Very-slow-fourier-Method-deprecated";
     nameMap[OOGA::calculatorType::DCTCPUCalculator2] =
-        "DCT+Bessel+IDCT                    ";
+        "CPU-DCT-nopad";
     nameMap[OOGA::calculatorType::DCTCPUPaddedCalculator2] =
-        "DCT+Bessel+IDCT; on padded grid    ";
+        "CPU-DCT-padded";
     nameMap[OOGA::calculatorType::bicubicDotProductGPU] =
-        "bicubic interp; GPU Sparse Matrix  ";
+        "GPU-bicubic-sparse";
     nameMap[OOGA::calculatorType::linearDotProductGPU] =
-        "linear interp; GPU Sparse Matrix   ";
+        "GPU-linear-sparse";
     nameMap[OOGA::calculatorType::chebCPUDense] =
-        "chebyshev interp; CPU Dense Matrix ";
+        "CPU-cheb-dense";
     nameMap[OOGA::calculatorType::chebGPUDense] =
-        "chebyshev interp; GPU Dense Matrix ";
+        "GPU-cheb-dense";
 
     return nameMap;
 }
@@ -1562,10 +1583,10 @@ class chebCPUDense
             //functionGrid<RealT> f(rhoset, xset, yset);
             std::vector<std::unique_ptr<DCTCPUPaddedCalculator<RealT>>> calcset;  //TODO(orebas) replace 59 with xcount/2, or something better
 
-            calcset.emplace_back(DCTCPUPaddedCalculator<RealT>::create(g, paramf, paramf.xcount / 2));
+            calcset.emplace_back(DCTCPUPaddedCalculator<RealT>::create(g, paramf, paramf.xcount * 2));
             int max_threads = omp_get_max_threads() + 1;
             for (int p = 1; p < max_threads; ++p) {
-                calcset.emplace_back(DCTCPUPaddedCalculator<RealT>::create(g, paramf, paramf.xcount / 2, (calcset[0]->dctCalc)->besselVals));
+                calcset.emplace_back(DCTCPUPaddedCalculator<RealT>::create(g, paramf, paramf.xcount * 2, (calcset[0]->dctCalc)->besselVals));
                 if (calcset.back() == nullptr) {
                     std::cout << "ERROR" << std::endl;
                     exit(0);
@@ -1582,6 +1603,88 @@ class chebCPUDense
 
                     threadf.fill(basistest);
                     auto res = calcset[omp_get_thread_num()]->calculate(threadf);  //this is  FFT + IFFT.
+                    for (int rho_iter = 0; rho_iter < threadf.rhocount; ++rho_iter) {
+                        Eigen::Map<Eigen::Matrix<RealT, Eigen::Dynamic, Eigen::Dynamic>> m(res.gridValues.data.data() + rho_iter * threadf.xcount * threadf.ycount, threadf.xcount * threadf.ycount, 1);
+                        dgma[rho_iter].col(threadf.ycount * p + q) = m;  //TODO(orebas) NOT FINISHED REDO THIS LINE
+                    }
+                }
+            }
+            if (cache != nullptr) {
+                //std::cout << "attempting to cache\n";
+                for (int rho_iter = 0; rho_iter < paramf.rhocount; ++rho_iter) {
+                    std::string calcname = "ChebCache";
+                    std::ostringstream fullname;  //unfortunately this needs to be maintained in two places.  TODO(orebas) make it a lambda
+                    fullname << calcname << "." << sizeof(RealT) << "." << paramf.xcount << "." << paramf.ycount << "." << std::to_string(rhoset[rho_iter]);
+                    cache->save(fullname.str(), dgma[rho_iter].data(), dgma[rho_iter].size() * sizeof(RealT));
+                }
+            } else {
+                //std::cout << "didn't try to cache\n";
+            }
+        } else {
+            //std::cout << "Fully read from cache!" << std::endl;
+        }
+    }
+
+    void static slowFillCached(const gridDomain &g, const functionGrid<RealT> &paramf, std::vector<Eigen::Matrix<RealT, Eigen::Dynamic, Eigen::Dynamic>> &dgma, fileCache *cache /*= nullptr*/) {
+        bool needNewData = false;
+
+        std::vector<RealT> rhoset;
+        std::vector<RealT> xset;
+        std::vector<RealT> yset;
+
+        rhoset = LinearSpacedArray<RealT>(g.rhomin, g.rhomax, paramf.rhocount);
+        xset = LinearSpacedArray<RealT>(g.xmin, g.xmax, paramf.xcount);
+        yset = LinearSpacedArray<RealT>(g.ymin, g.ymax, paramf.ycount);
+
+        if (cache != nullptr) {
+            std::string calcname = "ChebCache";
+            for (int rho_iter = 0; rho_iter < paramf.rhocount; ++rho_iter) {
+                std::ostringstream fullname;  //unfortunately this needs to be maintained in two places.  TODO(orebas) make it a lambda
+                fullname << calcname << "." << sizeof(RealT) << "." << paramf.xcount << "." << paramf.ycount << "." << std::to_string(rhoset[rho_iter]);
+                //std::cout << "attempting to read from " << fullname.str() << std::endl;
+                std::vector<RealT> check;
+                check = cache->read<RealT>(fullname.str());
+                if (static_cast<long int>(check.size()) == paramf.xcount * paramf.ycount * paramf.xcount * paramf.ycount) {
+                    //std::cout << "Succesful read" << std::endl;
+                    Eigen::Map<Eigen::Matrix<RealT, Eigen::Dynamic, Eigen::Dynamic>> m(check.data(), paramf.xcount * paramf.ycount, paramf.xcount * paramf.ycount);
+                    dgma[rho_iter] = m;
+                } else {
+                    //std::cout << "Failed  read " << check.size() << std::endl;
+                    needNewData = true;
+                }
+            }
+        }
+        if (needNewData) {
+            for (int rho_iter = 0; rho_iter < paramf.rhocount; ++rho_iter) {
+                dgma[rho_iter].resize(paramf.xcount * paramf.ycount, paramf.xcount * paramf.ycount);
+                dgma[rho_iter].setZero();
+            }
+
+            //functionGrid<RealT> f(rhoset, xset, yset);
+            //std::vector<std::unique_ptr<DCTCPUPaddedCalculator<RealT>>> calcset;  //TODO(orebas) replace 59 with xcount/2, or something better
+
+            //calcset.emplace_back(DCTCPUPaddedCalculator<RealT>::create(g, paramf, paramf.xcount / 2));
+            int max_threads = omp_get_max_threads() + 1;
+            for (int p = 1; p < max_threads; ++p) {
+                //calcset.emplace_back(DCTCPUPaddedCalculator<RealT>::create(g, paramf, paramf.xcount / 2, (calcset[0]->dctCalc)->besselVals));
+                //if (calcset.back() == nullptr) {
+                //    std::cout << "ERROR" << std::endl;
+                //    exit(0);
+                //}
+            }
+#pragma omp parallel for  //same as above this breaks the code
+            for (int p = 0; p < paramf.xcount; ++p) {
+                functionGrid<RealT> threadf(rhoset, xset, yset);
+                for (int q = 0; q < threadf.ycount; ++q) {
+                    const int N = threadf.xcount;
+                    auto basistest = [p, q, g, N](RealT row, RealT ex, RealT why) -> RealT {
+                        return row * 0 + chebBasisFunction(p, q, ex, why, N);
+                    };
+
+                    threadf.fill(basistest);
+                    //auto res = calcset[omp_get_thread_num()]->calculate(threadf);  //this is  FFT + IFFT.
+                    functionGrid<RealT> res = threadf;
+                    res.fillTruncatedAlmostExactGA(basistest);  //SPEED ME UP
                     for (int rho_iter = 0; rho_iter < threadf.rhocount; ++rho_iter) {
                         Eigen::Map<Eigen::Matrix<RealT, Eigen::Dynamic, Eigen::Dynamic>> m(res.gridValues.data.data() + rho_iter * threadf.xcount * threadf.ycount, threadf.xcount * threadf.ycount, 1);
                         dgma[rho_iter].col(threadf.ycount * p + q) = m;  //TODO(orebas) NOT FINISHED REDO THIS LINE
@@ -1631,7 +1734,7 @@ class chebCPUDense
         }
         return m;
     }
-};
+};  // namespace OOGA
 
 //cheb
 
