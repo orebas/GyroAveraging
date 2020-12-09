@@ -16,7 +16,8 @@
 
 # we expect the job to finish within 5 hours. If it takes longer than 5
 # hours, SLURM can kill it:
-#SBATCH --time=24:00:00  
+#SBATCH --time=24
+:00:00  
 # change 1 to 10
    
 # we expect the job to use no more than 2GB of memory:
@@ -73,5 +74,5 @@ B=$((SLURM_ARRAY_TASK_ID%6)) # B = [0-5]+3 = [3-8]
 # the script will have started running in $HOME, so we need to move into the
 # unique directory we just created
 cd $RUNDIR
-$SRCDIR/GyroAverage-CUDA --calc=$A --func=$B --cache=/scratch/ob749/GA/cache/ --bits=64
+$SRCDIR/GyroAverage-CUDA --calc=$A --func=$B --cache=/scratch/ob749/GA/cache/ --bits=32
 

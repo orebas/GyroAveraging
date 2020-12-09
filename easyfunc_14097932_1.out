@@ -1,0 +1,2 @@
+function_name, calculator,N,init-time, calc-time, calc-hz, bytes, max-error, blank-column, err1, err2, err3, Blank
+Smooth_poly,CPU-linear-quad,8,0,2.65069e+11,0.00377261,4, 0.100091,,0.100091,0.0580411,0.0847294,
