@@ -10,3 +10,4 @@ Nonsmooth_runge_abs,CPU-bicubic-sparse,36,0.115,1.16067e+07,86.1569,4, 42.165,,1
 Nonsmooth_runge_abs,CPU-bicubic-sparse,40,0.161,1.18134e+07,84.6494,4, 172.956,,26.5075,53.9464,172.956,
 Nonsmooth_runge_abs,CPU-bicubic-sparse,44,0.208,1.20924e+07,82.6963,4, 215.405,,131.058,107.52,215.405,
 Nonsmooth_runge_abs,CPU-bicubic-sparse,48,0.233,1.23491e+07,80.9774,4, 341.85,,106.26,249.599,341.85,
+Nonsmooth_runge_abs,CPU-bicubic-sparse,52,0.299,1.12833e+07,88.6264,4, 648.14,,66.6913,303.865,648.14,

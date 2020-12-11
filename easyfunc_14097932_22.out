@@ -11,3 +11,4 @@ Nonsmooth_abs,CPU-bicubic-sparse,40,0.132,1.17816e+07,84.878,4, 72.6315,,2.74127
 Nonsmooth_abs,CPU-bicubic-sparse,44,0.225,1.18481e+07,84.402,4, 168.07,,8.24827,60.2945,168.07,
 Nonsmooth_abs,CPU-bicubic-sparse,48,0.242,1.50158e+07,66.5965,4, 137.1,,11.5529,62.3874,137.1,
 Nonsmooth_abs,CPU-bicubic-sparse,52,0.235,1.23834e+07,80.7535,4, 272.575,,12.7647,126.399,272.575,
+Nonsmooth_abs,CPU-bicubic-sparse,56,0.308,1.29957e+07,76.9484,4, 591.053,,13.5718,167.147,591.053,

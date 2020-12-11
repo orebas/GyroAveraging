@@ -11,3 +11,4 @@ Nonsmooth_sqrt,CPU-bicubic-sparse,40,0.151,1.17883e+07,84.8297,4, 2.18681,,0.141
 Nonsmooth_sqrt,CPU-bicubic-sparse,44,0.196,1.3698e+07,73.0034,4, 6.55321,,0.274558,2.23812,6.55321,
 Nonsmooth_sqrt,CPU-bicubic-sparse,48,0.22,1.24636e+07,80.2338,4, 25.065,,0.36029,1.90066,25.065,
 Nonsmooth_sqrt,CPU-bicubic-sparse,52,0.32,1.81729e+07,55.027,4, 11.2649,,0.502432,2.31264,11.2649,
+Nonsmooth_sqrt,CPU-bicubic-sparse,56,0.304,2.06808e+06,483.541,4, 70.1116,,0.695865,7.27094,70.1116,
