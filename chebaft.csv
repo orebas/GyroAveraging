@@ -1,0 +1,5 @@
+function_name, calculator,N,init-time, calc-time, calc-hz, bytes, max-error, blank-column, err1, err2, err3, Blank
+Smooth_poly,CPU-cheb-dense,8,0.069,28800,34722.2,8, 0.0384263,,0.0312095,0.0252301,0.0384263,
+Smooth_poly,CPU-cheb-dense,12,0.095,93700,10672.4,8, 0.0385373,,0.0256547,0.0136739,0.0385373,
+Smooth_poly,CPU-cheb-dense,16,0.13,343500,2911.21,8, 0.0268596,,0.0207545,0.00881559,0.0268596,
+Smooth_poly,CPU-cheb-dense,20,0.156,1.0242e+06,976.372,8, 0.0163619,,0.0163619,0.0060856,0.0141517,

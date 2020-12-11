@@ -158,7 +158,27 @@ resultsRecord<RealT> testRun(const std::string& function_name, OOGA::calculatorT
         exact(rhoset, lin_xset, lin_yset), result(rhoset, lin_xset, lin_yset);
 
     std::unique_ptr<GACalculator<RealT>> calculator;
-    exact.fillTruncatedAlmostExactGA(testfunc);
+    std::ostringstream cacheFileName;
+    cacheFileName << function_name << "."
+                  << "Trunc-exact"
+                  << "." << sizeof(RealT) << "."
+                  << f.xcount << "."
+                  << f.ycount << "."
+                  << f.rhocount << "."
+                  << f.rhoset.front() << "."
+                  << f.rhoset.back();
+    if (cache != nullptr) {
+        ////////////////
+        std::vector<RealT> check;
+        check = cache->read<RealT>(cacheFileName.str());
+        if (static_cast<long int>(check.size()) == exact.gridValues.data.size()) {
+            //std::cout << "Succesful read" << std::endl;
+            exact.gridValues.data = check;
+        } else {
+            exact.fillTruncatedAlmostExactGA(testfunc);
+            cache->save(cacheFileName.str(), exact.gridValues.data.data(), exact.gridValues.data.size() * sizeof(RealT));
+        }
+    }
 
     auto func = [&]() -> void { calculator = (GACalculator<RealT>::Factory::newCalculator(calcType, g, exact, cache, xcount / 2)); };
     double initTime = measure<std::chrono::milliseconds>::execution(func);
