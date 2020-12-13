@@ -123,7 +123,7 @@ class gsl_quad {
 template <typename F>
 double quad(F func,
             std::pair<double, double> const &range,
-            double epsabs = 1.49e-15, double epsrel = 1.49e-15,
+            double epsabs = 1.49e-10, double epsrel = 1.49e-10,
             int limit = 10000) {
     return gsl_quad<F>(func, limit).integrate(range.first, range.second, epsabs, epsrel);
 }
@@ -316,10 +316,10 @@ inline RealT BOOSTGKIntegrate(RealT x, RealT y, TFunc f) {
 
 template <typename TFunc, class RealT = double>
 inline RealT GSLIntegrate(RealT x, RealT y, TFunc f) {
-    double newq = quad(f, {x, y});
+    //double newq = quad(f, {x, y});
     //double oldq = quad_old(f, {x, y});
     //double trap = TrapezoidIntegrate(x, y, f);
-    //double GK = BOOSTGKIntegrate(x, y, f);
+    double GK = BOOSTGKIntegrate(x, y, f);
     //double tanhsinh = TanhSinhIntegrate(x, y, f);
     //std::array<double, 3> values = {0, oldq - newq, GK - newq};
     //double localmin = *std::min_element(values.begin(), values.end());
@@ -328,7 +328,7 @@ inline RealT GSLIntegrate(RealT x, RealT y, TFunc f) {
     //   std::cout << "Quadrature accuracy in question: " << "value:" << newq << " " << localmax - localmin << " " << values << std::endl;
     //abort();
     //}
-    return newq;
+    return GK;
 }
 
 template <class T = double>

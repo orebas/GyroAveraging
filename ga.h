@@ -36,8 +36,11 @@
 #include <iterator>
 #include <string>
 #include <vector>*/
+#define USE_POCKET_FFT 1
 
 #include "gautils.h"
+
+#include "pocketfft_hdronly.h"
 
 namespace OOGA {
 
@@ -298,12 +301,12 @@ class functionGrid {
     template <typename TFunc1>
     void fillAlmostExactGA(TFunc1 f) {                   // f is only used to fill the rho=0 case
         fillbyindex([&](int i, int j, int k) -> RealT {  // calculates GA by adaptive trapezoid rule on actual input function.
-            RealT xc = xset[j];
-            RealT yc = yset[k];
+            double xc = xset[j];
+            double yc = yset[k];
             if (rhoset[i] == 0) {
                 return f(i, xc, yc);
             }
-            auto new_f = [&](RealT x) -> RealT {
+            auto new_f = [&](double x) -> double {
                 return f(rhoset[i], xc + rhoset[i] * std::sin(x),
                          yc - rhoset[i] * std::cos(x));
             };
@@ -314,16 +317,16 @@ class functionGrid {
     }
 
     template <typename TFunc1>
-    void fillTruncatedAlmostExactGA(TFunc1 f) {          //calculates GA by adaptive trapezoid rule on actual intput function
-        fillbyindex([&](int i, int j, int k) -> RealT {  //but hard truncates to 0 outside of defined domain
-            RealT xc = xset[j];
-            RealT yc = yset[k];
+    void fillTruncatedAlmostExactGA(TFunc1 f) {           //calculates GA by adaptive trapezoid rule on actual intput function
+        fillbyindex([&](int i, int j, int k) -> double {  //but hard truncates to 0 outside of defined domain
+            double xc = xset[j];
+            double yc = yset[k];
             if (rhoset[i] == 0) {
                 return f(i, xc, yc);
             }
-            auto new_f = [&](RealT x) -> RealT {
-                RealT ex = xc + rhoset[i] * std::sin(x);
-                RealT why = yc - rhoset[i] * std::cos(x);
+            auto new_f = [&](double x) -> double {
+                double ex = xc + rhoset[i] * std::sin(x);
+                double why = yc - rhoset[i] * std::cos(x);
                 if ((ex < xset[0]) || (ex > xset.back())) {
                     return 0;
                 }
@@ -332,12 +335,12 @@ class functionGrid {
                 }
                 return f(rhoset[i], ex, why);
             };
-            std::array<RealT, 4> breakpoints = {0, 0, 0, 0};
+            std::array<double, 4> breakpoints = {0, 0, 0, 0};
             breakpoints[0] = (1.0 - xc) / rhoset[i];
             breakpoints[1] = (-1.0 - xc) / rhoset[i];
             breakpoints[2] = (yc - 1) / rhoset[i];
             breakpoints[3] = (yc + 1) / rhoset[i];
-            std::vector<RealT> breakrho;
+            std::vector<double> breakrho;
             breakrho.reserve(12);
             breakrho.push_back(0);
             if (std::abs(breakpoints[0]) <= 1.0) {
@@ -372,7 +375,7 @@ class functionGrid {
             }
             breakrho.push_back(2 * pi);
             std::sort(breakrho.begin(), breakrho.end());
-            RealT result = 0;
+            double result = 0;
             //std::cout << "vec: " << breakrho << std::endl;
             for (size_t i = 0; i < breakrho.size() - 1; ++i) {
                 if (breakrho[i] != breakrho[i + 1]) {
@@ -651,6 +654,7 @@ class fftw_wrapper_2d<double> {
     int rhocount;
     int xcount;
     int ycount;
+    fftw_r2r_kind kind;
     fftw_wrapper_2d() = delete;
     explicit fftw_wrapper_2d(int rc, int xc, int yc, fftw_r2r_kind t) : rhocount(rc), xcount(xc), ycount(yc) {
         int rank = 2;
@@ -660,6 +664,7 @@ class fftw_wrapper_2d<double> {
         int odist = xcount * ycount;
         int istride = 1;
         int ostride = 1;
+        kind = t;
         fftw_r2r_kind type[] = {t, t};
 
         fftin = static_cast<RealT *>(fftw_malloc(rhocount * xcount * ycount * sizeof(RealT)));
@@ -687,7 +692,31 @@ class fftw_wrapper_2d<double> {
     fftw_wrapper_2d<RealT> &operator=(fftw_wrapper_2d<RealT> &&other) = delete;
     void execute(const functionGrid<RealT> &in, functionGrid<RealT> *out) {
         std::copy(in.gridValues.data.begin(), in.gridValues.data.begin() + in.xset.size() * in.yset.size() * in.rhoset.size(), fftin);
+#ifdef USE_POCKET_FFT
+        pocketfft::shape_t shape, axes;
+        shape.push_back(xcount);
+        shape.push_back(ycount);
+        axes.push_back(0);
+        axes.push_back(1);
+        pocketfft::stride_t strided(shape.size());
+        size_t tmpd = sizeof(double);
+        strided[0] = tmpd;
+        strided[1] = tmpd * ycount;
+        int type = -1;
+        if (kind == FFTW_REDFT00)
+            type = 1;
+        if (kind == FFTW_REDFT10)
+            type = 2;
+        if (kind == FFTW_REDFT01)
+            type = 3;
+        if (kind == FFTW_REDFT11)
+            type = 4;
+        for (int i = 0; i < rhocount; i++)
+            pocketfft::dct<double>(shape, strided, strided, axes, type, fftin + i * xcount * ycount, fftout + i * xcount * ycount, 1, false, 1.);
+#else
         fftw_execute(plan);
+#endif
+
         std::copy(fftout, fftout + in.rhoset.size() * in.xset.size() * in.yset.size(), out->gridValues.data.begin());
     }
 
@@ -714,6 +743,7 @@ class fftw_wrapper_2d<float> {
     int rhocount;
     int xcount;
     int ycount;
+    fftw_r2r_kind kind;
 
     fftw_wrapper_2d() = delete;
     explicit fftw_wrapper_2d(int rc, int xc, int yc, fftwf_r2r_kind t) : rhocount(rc), xcount(xc), ycount(yc) {
@@ -725,6 +755,7 @@ class fftw_wrapper_2d<float> {
         int istride = 1;
         int ostride = 1;
         fftw_r2r_kind type[] = {t, t};
+        kind = t;
 
         fftin = static_cast<RealT *>(fftwf_malloc(rhocount * xcount * ycount * sizeof(RealT)));
         fftout = static_cast<RealT *>(fftwf_malloc(rhocount * xcount * ycount * sizeof(RealT)));
@@ -743,7 +774,30 @@ class fftw_wrapper_2d<float> {
     fftw_wrapper_2d<RealT> &operator=(fftw_wrapper_2d<RealT> &&other) = delete;
     void execute(const functionGrid<RealT> &in, functionGrid<RealT> *out) {
         std::copy(in.gridValues.data.begin(), in.gridValues.data.begin() + in.xset.size() * in.yset.size() * in.rhoset.size(), fftin);
-        fftwf_execute(plan);
+#ifdef USE_POCKET_FFT
+        pocketfft::shape_t shape, axes;
+        shape.push_back(xcount);
+        shape.push_back(ycount);
+        axes.push_back(0);
+        axes.push_back(1);
+        pocketfft::stride_t strided(shape.size());
+        size_t tmpd = sizeof(float);
+        strided[0] = tmpd;
+        strided[1] = tmpd * ycount;
+        int type = -1;
+        if (kind == FFTW_REDFT00)
+            type = 1;
+        if (kind == FFTW_REDFT10)
+            type = 2;
+        if (kind == FFTW_REDFT01)
+            type = 3;
+        if (kind == FFTW_REDFT11)
+            type = 4;
+        for (int i = 0; i < rhocount; i++)
+            pocketfft::dct<float>(shape, strided, strided, axes, type, fftin + i * xcount * ycount, fftout + i * xcount * ycount, 1, false, 1.);
+#else
+        fftw_execute(plan);
+#endif
         std::copy(fftout, fftout + in.xset.size() * in.yset.size() * in.rhoset.size(), out->gridValues.data.begin());
     }
 

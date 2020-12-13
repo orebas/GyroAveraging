@@ -500,34 +500,34 @@ int main(int argc, char* argv[]) {
     using std::abs;
     using std::max;
 
-    auto rungeFunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
+    auto rungeFunc = [](double row, double ex, double why) -> double {
         return ((1.0 - ex * ex) * (1.0 - why * why)) / (1 + 25 * ((ex - 0.2) * (ex - 0.2) + (why + 0.5) * (why + 0.5)));
     };
 
-    auto polyFunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
+    auto polyFunc = [](double row, double ex, double why) -> double {
         return ((1.0 - ex * ex) * (1.0 - why * why) * (1 - 0.0 * 3.0 * ex * why));
     };
 
-    auto sqrtFunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
+    auto sqrtFunc = [](double row, double ex, double why) -> double {
         double r = (ex - 0.2) * (ex - 0.2) + (why + 0.5) * (why + 0.5);
 
         return std::sqrt(std::sqrt(r));
     };
 
-    auto stripFunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
+    auto stripFunc = [](double row, double ex, double why) -> double {
         double r = abs(ex - why);
         double l = max(0.0, 0.75 - r);
         return (l * l * l * l * (4 * r + 1)) * (1.0 - ex * ex) * (1.0 - why * why);
     };
 
-    auto hardFunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
+    auto hardFunc = [](double row, double ex, double why) -> double {
         double r = abs(ex - why);
         double l = max(0.0, 0.75 - r);
         return (l * l * l * l * (4 * r + 1) + 1.0 / (1 + 25 * ((ex - 0.2) * (ex - 0.2) + (why + 0.5) * (why + 0.5)))) *
                std::cbrt(1.0 - ex * ex) * std::cbrt(1.0 - why * why);
     };
 
-    auto crazyhardFunc = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
+    auto crazyhardFunc = [](double row, double ex, double why) -> double {
         auto dist = ex * ex + why * why;
         auto hard = exp(dist) * pow(
                                     (1.0 / cosh(4.0 * sin(40.0 * dist))),
@@ -561,7 +561,7 @@ int main(int argc, char* argv[]) {
     functionNameVec.push_back("Nonsmooth_runge_abs");
 
     std::string function_name = "Constant Zero";
-    auto func_lambda = [](mainReal row, mainReal ex, mainReal why) -> mainReal {
+    auto func_lambda = [](double row, double ex, double why) -> double {
         return 0;
     };
 
