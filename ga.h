@@ -7,6 +7,7 @@
 #ifndef GYROAVERAGING_GA_H
 #define GYROAVERAGING_GA_H
 #include <fftw3.h>
+
 #include <omp.h>
 #include <sys/stat.h>
 
