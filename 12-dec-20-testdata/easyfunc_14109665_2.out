@@ -1,0 +1,6 @@
+function_name, calculator,N,init-time, calc-time, calc-hz, bytes, max-error, blank-column, err1, err2, err3, Blank
+Smooth_exp,GPU-cheb-dense,8,0.362,145385,6878.29,4, 0.64308,,0.627714,0.64308,0.633661,
+Smooth_exp,GPU-cheb-dense,12,0.098,197367,5066.7,4, 0.206776,,0.206776,0.16372,0.177243,
+Smooth_exp,GPU-cheb-dense,16,0.104,209221,4779.63,4, 0.0514945,,0.0468452,0.0514945,0.0456495,
+Smooth_exp,GPU-cheb-dense,20,0.126,314815,3176.47,4, 0.00795297,,0.00795297,0.00662033,0.0077493,
+Smooth_exp,GPU-cheb-dense,24,0.141,442042,2262.23,4, 0.00123676,,0.00114899,0.000986292,0.00123676,

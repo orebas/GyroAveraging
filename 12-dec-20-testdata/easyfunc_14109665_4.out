@@ -1,0 +1,5 @@
+function_name, calculator,N,init-time, calc-time, calc-hz, bytes, max-error, blank-column, err1, err2, err3, Blank
+Smooth_poly,GPU-bicubic-sparse,8,0.18,411267,2431.51,4, 0.0103227,,0.00243813,0.00866055,0.0103227,
+Smooth_poly,GPU-bicubic-sparse,12,0.048,207262,4824.81,4, 0.0146098,,0.00819462,0.0129999,0.0146098,
+Smooth_poly,GPU-bicubic-sparse,16,0.084,268256,3727.78,4, 0.0533253,,0.0377474,0.0305055,0.0533253,
+Smooth_poly,GPU-bicubic-sparse,20,0.134,335372,2981.76,4, 0.148204,,0.102467,0.0788509,0.148204,

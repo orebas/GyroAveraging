@@ -1,0 +1,5 @@
+function_name, calculator,N,init-time, calc-time, calc-hz, bytes, max-error, blank-column, err1, err2, err3, Blank
+Nonsmooth_sqrt,GPU-bicubic-sparse,8,0.183,415472,2406.9,4, 0.0117398,,0.0117398,0.00783574,0.00480782,
+Nonsmooth_sqrt,GPU-bicubic-sparse,12,0.024,221658,4511.45,4, 0.0107548,,0.0107548,0.00568497,0.00478794,
+Nonsmooth_sqrt,GPU-bicubic-sparse,16,0.085,269897,3705.12,4, 0.0562869,,0.00896878,0.00629153,0.0562869,
+Nonsmooth_sqrt,GPU-bicubic-sparse,20,0.119,317877,3145.87,4, 0.0408047,,0.0110288,0.00773986,0.0408047,

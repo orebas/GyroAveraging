@@ -1,0 +1,5 @@
+function_name, calculator,N,init-time, calc-time, calc-hz, bytes, max-error, blank-column, err1, err2, err3, Blank
+Smooth_exp,GPU-linear-sparse,8,0.235,573978,1742.23,4, 0.477316,,0.477316,0.396587,0.448939,
+Smooth_exp,GPU-linear-sparse,12,0.049,163950,6099.42,4, 0.342585,,0.342585,0.229056,0.319789,
+Smooth_exp,GPU-linear-sparse,16,0.029,103720,9641.34,4, 0.213576,,0.213576,0.155681,0.153992,
+Smooth_exp,GPU-linear-sparse,20,0.074,154631,6467.01,4, 0.145748,,0.125142,0.0992048,0.145748,

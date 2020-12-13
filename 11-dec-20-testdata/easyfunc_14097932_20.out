@@ -1,0 +1,13 @@
+function_name, calculator,N,init-time, calc-time, calc-hz, bytes, max-error, blank-column, err1, err2, err3, Blank
+Smooth_runge,CPU-bicubic-sparse,8,0.005,1.14386e+07,87.4236,4, 0.138491,,0.0727821,0.138491,0.115639,
+Smooth_runge,CPU-bicubic-sparse,12,0.002,9.7486e+06,102.579,4, 0.074201,,0.0125931,0.0386896,0.074201,
+Smooth_runge,CPU-bicubic-sparse,16,0.035,1.10874e+07,90.1926,4, 0.456141,,0.00864746,0.0358408,0.456141,
+Smooth_runge,CPU-bicubic-sparse,20,0.007,1.11701e+07,89.5247,4, 0.314862,,0.00752758,0.0397161,0.314862,
+Smooth_runge,CPU-bicubic-sparse,24,0.04,4.75264e+06,210.409,4, 0.359359,,0.0100965,0.0956948,0.359359,
+Smooth_runge,CPU-bicubic-sparse,28,0.05,1.1278e+07,88.6682,4, 0.529581,,0.0200733,0.159625,0.529581,
+Smooth_runge,CPU-bicubic-sparse,32,0.069,470130,2127.07,4, 0.643258,,0.059279,0.355882,0.643258,
+Smooth_runge,CPU-bicubic-sparse,36,0.117,1.15544e+07,86.5469,4, 1.1515,,0.109603,0.440183,1.1515,
+Smooth_runge,CPU-bicubic-sparse,40,0.158,1.90521e+07,52.4877,4, 1.41449,,0.130005,0.713126,1.41449,
+Smooth_runge,CPU-bicubic-sparse,44,0.19,1.38678e+06,721.093,4, 2.23102,,0.279601,0.816901,2.23102,
+Smooth_runge,CPU-bicubic-sparse,48,0.264,1.22488e+07,81.6405,4, 3.20165,,0.290091,2.19778,3.20165,
+Smooth_runge,CPU-bicubic-sparse,52,0.289,1.27629e+07,78.352,4, 4.75137,,0.519464,2.62507,4.75137,

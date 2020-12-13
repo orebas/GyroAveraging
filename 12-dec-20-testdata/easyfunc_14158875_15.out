@@ -1,0 +1,3 @@
+function_name, calculator,N,init-time, calc-time, calc-hz, bytes, max-error, blank-column, err1, err2, err3, Blank
+Nonsmooth_sqrt,CPU-bicubic-quad,8,0,4.39526e+10,0.0227518,8, 0.0117411,,0.0117411,0.00783483,0.00459801,
+Nonsmooth_sqrt,CPU-bicubic-quad,12,0,1.51708e+11,0.00659163,8, 0.0191596,,0.0107646,0.00568572,0.0191596,

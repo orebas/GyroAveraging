@@ -1,0 +1,2 @@
+/opt/slurm/data/slurmd/job14097180/slurm_script: line 76: 138460 Segmentation fault      $SRCDIR/GyroAverage-CUDA --calc=$A --func=$B --cache=/scratch/ob749/GA/cache/ --bits=64
+slurmstepd: error: *** JOB 14098245 ON c05-03 CANCELLED AT 2020-12-09T09:16:57 DUE TO TIME LIMIT ***

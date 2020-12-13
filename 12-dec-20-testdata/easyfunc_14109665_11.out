@@ -1,0 +1,5 @@
+function_name, calculator,N,init-time, calc-time, calc-hz, bytes, max-error, blank-column, err1, err2, err3, Blank
+Nonsmooth_sqrt,GPU-cheb-dense,8,0.179,184438,5421.88,4, 0.802438,,0.802438,0.421655,0.253212,
+Nonsmooth_sqrt,GPU-cheb-dense,12,0.081,218906,4568.17,4, 0.70821,,0.70821,0.36454,0.250572,
+Nonsmooth_sqrt,GPU-cheb-dense,16,0.073,198851,5028.89,4, 0.618521,,0.618521,0.305791,0.238482,
+Nonsmooth_sqrt,GPU-cheb-dense,20,0.091,235710,4242.5,4, 0.524674,,0.524674,0.266327,0.197287,

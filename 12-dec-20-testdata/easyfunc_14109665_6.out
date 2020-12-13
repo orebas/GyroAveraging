@@ -1,0 +1,4 @@
+function_name, calculator,N,init-time, calc-time, calc-hz, bytes, max-error, blank-column, err1, err2, err3, Blank
+Smooth_runge,GPU-linear-sparse,8,0.302,546384,1830.21,4, 0.432059,,0.432059,0.216101,0.289422,
+Smooth_runge,GPU-linear-sparse,12,0.021,154461,6474.13,4, 0.285866,,0.285866,0.15039,0.20358,
+Smooth_runge,GPU-linear-sparse,16,0.049,175912,5684.66,4, 0.205543,,0.205543,0.0828499,0.100161,
