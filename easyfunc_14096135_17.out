@@ -1,2 +1,0 @@
-function_name, calculator,N,init-time, calc-time, calc-hz, bytes, max-error, blank-column, err1, err2, err3, Blank
-Nonsmooth_runge_abs,CPU-bicubic-quad,8,0,1.17793e+11,0.00848948,8, 0.0988643,,0.0740217,0.0988643,0.0727927,

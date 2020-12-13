@@ -1,2 +1,0 @@
-function_name, calculator,N,init-time, calc-time, calc-hz, bytes, max-error, blank-column, err1, err2, err3, Blank
-Nonsmooth_abs,CPU-linear-quad,8,0,2.23277e+11,0.00447874,4, 0.485522,,0.485522,0.23264,0.305251,
