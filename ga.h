@@ -666,15 +666,15 @@ class fftw_wrapper_2d<double> {
         int ostride = 1;
         kind = t;
         fftw_r2r_kind type[] = {t, t};
-
+	std::cout << "initialize" << std::endl;
         fftin = static_cast<RealT *>(fftw_malloc(rhocount * xcount * ycount * sizeof(RealT)));
         if (fftin == nullptr) {
-            throw std::bad_alloc();
+            //throw std::bad_alloc();
         }
         fftout = static_cast<RealT *>(fftw_malloc(rhocount * xcount * ycount * sizeof(RealT)));
         if (fftout == nullptr) {
             fftw_free(fftin);
-            throw std::bad_alloc();
+            //throw std::bad_alloc();
         }
 
         plan = fftw_plan_many_r2r(rank, static_cast<int *>(n), howmany, fftin, static_cast<int *>(n), istride, idist, fftout, static_cast<int *>(n), ostride, odist, static_cast<fftw_r2r_kind *>(type), FFTW_MEASURE);
@@ -713,7 +713,9 @@ class fftw_wrapper_2d<double> {
             type = 4;
         for (int i = 0; i < rhocount; i++)
             pocketfft::dct<double>(shape, strided, strided, axes, type, fftin + i * xcount * ycount, fftout + i * xcount * ycount, 1, false, 1.);
+	std::cout << "good" << std::endl;
 #else
+	std::cout << "bad" << std::endl;
         fftw_execute(plan);
 #endif
 
