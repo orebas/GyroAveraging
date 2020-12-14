@@ -36,7 +36,7 @@
 #include <iterator>
 #include <string>
 #include <vector>*/
-#define USE_POCKET_FFT 1
+#undef USE_POCKET_FFT 0
 
 #include "gautils.h"
 
@@ -666,7 +666,7 @@ class fftw_wrapper_2d<double> {
         int ostride = 1;
         kind = t;
         fftw_r2r_kind type[] = {t, t};
-	std::cout << "initialize" << std::endl;
+        std::cout << "initialize" << std::endl;
         fftin = static_cast<RealT *>(fftw_malloc(rhocount * xcount * ycount * sizeof(RealT)));
         if (fftin == nullptr) {
             //throw std::bad_alloc();
@@ -713,9 +713,9 @@ class fftw_wrapper_2d<double> {
             type = 4;
         for (int i = 0; i < rhocount; i++)
             pocketfft::dct<double>(shape, strided, strided, axes, type, fftin + i * xcount * ycount, fftout + i * xcount * ycount, 1, false, 1.);
-	std::cout << "good" << std::endl;
+        std::cout << "good" << std::endl;
 #else
-	std::cout << "bad" << std::endl;
+        std::cout << "bad" << std::endl;
         fftw_execute(plan);
 #endif
 

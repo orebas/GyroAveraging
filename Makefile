@@ -30,16 +30,18 @@ GyroAverage-Prince-CUDA:  GyroAverage.cpp ga.h gautils.h
 	cp -f GyroAverage.cpp GyroAverage.cu
 	nvcc GyroAverage.cu    -I. -O3  -o GyroAverage-CUDA   -DVIENNACL_WITH_CUDA  -L{BOOST_LIB}  -lboost_program_options -lOpenCL $(LIBS)   $(FFTWLIBS)  -Xcompiler -fopenmp   -I${CUDA_INC}  -I${BOOST_INC} -I${CUDA_INC}/crt     -L${BOOST_LIB} -DINCL_MATH_CONSTANTS=1
 
+
+
+
 GyroAverage-Greene-CPU: GyroAverage.cpp ga.h gautils.h
-	icc GyroAverage.cpp  -std=c++14 -Wall  -O3   -fopenmp -march=native -o GyroAverage-CPU  -I${BOOST_INC} -I.  -I/share/apps/intel/19.1.2/mkl/include/fftw   -L${BOOST_LIB}   $(LIBS) -mkl
+	$(CPP) GyroAverage.cpp  -std=c++14 -Wall  -O3   -fopenmp -march=native -o GyroAverage-CPU  -I${BOOST_INC} -I.     -L${BOOST_LIB}   $(LIBS) $(FFTWLIBS)
 
 
 GyroAverage-Greene-OpenCL: GyroAverage.cpp ga.h  gautils.h
-	icc GyroAverage.cpp -std=c++14  -Wall   -O3   -fopenmp -march=native -o GyroAverage-OpenCL -DVIENNACL_WITH_OPENCL -lOpenCL  -I${BOOST_INC}  -I.  -I/share/apps/intel/19.1.2/mkl/include/fftw  -L${BOOST_LIB} $(LIBS) -mkl
+	$(CPP) GyroAverage.cpp -std=c++14  -Wall   -O3   -fopenmp -march=native -o GyroAverage-OpenCL -DVIENNACL_WITH_OPENCL -lOpenCL  -I${BOOST_INC}  -I.    -L${BOOST_LIB} $(LIBS)  $(FFTWLIBS)
 GyroAverage-Greene-CUDA:  GyroAverage.cpp ga.h gautils.h
 	cp -f GyroAverage.cpp GyroAverage.cu
-	nvcc GyroAverage.cu    -I. -O3  -o GyroAverage-CUDA   -DVIENNACL_WITH_CUDA  -L{BOOST_LIB}  -ccbin=icc -lboost_program_options -lOpenCL $(LIBS)   -Xcompiler -fopenmp    -I/share/apps/intel/19.1.2/mkl/include/fftw -I${CUDA_INC}  -I${BOOST_INC} -I${CUDA_INC}/crt     -L${BOOST_LIB} 
--DINCL_MATH_CONSTANTS=1 -mkl
+	nvcc GyroAverage.cu    -I. -O3  -o GyroAverage-CUDA   -DVIENNACL_WITH_CUDA  -L{BOOST_LIB}   -lboost_program_options -lOpenCL $(LIBS) $(FFTWLIBS)  -Xcompiler -fopenmp    -I${CUDA_INC}  -I${BOOST_INC} -I${CUDA_INC}/crt     -L${BOOST_LIB} -DINCL_MATH_CONSTANTS=1 
 
 Greene: GyroAverage-Greene-CPU GyroAverage-Greene-OpenCL GyroAverage-Greene-CUDA
 
