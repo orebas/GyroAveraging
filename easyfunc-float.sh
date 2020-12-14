@@ -45,12 +45,11 @@
 # first we ensure a clean running environment:
 module purge
 # and load the module for the software we are using:
-module load boost/gnu/1.66.0
-module load fftw/intel/3.3.5
-module load cuda/10.1.105
-module load gcc/6.3.0
-
-module load gsl/intel/2.3
+module load boost/intel/1.74.0
+module load intel/19.1.2
+module load gsl/intel/2.6
+module load cuda/11.1.74
+module load fftw/intel/3.3.9
 
 ulimit -c 0
   
@@ -73,5 +72,5 @@ B=$((SLURM_ARRAY_TASK_ID%6)) # B = [0-5]+3 = [3-8]
 # the script will have started running in $HOME, so we need to move into the
 # unique directory we just created
 cd $RUNDIR
-$SRCDIR/GyroAverage-CUDA --calc=$A --func=$B --cache=/scratch/ob749/GA/cache/ --bits=32
+$SRCDIR/GyroAverage-OpenCL --calc=$A --func=$B --cache=/scratch/ob749/GA/cache/ --bits=32
 
