@@ -1,0 +1,2 @@
+/opt/slurm/data/slurmd/job408017/slurm_script: line 75: 3816048 Segmentation fault      (core dumped) $SRCDIR/GyroAverage-OpenCL --calc=$A --func=$B --cache=/scratch/ob749/GA/cache/ --bits=32
+/opt/slurm/data/slurmd/job407974/slurm_script: line 75: 3776287 Segmentation fault      (core dumped) $SRCDIR/GyroAverage-OpenCL --calc=$A --func=$B --cache=/scratch/ob749/GA/cache/ --bits=64

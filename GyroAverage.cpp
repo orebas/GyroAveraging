@@ -16,6 +16,8 @@
 #include <math_constants.h>
 #endif
 
+#undef BOOST_HAS_FLOAT128
+
 /*#include <algorithm>
 #include <array>
 #include <boost/numeric/ublas/lu.hpp>
@@ -53,6 +55,8 @@
 #include <vector>
 */
 #include <boost/program_options.hpp>
+
+#undef BOOST_HAS_FLOAT128
 
 #include "ga.h"
 
