@@ -713,7 +713,7 @@ class fftw_wrapper_2d<double> {
             type = 4;
         for (int i = 0; i < rhocount; i++)
             pocketfft::dct<double>(shape, strided, strided, axes, type, fftin + i * xcount * ycount, fftout + i * xcount * ycount, 1, false, 1.);
-        //std::cout << "good" << std::endl;
+            //std::cout << "good" << std::endl;
 #else
         //std::cout << "bad" << std::endl;
         fftw_execute(plan);
@@ -842,27 +842,27 @@ enum class calculatorType { linearCPU,
 inline std::map<OOGA::calculatorType, std::string> calculatorNameMap() {
     std::map<OOGA::calculatorType, std::string> nameMap;
     nameMap[OOGA::calculatorType::linearCPU] =
-        "CPU-linear-quad";
+        "CPULinearQuad";
     nameMap[OOGA::calculatorType::linearDotProductCPU] =
-        "CPU-linear-sparse";
+        "CPULinearSparse";
     nameMap[OOGA::calculatorType::bicubicCPU] =
-        "CPU-bicubic-quad";
+        "CPUBicubicQuad";
     nameMap[OOGA::calculatorType::bicubicDotProductCPU] =
-        "CPU-bicubic-sparse";
+        "CPUBicubicSparse";
     nameMap[OOGA::calculatorType::DCTCPUCalculator] =
         "Very-slow-fourier-Method-deprecated";
     nameMap[OOGA::calculatorType::DCTCPUCalculator2] =
-        "CPU-DCT-nopad";
+        "CPUDCTNopad";
     nameMap[OOGA::calculatorType::DCTCPUPaddedCalculator2] =
-        "CPU-DCT-padded";
+        "CPUDCTPadded";
     nameMap[OOGA::calculatorType::bicubicDotProductGPU] =
-        "GPU-bicubic-sparse";
+        "GPUBicubicSparse";
     nameMap[OOGA::calculatorType::linearDotProductGPU] =
-        "GPU-linear-sparse";
+        "GPULinearSparse";
     nameMap[OOGA::calculatorType::chebCPUDense] =
-        "CPU-cheb-dense";
+        "CPUChebDense";
     nameMap[OOGA::calculatorType::chebGPUDense] =
-        "GPU-cheb-dense";
+        "GPUChebDense";
 
     return nameMap;
 }
