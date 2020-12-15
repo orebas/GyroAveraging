@@ -1,7 +1,0 @@
-function_name, calculator,N,init_time, calc_time, calc_hz, bytes, max_error, blank_column, err1, err2, err3, Blank
-Nonsmooth_sqrt,DCT+Bessel+IDCT; on padded grid    ,8,0.004,47893,20879.9,4, 0.802659,,0.802659,0.411399,0.275359,
-Nonsmooth_sqrt,DCT+Bessel+IDCT; on padded grid    ,12,0.026,167205,5980.68,4, 0.708432,,0.708432,0.359033,0.233065,
-Nonsmooth_sqrt,DCT+Bessel+IDCT; on padded grid    ,16,0.012,96337,10380.2,4, 0.618721,,0.618721,0.302078,0.228793,
-Nonsmooth_sqrt,DCT+Bessel+IDCT; on padded grid    ,20,0.044,8.83531e+06,113.182,4, 0.52484,,0.52484,0.264841,0.207031,
-Nonsmooth_sqrt,DCT+Bessel+IDCT; on padded grid    ,24,0.043,1.72696e+06,579.051,4, 0.429402,,0.429402,0.238686,0.156594,
-Nonsmooth_sqrt,DCT+Bessel+IDCT; on padded grid    ,28,0.026,327343,3054.9,4, 0.337328,,0.337328,0.217281,0.122958,

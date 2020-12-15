@@ -1,5 +1,0 @@
-function_name, calculator,N,init_time, calc_time, calc_hz, bytes, max_error, blank_column, err1, err2, err3, Blank
-Smooth_exp,chebyshev interp; GPU Dense Matrix ,8,0.186,122770,8145.31,4, 0.692435,,0.670663,0.692435,0.677015,
-Smooth_exp,chebyshev interp; GPU Dense Matrix ,12,0.05,182279,5486.1,4, 0.239813,,0.239813,0.19756,0.204463,
-Smooth_exp,chebyshev interp; GPU Dense Matrix ,16,0.083,145596,6868.32,4, 0.0614391,,0.0597624,0.0614391,0.0583093,
-Smooth_exp,chebyshev interp; GPU Dense Matrix ,20,0.053,184645,5415.8,4, 0.0113083,,0.0109349,0.0101215,0.0113083,

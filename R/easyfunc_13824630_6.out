@@ -1,4 +1,0 @@
-function_name, calculator,N,init_time, calc_time, calc_hz, bytes, max_error, blank_column, err1, err2, err3, Blank
-Smooth_runge,linear interp; GPU Sparse Matrix   ,8,0.295,455580,2195,4, 0.432059,,0.432059,0.224373,0.302185,
-Smooth_runge,linear interp; GPU Sparse Matrix   ,12,0.034,163248,6125.65,4, 0.285866,,0.285866,0.14927,0.214221,
-Smooth_runge,linear interp; GPU Sparse Matrix   ,16,0.043,155121,6446.58,4, 0.205543,,0.205543,0.0816539,0.103433,

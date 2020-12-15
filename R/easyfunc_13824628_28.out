@@ -1,9 +1,0 @@
-function_name, calculator,N,init_time, calc_time, calc_hz, bytes, max_error, blank_column, err1, err2, err3, Blank
-Nonsmooth_abs,DCT+Bessel+IDCT                    ,8,0.001,5854,170823,4, 0.450487,,0.0696759,0.0708392,0.450487,
-Nonsmooth_abs,DCT+Bessel+IDCT                    ,12,0.005,14098,70932,4, 0.546055,,0.0477882,0.122157,0.546055,
-Nonsmooth_abs,DCT+Bessel+IDCT                    ,16,0.007,26429,37837.2,4, 0.581983,,0.0323418,0.169029,0.581983,
-Nonsmooth_abs,DCT+Bessel+IDCT                    ,20,0.027,54549,18332.1,4, 0.594115,,0.0207213,0.196417,0.594115,
-Nonsmooth_abs,DCT+Bessel+IDCT                    ,24,0.032,59992,16668.9,4, 0.622682,,0.0121876,0.216896,0.622682,
-Nonsmooth_abs,DCT+Bessel+IDCT                    ,28,0.018,77268,12942,4, 0.642505,,0.00631557,0.230333,0.642505,
-Nonsmooth_abs,DCT+Bessel+IDCT                    ,32,0.015,86872,11511.2,4, 0.641998,,0.00608082,0.241554,0.641998,
-Nonsmooth_abs,DCT+Bessel+IDCT                    ,36,0.04,113433,8815.78,4, 0.656838,,0.00621959,0.249452,0.656838,

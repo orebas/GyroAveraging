@@ -1,9 +1,0 @@
-function_name, calculator,N,init_time, calc_time, calc_hz, bytes, max_error, blank_column, err1, err2, err3, Blank
-Smooth_runge,DCT+Bessel+IDCT                    ,8,0.003,7098,140885,4, 0.928663,,0.0178227,0.161429,0.928663,
-Smooth_runge,DCT+Bessel+IDCT                    ,12,0.006,11521,86798,4, 0.934335,,0.00627694,0.210081,0.934335,
-Smooth_runge,DCT+Bessel+IDCT                    ,16,0.004,21703,46076.6,4, 1.17109,,0.00503725,0.322436,1.17109,
-Smooth_runge,DCT+Bessel+IDCT                    ,20,0.023,24289,41170.9,4, 1.35281,,0.00403963,0.391021,1.35281,
-Smooth_runge,DCT+Bessel+IDCT                    ,24,0.032,90054,11104.4,4, 1.4842,,0.0032198,0.436149,1.4842,
-Smooth_runge,DCT+Bessel+IDCT                    ,28,0.021,125274,7982.5,4, 1.58332,,0.00242284,0.474216,1.58332,
-Smooth_runge,DCT+Bessel+IDCT                    ,32,0.017,119955,8336.46,4, 1.65476,,0.0017434,0.499736,1.65476,
-Smooth_runge,DCT+Bessel+IDCT                    ,36,0.039,115228,8678.45,4, 1.7121,,0.00103939,0.518731,1.7121,

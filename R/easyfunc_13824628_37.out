@@ -1,7 +1,0 @@
-function_name, calculator,N,init_time, calc_time, calc_hz, bytes, max_error, blank_column, err1, err2, err3, Blank
-Smooth_poly,chebyshev interp; CPU Dense Matrix ,8,0.022,43221,23136.9,4, 0.0333625,,0.0312303,0.0254654,0.0333625,
-Smooth_poly,chebyshev interp; CPU Dense Matrix ,12,0.019,128515,7781.19,4, 0.036352,,0.0256702,0.0138486,0.036352,
-Smooth_poly,chebyshev interp; CPU Dense Matrix ,16,0.025,478696,2089.01,4, 0.0279969,,0.0207656,0.00904641,0.0279969,
-Smooth_poly,chebyshev interp; CPU Dense Matrix ,20,0.066,902249,1108.34,4, 0.0175314,,0.01637,0.00638569,0.0175314,
-Smooth_poly,chebyshev interp; CPU Dense Matrix ,24,0.097,2.08431e+06,479.775,4, 0.0125032,,0.0125032,0.0046958,0.00846137,
-Smooth_poly,chebyshev interp; CPU Dense Matrix ,28,0.113,1.03497e+07,96.6214,4, 0.00919598,,0.00919598,0.00355756,0.00842264,

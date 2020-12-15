@@ -1,9 +1,0 @@
-function_name, calculator,N,init_time, calc_time, calc_hz, bytes, max_error, blank_column, err1, err2, err3, Blank
-Smooth_poly,DCT+Bessel+IDCT                    ,8,0.003,9542,104800,4, 0.623731,,0.0327523,0.0621575,0.623731,
-Smooth_poly,DCT+Bessel+IDCT                    ,12,0.005,11386,87827.2,4, 0.767215,,0.0279993,0.147719,0.767215,
-Smooth_poly,DCT+Bessel+IDCT                    ,16,0.004,49318,20276.6,4, 0.885935,,0.0236681,0.185493,0.885935,
-Smooth_poly,DCT+Bessel+IDCT                    ,20,0.023,24850,40241.4,4, 0.95608,,0.0195533,0.207714,0.95608,
-Smooth_poly,DCT+Bessel+IDCT                    ,24,0.032,63649,15711.2,4, 1.00237,,0.0156338,0.222049,1.00237,
-Smooth_poly,DCT+Bessel+IDCT                    ,28,0.017,73585,13589.7,4, 1.0352,,0.0119199,0.232169,1.0352,
-Smooth_poly,DCT+Bessel+IDCT                    ,32,0.019,136608,7320.22,4, 1.05968,,0.00842417,0.239651,1.05968,
-Smooth_poly,DCT+Bessel+IDCT                    ,36,0.046,113682,8796.47,4, 1.07865,,0.00515859,0.245425,1.07865,

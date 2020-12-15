@@ -1,3 +1,0 @@
-function_name, calculator,N,init_time, calc_time, calc_hz, bytes, max_error, blank_column, err1, err2, err3, Blank
-Nonsmooth_abs,bicubic interp; trapezoid rule; CPU,8,0,6.74216e+10,0.014832,8, 0.132369,,0.0538025,0.132369,0.0763922,
-Nonsmooth_abs,bicubic interp; trapezoid rule; CPU,12,0,1.91429e+11,0.00522386,8, 0.0331385,,0.0331385,0.0325387,0.0271062,

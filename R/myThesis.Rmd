@@ -42,7 +42,7 @@ data_all <- list.files(path = ".",     # Identify all csv files in folder
 
 
 
-```{r include = TRUE, echo=FALSE}
+```{r include = TRUE, echo=TRUE}
 print(data_all)
 
   uniqModels <- unique(data_all[,1])
@@ -117,32 +117,32 @@ This is an $x=y$ equation.
 
 
 ```{r, include=TRUE, echo=FALSE, message=FALSE, warning=FALSE, fig.height=5.2, fig.width=9.5, fig.align="center", dev="tikz", sanitize=TRUE, fig.cap = "Smooth Exp (Double)"}
-data_all = filter (data_all, calculator != "DCT+Bessel+IDCT")
+data_all = filter (data_all, calculator != "CPU-DCT-nopad")
 data_double = filter(data_all, bytes == 8)
 data_float = filter(data_all, bytes == 4)
-ggplot(data=data_double[data_double$function_name == "Smooth_exp",],aes( N,max_error, color=calculator,linetype=calculator))+geom_line()+geom_point() + scale_y_continuous(trans="log10", breaks = c(.1,.01,.001,1e-4,1e-5,1e-6,1e-7,1e-8,1e-9,1e-10,1e-11)) + scale_x_continuous(trans="log2",breaks=c(2,4,8,16,32,64,128,256)) 
+ggplot(data=data_double[data_double$function_name == "Smooth_exp",],aes( N,'max-error', color=calculator,linetype=calculator))+geom_line()+geom_point() + scale_y_continuous(trans="log10", breaks = c(.1,.01,.001,1e-4,1e-5,1e-6,1e-7,1e-8,1e-9,1e-10,1e-11)) + scale_x_continuous(trans="log2",breaks=c(2,4,8 ,16,32,64,128,256)) 
 ```
 
 
 ```{r, include=TRUE, echo=FALSE, message=FALSE, warning=FALSE, fig.height=5.2, fig.width=9.5, fig.align="center", dev="tikz",  sanitize=TRUE, fig.cap = "Smooth Poly"}
-ggplot(data=data_double[data_double$function_name == "Smooth_poly",],aes( N,max_error, color=calculator,linetype=calculator))+geom_line()+geom_point() + scale_y_continuous(trans="log10", breaks = c(.1,.01,.001,1e-4,1e-5,1e-6,1e-7,1e-8,1e-9,1e-10,1e-11)) + scale_x_continuous(trans="log2",breaks=c(2,4,8,16,32,64,128,256)) 
+ggplot(data=data_double[data_double$function_name == "Smooth_poly",],aes( N,max-error, color=calculator,linetype=calculator))+geom_line()+geom_point() + scale_y_continuous(trans="log10", breaks = c(.1,.01,.001,1e-4,1e-5,1e-6,1e-7,1e-8,1e-9,1e-10,1e-11)) + scale_x_continuous(trans="log2",breaks=c(2,4,8,16,32,64,128,256)) 
 ```
 
 
 ```{r, include=TRUE, echo=FALSE, message=FALSE, warning=FALSE, fig.height=5.2, fig.width=9.5, fig.align="center", dev="tikz", sanitize=TRUE, fig.cap = "Smooth Runge"}
-ggplot(data=data_double[data_double$function_name == "Smooth_runge",],aes( N,max_error, color=calculator,linetype=calculator))+geom_line()+geom_point() + scale_y_continuous(trans="log10", breaks = c(.1,.01,.001,1e-4,1e-5,1e-6,1e-7,1e-8,1e-9,1e-10,1e-11)) + scale_x_continuous(trans="log2",breaks=c(2,4,8,16,32,64,128,256))
+ggplot(data=data_double[data_double$function_name == "Smooth_runge",],aes( N,max-error, color=calculator,linetype=calculator))+geom_line()+geom_point() + scale_y_continuous(trans="log10", breaks = c(.1,.01,.001,1e-4,1e-5,1e-6,1e-7,1e-8,1e-9,1e-10,1e-11)) + scale_x_continuous(trans="log2",breaks=c(2,4,8,16,32,64,128,256))
 ```
 
 ```{r, include=TRUE, echo=FALSE, message=FALSE, warning=FALSE, fig.height=5.2, fig.width=9.5, fig.align="center", dev="tikz", sanitize=TRUE,fig.cap = "Nonsmooth Sqrt"}
-ggplot(data=data_double[data_double$function_name == "Nonsmooth_sqrt",],aes( N,max_error, color=calculator,linetype=calculator))+geom_line()+geom_point() + scale_y_continuous(trans="log10", breaks = c(.1,.01,.001,1e-4,1e-5,1e-6,1e-7,1e-8,1e-9,1e-10,1e-11)) + scale_x_continuous(trans="log2",breaks=c(2,4,8,16,32,64,128,256)) 
+ggplot(data=data_double[data_double$function_name == "Nonsmooth_sqrt",],aes( N,max-error, color=calculator,linetype=calculator))+geom_line()+geom_point() + scale_y_continuous(trans="log10", breaks = c(.1,.01,.001,1e-4,1e-5,1e-6,1e-7,1e-8,1e-9,1e-10,1e-11)) + scale_x_continuous(trans="log2",breaks=c(2,4,8,16,32,64,128,256)) 
 ```
 
 ```{r, include=TRUE, echo=FALSE, message=FALSE, warning=FALSE, fig.height=5.2, fig.width=9.5, fig.align="center", dev="tikz", sanitize=TRUE, fig.cap = "Nonsmooth Abs"}
-ggplot(data=data_double[data_double$function_name == "Nonsmooth_abs",],aes( N,max_error, color=calculator,linetype=calculator))+geom_line()+geom_point() + scale_y_continuous(trans="log10", breaks = c(.1,.01,.001,1e-4,1e-5,1e-6,1e-7,1e-8,1e-9,1e-10,1e-11)) + scale_x_continuous(trans="log2",breaks=c(2,4,8,16,32,64,128,256)) 
+ggplot(data=data_double[data_double$function_name == "Nonsmooth_abs",],aes( N,'max-error', color=calculator,linetype=calculator))+geom_line()+geom_point() + scale_y_continuous(trans="log10", breaks = c(.1,.01,.001,1e-4,1e-5,1e-6,1e-7,1e-8,1e-9,1e-10,1e-11)) + scale_x_continuous(trans="log2",breaks=c(2,4,8,16,32,64,128,256)) 
 ```
 
 ```{r, include=TRUE, echo=FALSE, message=FALSE, warning=FALSE, fig.height=5.2, fig.width=9.5, fig.align="center", dev="tikz", sanitize=TRUE, fig.cap = "NonSmooth Runge Abs"}
-ggplot(data=data_double[data_double$function_name == "Nonsmooth_runge_abs",],aes( N,max_error, color=calculator,linetype=calculator))+geom_line()+geom_point() +scale_y_continuous(trans="log10", breaks = c(.1,.01,.001,1e-4,1e-5,1e-6,1e-7,1e-8,1e-9,1e-10,1e-11)) + scale_x_continuous(trans="log2",breaks=c(2,4,8,16,32,64,128,256)) 
+ggplot(data=data_double[data_double$function_name == "Nonsmooth_runge_abs",],aes( N,'max-error', color=calculator,linetype=calculator))+geom_line()+geom_point() +scale_y_continuous(trans="log10", breaks = c(.1,.01,.001,1e-4,1e-5,1e-6,1e-7,1e-8,1e-9,1e-10,1e-11)) + scale_x_continuous(trans="log2",breaks=c(2,4,8,16,32,64,128,256)) 
 ```
 
 

@@ -1,9 +1,0 @@
-function_name, calculator,N,init_time, calc_time, calc_hz, bytes, max_error, blank_column, err1, err2, err3, Blank
-Smooth_poly,linear interp; CPU Sparse Matrix   ,8,0.001,2.7888e+06,358.577,4, 0.100091,,0.100091,0.053144,0.093491,
-Smooth_poly,linear interp; CPU Sparse Matrix   ,12,0.001,21739,46000.3,4, 0.0667407,,0.0443928,0.0273995,0.0667407,
-Smooth_poly,linear interp; CPU Sparse Matrix   ,16,0.001,99977,10002.3,4, 0.0235623,,0.0235623,0.0201047,0.0212527,
-Smooth_poly,linear interp; CPU Sparse Matrix   ,20,0.003,5.59234e+06,178.816,4, 0.0450023,,0.0110747,0.0154172,0.0450023,
-Smooth_poly,linear interp; CPU Sparse Matrix   ,24,0.02,6.76106e+06,147.906,4, 0.0350025,,0.00366887,0.0125427,0.0350025,
-Smooth_poly,linear interp; CPU Sparse Matrix   ,28,0.029,5.58113e+06,179.175,4, 0.0370073,,0.00320171,0.0106773,0.0370073,
-Smooth_poly,linear interp; CPU Sparse Matrix   ,32,0.033,6.1799e+06,161.815,4, 0.00889563,,0.00765938,0.00889563,0.00760749,
-Smooth_poly,linear interp; CPU Sparse Matrix   ,36,0.042,5.58759e+06,178.968,4, 0.0122679,,0.00573882,0.00749599,0.0122679,

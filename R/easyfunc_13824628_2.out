@@ -1,2 +1,0 @@
-function_name, calculator,N,init_time, calc_time, calc_hz, bytes, max_error, blank_column, err1, err2, err3, Blank
-Smooth_runge,linear interp; trapezoid rule; CPU ,8,0,2.23508e+11,0.00447411,4, 0.432059,,0.432059,0.224373,0.302186,
