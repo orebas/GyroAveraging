@@ -543,24 +543,24 @@ int main(int argc, char* argv[]) {
     };
     std::vector<std ::string> functionNameVec;
     functionVec.push_back(easyFunc);
-    functionNameVec.push_back("Smooth_exp");
+    functionNameVec.push_back("SmoothExp");
 
     functionVec.push_back(polyFunc);
-    functionNameVec.push_back("Smooth_poly");
+    functionNameVec.push_back("SmoothPoly");
 
     functionVec.push_back(rungeFunc);
-    functionNameVec.push_back("Smooth_runge");
+    functionNameVec.push_back("SmoothRunge");
 
     functionVec.push_back(sqrtFunc);
-    functionNameVec.push_back("Nonsmooth_sqrt");
+    functionNameVec.push_back("NonsmoothSqrt");
 
     functionVec.push_back(stripFunc);
-    functionNameVec.push_back("Nonsmooth_abs");
+    functionNameVec.push_back("NonsmoothAbs");
 
     functionVec.push_back(hardFunc);
-    functionNameVec.push_back("Nonsmooth_runge_abs");
+    functionNameVec.push_back("NonsmoothRungeAbs");
 
-    std::string function_name = "Constant Zero";
+    std::string function_name = "ConstantZero";
     auto func_lambda = [](double row, double ex, double why) -> double {
         return 0;
     };
@@ -585,12 +585,15 @@ int main(int argc, char* argv[]) {
         std::cout << "That's not a valid calculator." << std::endl;
         return 1;
     }
+    if (calclist[calc_option] == OOGA::calculatorType::DCTCPUCalculator2) {
+        exit(0);
+    }
     bool cheb_grid_needed = false;
     if (calclist[calc_option] == OOGA::calculatorType::chebCPUDense || calclist[calc_option] == OOGA::calculatorType::chebGPUDense) {
         cheb_grid_needed = true;
     }
     std::cout
-        << "function_name, calculator,N,init-time, calc-time, calc-hz, bytes, max-error, blank-column, err1, err2, err3, Blank" << std::endl;
+        << "functionName, calculator,N,initTime, calcTime, calcHz, bytes, maxError, blankColumn, err1, err2, err3, Blank" << std::endl;
 
     if (diag_option == 1) {
         testRunDiag<rhocount, double>(functionNameVec[func_option], calclist[calc_option], functionVec[func_option], g, &cache, cheb_grid_needed);
