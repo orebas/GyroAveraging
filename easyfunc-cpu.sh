@@ -10,17 +10,17 @@
 # we need 1 node, will launch a maximum of one task and use one cpu for the task: 
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=20
+#SBATCH --cpus-per-task=8
 #SBATCH --array=0-41
 # change 1 to 20 
 
 # we expect the job to finish within 5 hours. If it takes longer than 5
 # hours, SLURM can kill it:
-#SBATCH --time=24:00:00  
+#SBATCH --time=48:00:00  
 # change 1 to 10
    
 # we expect the job to use no more than 2GB of memory:
-#SBATCH --mem=120GB
+#SBATCH --mem=80GB
 # change 2 gb to 120
    
 # we want the job to be named "myTest" rather than something generated
@@ -61,7 +61,7 @@ ulimit -c 0
 #RUNDIR=$SCRATCH/GA/run-${SLURM_JOB_ID/.*}
 #mkdir $RUNDIR
   
-OMP_NUM_THREADS=20
+OMP_NUM_THREADS=8
 SRCDIR=$HOME/GyroAveraging
 # we will be reading data in from somewhere, so define that too:
 #DATADIR=$SCRATCH/my_project/data
@@ -72,5 +72,5 @@ B=$((SLURM_ARRAY_TASK_ID%6)) # B = [0-5]+3 = [3-8]
 # the script will have started running in $HOME, so we need to move into the
 # unique directory we just created
 cd $RUNDIR
-$SRCDIR/GyroAverage-OpenCL --calc=$A --func=$B --cache=/scratch/ob749/GA/cache/ --bits=64
-
+$SRCDIR/GyroAverage-CUDA --calc=$A --func=$B --cache=/scratch/ob749/GA/cache/ --bits=64
+#sstat  -j   $SLURM_JOB_ID   --format=JobID,MaxVMSize,AveCPU,MaxRSS,AveRSS

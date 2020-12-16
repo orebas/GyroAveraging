@@ -10,16 +10,16 @@
 # we need 1 node, will launch a maximum of one task and use one cpu for the task: 
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=10
+#SBATCH --cpus-per-task=8
 #SBATCH --array=0-17
 #SBATCH --gres=gpu:1
    
 # we expect the job to finish within 5 hours. If it takes longer than 5
 # hours, SLURM can kill it:
-#SBATCH --time=2:00:00
+#SBATCH --time=24:00:00
    
 # we expect the job to use no more than 2GB of memory:
-#SBATCH --mem=36GB
+#SBATCH --mem=40GB
    
 # we want the job to be named "myTest" rather than something generated
 # from the script name. This will affect the name of the job as reported
@@ -75,5 +75,5 @@ B=$((SLURM_ARRAY_TASK_ID%3+7)) # B = [0-5]+3 = [3-8]
 # the script will have started running in $HOME, so we need to move into the
 # unique directory we just created
 cd $RUNDIR
-$SRCDIR/GyroAverage-OpenCL --calc=$B --func=$A --cache=/scratch/ob749/GA/cache/ --bits=64
+$SRCDIR/GyroAverage-CUDA --calc=$B --func=$A --cache=/scratch/ob749/GA/cache/ --bits=64
 
