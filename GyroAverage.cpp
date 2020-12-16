@@ -204,7 +204,7 @@ resultsRecord<RealT> testRun(const std::string& function_name, OOGA::calculatorT
 
 template <int rhocount, class RealT, typename TFunc1>
 void testRunDiag(const std::string function_name, OOGA::calculatorType calcType, TFunc1 testfunc, const OOGA::gridDomain& g, OOGA::fileCache* cache = nullptr, bool cheb = false) {
-    constexpr int N = 64;
+    constexpr int N = 12;
     using OOGA::functionGrid;
     using OOGA::GACalculator;
     using OOGA::gridDomain;

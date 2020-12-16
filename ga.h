@@ -324,6 +324,12 @@ class functionGrid {
             if (rhoset[i] == 0) {
                 return f(i, xc, yc);
             }
+
+            auto new_f2 = [&](double x) -> double {
+                return f(rhoset[i], xc + rhoset[i] * std::sin(x),
+                         yc - rhoset[i] * std::cos(x));
+            };
+
             auto new_f = [&](double x) -> double {
                 double ex = xc + rhoset[i] * std::sin(x);
                 double why = yc - rhoset[i] * std::cos(x);
@@ -379,7 +385,12 @@ class functionGrid {
             //std::cout << "vec: " << breakrho << std::endl;
             for (size_t i = 0; i < breakrho.size() - 1; ++i) {
                 if (breakrho[i] != breakrho[i + 1]) {
-                    result += GSLIntegrate(breakrho[i], breakrho[i + 1], new_f);
+                    double midpoint = (breakrho[i] + breakrho[i + 1]) / 2;
+                    double xm = xc + rhoset[i] * std::sin(midpoint);
+                    double ym = yc - rhoset[i] * std::cos(midpoint);
+                    if ((xm >= xset[0]) && (xm <= xset.back()) && (ym >= yset[0]) && (ym <= yset.back())) {
+                        result += GSLIntegrate(breakrho[i], breakrho[i + 1], new_f);
+                    }
                 }
             }
 
@@ -1719,32 +1730,107 @@ class chebCPUDense
 
             //functionGrid<RealT> f(rhoset, xset, yset);
             //std::vector<std::unique_ptr<DCTCPUPaddedCalculator<RealT>>> calcset;  //TODO(orebas) replace 59 with xcount/2, or something better
+            //functionGrid<RealT> threadf(rhoset, xset, yset);
 
             //calcset.emplace_back(DCTCPUPaddedCalculator<RealT>::create(g, paramf, paramf.xcount / 2));
-            int max_threads = omp_get_max_threads() + 1;
-            for (int p = 1; p < max_threads; ++p) {
-                //calcset.emplace_back(DCTCPUPaddedCalculator<RealT>::create(g, paramf, paramf.xcount / 2, (calcset[0]->dctCalc)->besselVals));
-                //if (calcset.back() == nullptr) {
-                //    std::cout << "ERROR" << std::endl;
-                //    exit(0);
-                //}
-            }
-#pragma omp parallel for  //same as above this breaks the code
-            for (int p = 0; p < paramf.xcount; ++p) {
-                functionGrid<RealT> threadf(rhoset, xset, yset);
-                for (int q = 0; q < threadf.ycount; ++q) {
-                    const int N = threadf.xcount;
-                    auto basistest = [p, q, g, N](RealT row, RealT ex, RealT why) -> RealT {
-                        return row * 0 + chebBasisFunction(p, q, ex, why, N);
-                    };
+            //#pragma omp parallel for  //same as above this breaks the code
+            functionGrid<RealT> res = paramf;
 
-                    threadf.fill(basistest);
-                    //auto res = calcset[omp_get_thread_num()]->calculate(threadf);  //this is  FFT + IFFT.
-                    functionGrid<RealT> res = threadf;
+#pragma omp parallel for
+            for (int p = 0; p < paramf.xcount; ++p) {
+                for (int q = 0; q < paramf.ycount; ++q) {
+                    const int N = paramf.xcount;
+                    auto basistest = [p, q, g, N](RealT row, RealT ex, RealT why) -> RealT {
+                        return chebBasisFunction(p, q, ex, why, N);
+                    };
                     res.fillTruncatedAlmostExactGA(basistest);  //SPEED ME UP
-                    for (int rho_iter = 0; rho_iter < threadf.rhocount; ++rho_iter) {
-                        Eigen::Map<Eigen::Matrix<RealT, Eigen::Dynamic, Eigen::Dynamic>> m(res.gridValues.data.data() + rho_iter * threadf.xcount * threadf.ycount, threadf.xcount * threadf.ycount, 1);
-                        dgma[rho_iter].col(threadf.ycount * p + q) = m;  //TODO(orebas) NOT FINISHED REDO THIS LINE
+                                                                //replace fillTruncatedAlmostExactGA
+                    auto local_f = [&](int i, int j, int k) -> RealT {
+                        double xc = xset[j];
+                        double yc = yset[k];
+                        if (rhoset[i] == 0) {
+                            return basistest(i, xc, yc);
+                        }
+
+                        auto new_f = [&](double x) -> double {
+                            double ex = xc + rhoset[i] * std::sin(x);
+                            double why = yc - rhoset[i] * std::cos(x);
+                            if ((ex < xset[0]) || (ex > xset.back())) {
+                                return 0;
+                            }
+                            if ((why < yset[0]) || (why > yset.back())) {
+                                return 0;
+                            }
+                            return basistest(rhoset[i], ex, why);
+                        };
+
+                        std::array<double, 4> breakpoints = {0, 0, 0, 0};
+                        breakpoints[0] = (1.0 - xc) / rhoset[i];
+                        breakpoints[1] = (-1.0 - xc) / rhoset[i];
+                        breakpoints[2] = (yc - 1) / rhoset[i];
+                        breakpoints[3] = (yc + 1) / rhoset[i];
+                        std::vector<double> breakrho;
+                        breakrho.reserve(12);
+                        breakrho.push_back(0);
+                        if (std::abs(breakpoints[0]) <= 1.0) {
+                            auto th = std::asin(breakpoints[0]);
+                            breakrho.push_back(pi - th);
+                            if (th < 0) {
+                                breakrho.push_back(th + 2 * pi);
+                            } else {
+                                breakrho.push_back(th);
+                            }
+                        }
+                        if (std::abs(breakpoints[1]) <= 1.0) {
+                            auto th = std::asin(breakpoints[1]);
+                            breakrho.push_back(pi - th);
+                            if (th < 0) {
+                                breakrho.push_back(th + 2 * pi);
+                            } else {
+                                breakrho.push_back(th);
+                            }
+                        }
+
+                        if (std::abs(breakpoints[2]) <= 1.0) {
+                            auto th = std::acos(breakpoints[2]);
+                            breakrho.push_back(th);
+                            breakrho.push_back(2 * pi - th);
+                        }
+
+                        if (std::abs(breakpoints[3]) <= 1.0) {
+                            auto th = std::acos(breakpoints[3]);
+                            breakrho.push_back(th);
+                            breakrho.push_back(2 * pi - th);
+                        }
+                        breakrho.push_back(2 * pi);
+                        std::sort(breakrho.begin(), breakrho.end());
+                        double result = 0;
+                        //std::cout << "vec: " << breakrho << std::endl;
+                        for (size_t i = 0; i < breakrho.size() - 1; ++i) {
+                            if (breakrho[i] != breakrho[i + 1]) {
+                                double midpoint = (breakrho[i] + breakrho[i + 1]) / 2;
+                                double xm = xc + rhoset[i] * std::sin(midpoint);
+                                double ym = yc - rhoset[i] * std::cos(midpoint);
+                                if ((xm >= xset[0]) && (xm <= xset.back()) && (ym >= yset[0]) && (ym <= yset.back())) {
+                                    result += GSLIntegrate(breakrho[i], breakrho[i + 1], new_f);
+                                }
+                            }
+                        }
+
+                        //RealT result = GSLIntegrate(0.0, 2 * pi, new_f) / (2 * pi);  //we can use trapezoid here too.
+                        return result / (2 * pi);
+                    };
+                    for (int rho_iter = 0; rho_iter < paramf.rhocount; ++rho_iter) {
+                        for (int x_iter = 0; x_iter < paramf.xcount; ++x_iter) {
+                            for (int y_iter = 0; y_iter < paramf.ycount; ++y_iter) {
+                                res.gridValues(rho_iter, x_iter, y_iter) = local_f(rho_iter, x_iter, y_iter);  //we need to define local_f
+                            }
+                        }
+                    }
+                    //end replace
+                    for (int rho_iter = 0; rho_iter < paramf.rhocount; ++rho_iter) {
+                        Eigen::Map<Eigen::Matrix<RealT, Eigen::Dynamic, Eigen::Dynamic>> m(res.gridValues.data.data() + rho_iter * paramf.xcount * paramf.ycount, paramf.xcount * paramf.ycount, 1);
+                        dgma[rho_iter].col(paramf.ycount * p + q) = m;  //TODO(orebas) NOT FINISHED REDO THIS LINE
                     }
                 }
             }
@@ -1767,7 +1853,7 @@ class chebCPUDense
     explicit chebCPUDense(const gridDomain &g, const functionGrid<RealT> &f, fileCache *cache)
         : plan(f.rhocount, f.xcount, f.ycount, FFTW_REDFT00), denseGAMatrix(f.rhocount) {
         //slowTruncFill(g);
-        fastFill(g, f, denseGAMatrix, cache);
+        slowFillCached(g, f, denseGAMatrix, cache);
         //cache->save("name",denseGAMatrix) FINISH HERE
     }
 
@@ -2317,7 +2403,6 @@ GACalculator<RealT>::Factory::newCalculator(
 }  // namespace OOGA
 
 namespace OOGA {
-
 template <class RealT = double>
 void testArcIntegralBicubic() {
     constexpr RealT r = 0.3, s0 = 0.6, s1 = 2.2, xc = -0.2, yc = -1.4;
