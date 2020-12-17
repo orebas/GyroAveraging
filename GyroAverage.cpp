@@ -203,8 +203,7 @@ resultsRecord<RealT> testRun(const std::string& function_name, OOGA::calculatorT
 }
 
 template <int rhocount, class RealT, typename TFunc1>
-void testRunDiag(const std::string function_name, OOGA::calculatorType calcType, TFunc1 testfunc, const OOGA::gridDomain& g, OOGA::fileCache* cache = nullptr, bool cheb = false) {
-    constexpr int N = 12;
+void testRunDiag(const std::string function_name, OOGA::calculatorType calcType, TFunc1 testfunc, const OOGA::gridDomain& g, OOGA::fileCache* cache = nullptr, bool cheb = false, int N = 8) {
     using OOGA::functionGrid;
     using OOGA::GACalculator;
     using OOGA::gridDomain;
@@ -399,12 +398,13 @@ int main(int argc, char* argv[]) {
         //whitespace because (see below)
         ("func", po::value<int>(), "choose which function to test run")("cache", po::value<std::string>(), "choose the cache directory")
         //whitespace because my editor wraps this poorly
-        ("bits", po::value<int>(), "choose 32 or 64 (for float or double)")("diag", po::value<int>(), "set to 1 for diagnostic");
+        ("bits", po::value<int>(), "choose 32 or 64 (for float or double)")("diag", po::value<int>(), "set to 1 for diagnostic")("N", po::value<int>(), "N to use for diagnostics");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
 
+    int diag_N = 8;
     int calc_option = -1;
     int func_option = -1;
     int bits_option = -1;
@@ -442,6 +442,10 @@ int main(int argc, char* argv[]) {
 
     if (vm.count("diag")) {
         diag_option = vm["diag"].as<int>();
+    }
+
+    if (vm.count("N")) {
+        diag_N = vm["N"].as<int>();
     }
 
     if (vm.count("cache")) {
@@ -600,7 +604,7 @@ int main(int argc, char* argv[]) {
         << "functionName, calculator,N,initTime, calcTime, calcHz, bytes, maxError, blankColumn, err1, err2, err3, Blank" << std::endl;
 
     if (diag_option == 1) {
-        testRunDiag<rhocount, double>(functionNameVec[func_option], calclist[calc_option], functionVec[func_option], g, &cache, cheb_grid_needed);
+        testRunDiag<rhocount, double>(functionNameVec[func_option], calclist[calc_option], functionVec[func_option], g, &cache, cheb_grid_needed, diag_N);
         return 0;
     }
     if (bits_option == 64) {

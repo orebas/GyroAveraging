@@ -55,10 +55,18 @@
 #include <boost/program_options.hpp>
 
 #include "ga.h"
+#include "gautils.h"
 #include "pocketfft_hdronly.h"
 
 int main(int argc, char **argv) {
     std::cout << "Test\n";
+    for (double t = -0.9999; t < 1.0; t += 0.05) {
+        double a = boost::math::chebyshev_t(5, t);
+        double b = OOGA::fast_cheb_t(5, t);
+        std::cout
+            << t << " \t" << a - b << "\t" << a << "\t" << b << std::endl;
+    }
+    exit(0);
     using RealT = double;
     using mainReal = double;
 

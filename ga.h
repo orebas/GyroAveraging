@@ -13,6 +13,8 @@
 
 #include <iostream>
 #include <boost/math/special_functions/bessel.hpp>
+#include <boost/math/quadrature/tanh_sinh.hpp>
+
 #include <boost/math/special_functions/chebyshev_transform.hpp>
 #include <boost/math/special_functions/next.hpp>
 #include <boost/optional.hpp>
@@ -1734,17 +1736,18 @@ class chebCPUDense
 
             //calcset.emplace_back(DCTCPUPaddedCalculator<RealT>::create(g, paramf, paramf.xcount / 2));
             //#pragma omp parallel for  //same as above this breaks the code
-            functionGrid<RealT> res = paramf;
 
+            // boost::math::quadrature::tanh_sinh<RealT> integrator;
 #pragma omp parallel for
             for (int p = 0; p < paramf.xcount; ++p) {
                 for (int q = 0; q < paramf.ycount; ++q) {
+                    functionGrid<RealT> res = paramf;
                     const int N = paramf.xcount;
                     auto basistest = [p, q, g, N](RealT row, RealT ex, RealT why) -> RealT {
                         return chebBasisFunction(p, q, ex, why, N);
                     };
-                    res.fillTruncatedAlmostExactGA(basistest);  //SPEED ME UP
-                                                                //replace fillTruncatedAlmostExactGA
+                    //res.fillTruncatedAlmostExactGA(basistest);  //SPEED ME UP
+                    //replace fillTruncatedAlmostExactGA
                     auto local_f = [&](int i, int j, int k) -> RealT {
                         double xc = xset[j];
                         double yc = yset[k];
@@ -1753,15 +1756,15 @@ class chebCPUDense
                         }
 
                         auto new_f = [&](double x) -> double {
-                            double ex = xc + rhoset[i] * std::sin(x);
-                            double why = yc - rhoset[i] * std::cos(x);
-                            if ((ex < xset[0]) || (ex > xset.back())) {
-                                return 0;
-                            }
-                            if ((why < yset[0]) || (why > yset.back())) {
-                                return 0;
-                            }
-                            return basistest(rhoset[i], ex, why);
+                            //double ex = ;
+                            //double why = ;
+                            //if ((ex < xset[0]) || (ex > xset.back())) {
+                            //    return 0;
+                            //}
+                            //if ((why < yset[0]) || (why > yset.back())) {
+                            //    return 0;
+                            //}
+                            return basistest(rhoset[i], xc + rhoset[i] * std::sin(x), yc - rhoset[i] * std::cos(x));
                         };
 
                         std::array<double, 4> breakpoints = {0, 0, 0, 0};
@@ -1806,13 +1809,13 @@ class chebCPUDense
                         std::sort(breakrho.begin(), breakrho.end());
                         double result = 0;
                         //std::cout << "vec: " << breakrho << std::endl;
-                        for (size_t i = 0; i < breakrho.size() - 1; ++i) {
-                            if (breakrho[i] != breakrho[i + 1]) {
-                                double midpoint = (breakrho[i] + breakrho[i + 1]) / 2;
+                        for (size_t bri = 0; bri < breakrho.size() - 1; ++bri) {
+                            if (breakrho[bri] != breakrho[bri + 1]) {
+                                double midpoint = (breakrho[bri] + breakrho[bri + 1]) / 2;
                                 double xm = xc + rhoset[i] * std::sin(midpoint);
                                 double ym = yc - rhoset[i] * std::cos(midpoint);
                                 if ((xm >= xset[0]) && (xm <= xset.back()) && (ym >= yset[0]) && (ym <= yset.back())) {
-                                    result += GSLIntegrate(breakrho[i], breakrho[i + 1], new_f);
+                                    result += BOOSTGKIntegrate(breakrho[bri], breakrho[bri + 1], new_f);
                                 }
                             }
                         }

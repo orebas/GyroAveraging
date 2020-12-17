@@ -15,6 +15,7 @@
 #include <boost/math/quadrature/trapezoidal.hpp>
 #include <boost/math/special_functions/bessel.hpp>
 #include <boost/math/quadrature/gauss_kronrod.hpp>
+#include <boost/math/quadrature/tanh_sinh.hpp>
 #include <boost/math/special_functions/next.hpp>
 #include <chrono>
 
@@ -249,6 +250,10 @@ double inline DCTBasisFunction2(double p, double q, double i, double j, int N) {
            std::cos(pi * (2 * j + 1) * q / (2.0 * N));
 }
 
+double inline fast_cheb_t(int n, double x) {
+    return std::cos(n * std::acos(x));
+}
+
 double inline chebBasisFunction(int p, int q, double x, double y, int N) {
     double a = 1, b = 1;
     if (p == 0) {
@@ -263,7 +268,8 @@ double inline chebBasisFunction(int p, int q, double x, double y, int N) {
     if (q == N - 1) {
         b = 0.5;
     }
-    return a * b * boost::math::chebyshev_t(p, -x) * boost::math::chebyshev_t(q, -y);
+    //return a * b * boost::math::chebyshev_t(p, -x) * boost::math::chebyshev_t(q, -y);
+    return a * b * fast_cheb_t(p, -x) * fast_cheb_t(q, -y);
 }  // namespace OOGA
 
 /*void inline arcIntegralBicubic(
