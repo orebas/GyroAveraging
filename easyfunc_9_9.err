@@ -1,4 +1,0 @@
-/opt/slurm/data/slurmd/job436036/slurm_script: line 78: 3905633 Killed                  $SRCDIR/GyroAverage-CUDA --calc=$B --func=$A --cache=/scratch/ob749/GA/cache/ --bits=64
-slurmstepd: error: Detected 1 oom-kill event(s) in step 436036.batch cgroup. Some of your processes may have been killed by the cgroup out-of-memory handler.
-/opt/slurm/data/slurmd/job436056/slurm_script: line 78: 1185689 Killed                  $SRCDIR/GyroAverage-CUDA --calc=$B --func=$A --cache=/scratch/ob749/GA/cache/ --bits=32
-slurmstepd: error: Detected 1 oom-kill event(s) in step 436056.batch cgroup. Some of your processes may have been killed by the cgroup out-of-memory handler.
