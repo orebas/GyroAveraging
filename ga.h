@@ -391,7 +391,7 @@ class functionGrid {
                     double xm = xc + rhoset[i] * std::sin(midpoint);
                     double ym = yc - rhoset[i] * std::cos(midpoint);
                     if ((xm >= xset[0]) && (xm <= xset.back()) && (ym >= yset[0]) && (ym <= yset.back())) {
-                        result += GSLIntegrate(breakrho[i], breakrho[i + 1], new_f);
+                        result += BOOSTGKIntegrate(breakrho[i], breakrho[i + 1], new_f);
                     }
                 }
             }
