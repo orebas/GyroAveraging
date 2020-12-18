@@ -313,7 +313,7 @@ class functionGrid {
                          yc - rhoset[i] * std::cos(x));
             };
             RealT result =
-                GSLIntegrate(0.0, 2 * pi, new_f) / (2 * pi);
+                BOOKSTGKIntegrate(0.0, 2 * pi, new_f) / (2 * pi);
             return result;
         });
     }
@@ -385,9 +385,9 @@ class functionGrid {
             std::sort(breakrho.begin(), breakrho.end());
             double result = 0;
             //std::cout << "vec: " << breakrho << std::endl;
-            for (size_t i = 0; i < breakrho.size() - 1; ++i) {
-                if (breakrho[i] != breakrho[i + 1]) {
-                    double midpoint = (breakrho[i] + breakrho[i + 1]) / 2;
+            for (size_t bri = 0; bri < breakrho.size() - 1; ++bri) {
+                if (breakrho[bri] != breakrho[bri + 1]) {
+                    double midpoint = (breakrho[bri] + breakrho[bri + 1]) / 2;
                     double xm = xc + rhoset[i] * std::sin(midpoint);
                     double ym = yc - rhoset[i] * std::cos(midpoint);
                     if ((xm >= xset[0]) && (xm <= xset.back()) && (ym >= yset[0]) && (ym <= yset.back())) {
@@ -430,7 +430,7 @@ class functionGrid {
                 return interpNaiveBicubic(i, xc + rhoset[i] * std::sin(x),
                                           yc - rhoset[i] * std::cos(x));
             };
-            RealT result = GSLIntegrate(0.0, 2 * pi, new_f) / (2 * pi);
+            RealT result = BOOSTGKIntegrate(0.0, 2 * pi, new_f) / (2 * pi);
             return result;
         });
     }
@@ -935,7 +935,7 @@ class linearCPUCalculator
                 return f.interp2d(i, xc + f.rhoset[i] * std::sin(x),
                                   yc - f.rhoset[i] * std::cos(x));
             };
-            RealT result = GSLIntegrate(0.0, 2 * pi, new_f) / (2 * pi);
+            RealT result = BOOSTGKIntegrate(0.0, 2 * pi, new_f) / (2 * pi);
             return result;
         });
         return m;
@@ -1209,7 +1209,7 @@ class bicubicCPUCalculator
                 return this->interpNaiveBicubic(f, b, i, xc + f.rhoset[i] * std::sin(x),
                                                 yc - f.rhoset[i] * std::cos(x));
             };
-            RealT result = GSLIntegrate(0.0, 2 * pi, new_f) / (2 * pi);
+            RealT result = BOOSTGKIntegrate(0.0, 2 * pi, new_f) / (2 * pi);
             return result;
         });
         return m;
