@@ -10,23 +10,23 @@
 # we need 1 node, will launch a maximum of one task and use one cpu for the task: 
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=4
-#SBATCH --array=0-41
+#SBATCH --cpus-per-task=48
+#SBATCH --array=18-20
 # change 1 to 20 
 
 # we expect the job to finish within 5 hours. If it takes longer than 5
 # hours, SLURM can kill it:
-#SBATCH --time=48:00:00  
+#SBATCH --time=72:00:00  
 # change 1 to 10
    
 # we expect the job to use no more than 2GB of memory:
-#SBATCH --mem=40GB
+#SBATCH --mem=20GB
 # change 2 gb to 120
    
 # we want the job to be named "myTest" rather than something generated
 # from the script name. This will affect the name of the job as reported
 # by squeue:
-#SBATCH --job-name=GACPU
+#SBATCH --job-name=CHEBGENCPU2
  
 # when the job ends, send me an email at this email address.
 #SBATCH --mail-type=END
@@ -36,7 +36,7 @@
 # It will be placed in the directory I submitted the job from and will
 # have a name like slurm_12345.out
 #SBATCH --output=easyfunc_%A_%a.out
-#SBATCH --error=easyfunc_%a_%a.err
+#SBATCH --error=easyfunc_%A_%a.err
  
 # once the first non-comment, non-SBATCH-directive line is encountered, SLURM
 # stops looking for SBATCH directives. The remainder of the script is  executed
@@ -61,16 +61,18 @@ ulimit -c 0
 #RUNDIR=$SCRATCH/GA/run-${SLURM_JOB_ID/.*}
 #mkdir $RUNDIR
   
-OMP_NUM_THREADS=4
+OMP_NUM_THREADS=48
+
+
 SRCDIR=$HOME/GyroAveraging
 # we will be reading data in from somewhere, so define that too:
 #DATADIR=$SCRATCH/my_project/data
   
-A=$((SLURM_ARRAY_TASK_ID/6)) # A = [0-4]+1 = [1-5]
+A=$((SLURM_ARRAY_TASK_ID*4)) # A = [0-4]+1 = [1-5]
 B=$((SLURM_ARRAY_TASK_ID%6)) # B = [0-5]+3 = [3-8]
 
 # the script will have started running in $HOME, so we need to move into the
 # unique directory we just created
 cd $RUNDIR
-$SRCDIR/GyroAverage-CUDA --calc=$A --func=$B --cache=/scratch/ob749/GA/cache/ --bits=64
-#sstat  -j   $SLURM_JOB_ID   --format=JobID,MaxVMSize,AveCPU,MaxRSS,AveRSS
+time $SRCDIR/GyroAverage-CUDA --calc=6 --func=1 --cache=/scratch/ob749/GA/cache/ --bits=64 --diag=1 --N=$A
+sstat  -j   $SLURM_JOB_ID   --format=JobID,MaxVMSize,AveCPU,MaxRSS,AveRSS
