@@ -1711,15 +1711,12 @@ class chebCPUDense
             for (int rho_iter = 0; rho_iter < paramf.rhocount; ++rho_iter) {
                 std::ostringstream fullname;  //unfortunately this needs to be maintained in two places.  TODO(orebas) make it a lambda
                 fullname << calcname << "." << sizeof(RealT) << "." << paramf.xcount << "." << paramf.ycount << "." << std::to_string(rhoset[rho_iter]);
-                //std::cout << "attempting to read from " << fullname.str() << std::endl;
                 std::vector<RealT> check;
                 check = cache->read<RealT>(fullname.str());
                 if (static_cast<long int>(check.size()) == paramf.xcount * paramf.ycount * paramf.xcount * paramf.ycount) {
-                    //std::cout << "Succesful read" << std::endl;
                     Eigen::Map<Eigen::Matrix<RealT, Eigen::Dynamic, Eigen::Dynamic>> m(check.data(), paramf.xcount * paramf.ycount, paramf.xcount * paramf.ycount);
                     dgma[rho_iter] = m;
                 } else {
-                    //std::cout << "Failed  read " << check.size() << std::endl;
                     needNewData = true;
                 }
             }
@@ -1730,24 +1727,17 @@ class chebCPUDense
                 dgma[rho_iter].setZero();
             }
 
-            //functionGrid<RealT> f(rhoset, xset, yset);
-            //std::vector<std::unique_ptr<DCTCPUPaddedCalculator<RealT>>> calcset;  //TODO(orebas) replace 59 with xcount/2, or something better
-            //functionGrid<RealT> threadf(rhoset, xset, yset);
-
-            //calcset.emplace_back(DCTCPUPaddedCalculator<RealT>::create(g, paramf, paramf.xcount / 2));
-            //#pragma omp parallel for  //same as above this breaks the code
-
-            // boost::math::quadrature::tanh_sinh<RealT> integrator;
 #pragma omp parallel for
             for (int p = 0; p < paramf.xcount; ++p) {
+                std::vector<double> breakrho;
+                breakrho.reserve(12);
+
                 for (int q = 0; q < paramf.ycount; ++q) {
                     functionGrid<RealT> res = paramf;
                     const int N = paramf.xcount;
                     auto basistest = [p, q, g, N](RealT row, RealT ex, RealT why) -> RealT {
                         return chebBasisFunction(p, q, ex, why, N);
                     };
-                    //res.fillTruncatedAlmostExactGA(basistest);  //SPEED ME UP
-                    //replace fillTruncatedAlmostExactGA
                     auto local_f = [&](int i, int j, int k) -> RealT {
                         double xc = xset[j];
                         double yc = yset[k];
@@ -1756,15 +1746,7 @@ class chebCPUDense
                         }
 
                         auto new_f = [&](double x) -> double {
-                            //double ex = ;
-                            //double why = ;
-                            //if ((ex < xset[0]) || (ex > xset.back())) {
-                            //    return 0;
-                            //}
-                            //if ((why < yset[0]) || (why > yset.back())) {
-                            //    return 0;
-                            //}
-                            return basistest(rhoset[i], xc + rhoset[i] * std::sin(x), yc - rhoset[i] * std::cos(x));
+                            return chebBasisFunction(p, q, xc + rhoset[i] * std::sin(x), yc - rhoset[i] * std::cos(x), N);
                         };
 
                         std::array<double, 4> breakpoints = {0, 0, 0, 0};
@@ -1772,8 +1754,7 @@ class chebCPUDense
                         breakpoints[1] = (-1.0 - xc) / rhoset[i];
                         breakpoints[2] = (yc - 1) / rhoset[i];
                         breakpoints[3] = (yc + 1) / rhoset[i];
-                        std::vector<double> breakrho;
-                        breakrho.reserve(12);
+                        breakrho.clear();
                         breakrho.push_back(0);
                         if (std::abs(breakpoints[0]) <= 1.0) {
                             auto th = std::asin(breakpoints[0]);
@@ -1826,15 +1807,16 @@ class chebCPUDense
                     for (int rho_iter = 0; rho_iter < paramf.rhocount; ++rho_iter) {
                         for (int x_iter = 0; x_iter < paramf.xcount; ++x_iter) {
                             for (int y_iter = 0; y_iter < paramf.ycount; ++y_iter) {
-                                res.gridValues(rho_iter, x_iter, y_iter) = local_f(rho_iter, x_iter, y_iter);  //we need to define local_f
+                                //res.gridValues(rho_iter, x_iter, y_iter) = local_f(rho_iter, x_iter, y_iter);  //we need to define local_f
+                                (dgma[rho_iter])(paramf.ycount * x_iter + y_iter, paramf.ycount * p + q) = local_f(rho_iter, x_iter, y_iter);
                             }
                         }
                     }
                     //end replace
-                    for (int rho_iter = 0; rho_iter < paramf.rhocount; ++rho_iter) {
+                    /*for (int rho_iter = 0; rho_iter < paramf.rhocount; ++rho_iter) {
                         Eigen::Map<Eigen::Matrix<RealT, Eigen::Dynamic, Eigen::Dynamic>> m(res.gridValues.data.data() + rho_iter * paramf.xcount * paramf.ycount, paramf.xcount * paramf.ycount, 1);
                         dgma[rho_iter].col(paramf.ycount * p + q) = m;  //TODO(orebas) NOT FINISHED REDO THIS LINE
-                    }
+                    }*/
                 }
             }
             if (cache != nullptr) {
