@@ -1735,80 +1735,82 @@ class chebCPUDense
                 for (int q = 0; q < paramf.ycount; ++q) {
                     functionGrid<RealT> res = paramf;
                     const int N = paramf.xcount;
-                    auto basistest = [p, q, g, N](RealT row, RealT ex, RealT why) -> RealT {
-                        return chebBasisFunction(p, q, ex, why, N);
-                    };
-                    auto local_f = [&](int i, int j, int k) -> RealT {
-                        double xc = xset[j];
-                        double yc = yset[k];
-                        if (rhoset[i] == 0) {
-                            return basistest(i, xc, yc);
-                        }
-
-                        auto new_f = [&](double x) -> double {
-                            return chebBasisFunction(p, q, xc + rhoset[i] * std::sin(x), yc - rhoset[i] * std::cos(x), N);
-                        };
-
-                        std::array<double, 4> breakpoints = {0, 0, 0, 0};
-                        breakpoints[0] = (1.0 - xc) / rhoset[i];
-                        breakpoints[1] = (-1.0 - xc) / rhoset[i];
-                        breakpoints[2] = (yc - 1) / rhoset[i];
-                        breakpoints[3] = (yc + 1) / rhoset[i];
-                        breakrho.clear();
-                        breakrho.push_back(0);
-                        if (std::abs(breakpoints[0]) <= 1.0) {
-                            auto th = std::asin(breakpoints[0]);
-                            breakrho.push_back(pi - th);
-                            if (th < 0) {
-                                breakrho.push_back(th + 2 * pi);
-                            } else {
-                                breakrho.push_back(th);
-                            }
-                        }
-                        if (std::abs(breakpoints[1]) <= 1.0) {
-                            auto th = std::asin(breakpoints[1]);
-                            breakrho.push_back(pi - th);
-                            if (th < 0) {
-                                breakrho.push_back(th + 2 * pi);
-                            } else {
-                                breakrho.push_back(th);
-                            }
-                        }
-
-                        if (std::abs(breakpoints[2]) <= 1.0) {
-                            auto th = std::acos(breakpoints[2]);
-                            breakrho.push_back(th);
-                            breakrho.push_back(2 * pi - th);
-                        }
-
-                        if (std::abs(breakpoints[3]) <= 1.0) {
-                            auto th = std::acos(breakpoints[3]);
-                            breakrho.push_back(th);
-                            breakrho.push_back(2 * pi - th);
-                        }
-                        breakrho.push_back(2 * pi);
-                        std::sort(breakrho.begin(), breakrho.end());
-                        double result = 0;
-                        //std::cout << "vec: " << breakrho << std::endl;
-                        for (size_t bri = 0; bri < breakrho.size() - 1; ++bri) {
-                            if (breakrho[bri] != breakrho[bri + 1]) {
-                                double midpoint = (breakrho[bri] + breakrho[bri + 1]) / 2;
-                                double xm = xc + rhoset[i] * std::sin(midpoint);
-                                double ym = yc - rhoset[i] * std::cos(midpoint);
-                                if ((xm >= xset[0]) && (xm <= xset.back()) && (ym >= yset[0]) && (ym <= yset.back())) {
-                                    result += BOOSTGKIntegrate(breakrho[bri], breakrho[bri + 1], new_f);
-                                }
-                            }
-                        }
-
-                        //RealT result = GSLIntegrate(0.0, 2 * pi, new_f) / (2 * pi);  //we can use trapezoid here too.
-                        return result / (2 * pi);
-                    };
-                    for (int rho_iter = 0; rho_iter < paramf.rhocount; ++rho_iter) {
-                        for (int x_iter = 0; x_iter < paramf.xcount; ++x_iter) {
-                            for (int y_iter = 0; y_iter < paramf.ycount; ++y_iter) {
+                    //auto basistest = [p, q, g, N](RealT row, RealT ex, RealT why) -> RealT {
+                    //    return chebBasisFunction(p, q, ex, why, N);
+                    //};
+                    //auto local_f = [&](int i, int j, int k) -> RealT {
+                    //
+                    //                    };
+                    for (int i = 0; i < paramf.rhocount; ++i) {
+                        for (int j = 0; j < paramf.xcount; ++j) {
+                            for (int k = 0; k < paramf.ycount; ++k) {
                                 //res.gridValues(rho_iter, x_iter, y_iter) = local_f(rho_iter, x_iter, y_iter);  //we need to define local_f
-                                (dgma[rho_iter])(paramf.ycount * x_iter + y_iter, paramf.ycount * p + q) = local_f(rho_iter, x_iter, y_iter);
+                                double local_f = 0;
+                                double xc = xset[j];
+                                double yc = yset[k];
+                                if (rhoset[i] == 0) {
+                                    local_f = chebBasisFunction(p, q, xc, yc, N);
+                                } else {
+                                    auto new_f = [&](double x) -> double {
+                                        return chebBasisFunction(p, q, xc + rhoset[i] * std::sin(x), yc - rhoset[i] * std::cos(x), N);
+                                    };
+
+                                    std::array<double, 4> breakpoints = {0, 0, 0, 0};
+                                    breakpoints[0] = (1.0 - xc) / rhoset[i];
+                                    breakpoints[1] = (-1.0 - xc) / rhoset[i];
+                                    breakpoints[2] = (yc - 1) / rhoset[i];
+                                    breakpoints[3] = (yc + 1) / rhoset[i];
+                                    breakrho.clear();
+                                    breakrho.push_back(0);
+                                    if (std::abs(breakpoints[0]) <= 1.0) {
+                                        auto th = std::asin(breakpoints[0]);
+                                        breakrho.push_back(pi - th);
+                                        if (th < 0) {
+                                            breakrho.push_back(th + 2 * pi);
+                                        } else {
+                                            breakrho.push_back(th);
+                                        }
+                                    }
+                                    if (std::abs(breakpoints[1]) <= 1.0) {
+                                        auto th = std::asin(breakpoints[1]);
+                                        breakrho.push_back(pi - th);
+                                        if (th < 0) {
+                                            breakrho.push_back(th + 2 * pi);
+                                        } else {
+                                            breakrho.push_back(th);
+                                        }
+                                    }
+
+                                    if (std::abs(breakpoints[2]) <= 1.0) {
+                                        auto th = std::acos(breakpoints[2]);
+                                        breakrho.push_back(th);
+                                        breakrho.push_back(2 * pi - th);
+                                    }
+
+                                    if (std::abs(breakpoints[3]) <= 1.0) {
+                                        auto th = std::acos(breakpoints[3]);
+                                        breakrho.push_back(th);
+                                        breakrho.push_back(2 * pi - th);
+                                    }
+                                    breakrho.push_back(2 * pi);
+                                    std::sort(breakrho.begin(), breakrho.end());
+                                    double result = 0;
+                                    for (size_t bri = 0; bri < breakrho.size() - 1; ++bri) {
+                                        if (breakrho[bri] != breakrho[bri + 1]) {
+                                            double midpoint = (breakrho[bri] + breakrho[bri + 1]) / 2;
+                                            double xm = xc + rhoset[i] * std::sin(midpoint);
+                                            double ym = yc - rhoset[i] * std::cos(midpoint);
+                                            if ((xm >= xset[0]) && (xm <= xset.back()) && (ym >= yset[0]) && (ym <= yset.back())) {
+#define BOOST_MATH_GAUSS_NO_COMPUTE_ON_DEMAND
+                                                using boost::math::quadrature::gauss_kronrod;
+                                                double error;
+                                                result += gauss_kronrod<double, 31>::integrate(new_f, breakrho[bri], breakrho[bri + 1], 14, 1e-9, &error);
+                                            }
+                                        }
+                                    }
+                                    local_f = result / (2 * pi);
+                                }
+                                (dgma[i])(paramf.ycount * j + k, paramf.ycount * p + q) = local_f;
                             }
                         }
                     }
