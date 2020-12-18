@@ -1804,7 +1804,7 @@ class chebCPUDense
 #define BOOST_MATH_GAUSS_NO_COMPUTE_ON_DEMAND
                                                 using boost::math::quadrature::gauss_kronrod;
                                                 double error;
-                                                result += gauss_kronrod<double, 31>::integrate(new_f, breakrho[bri], breakrho[bri + 1], 14, 1e-9, &error);
+                                                result += gauss_kronrod<double, 15>::integrate(new_f, breakrho[bri], breakrho[bri + 1], 13, 1e-8, &error);
                                             }
                                         }
                                     }
