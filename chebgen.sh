@@ -10,13 +10,13 @@
 # we need 1 node, will launch a maximum of one task and use one cpu for the task: 
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=48
-#SBATCH --array=18-20
+#SBATCH --cpus-per-task=8
+#SBATCH --array=31-36
 # change 1 to 20 
 
 # we expect the job to finish within 5 hours. If it takes longer than 5
 # hours, SLURM can kill it:
-#SBATCH --time=72:00:00  
+#SBATCH --time=96:00:00  
 # change 1 to 10
    
 # we expect the job to use no more than 2GB of memory:
@@ -26,7 +26,7 @@
 # we want the job to be named "myTest" rather than something generated
 # from the script name. This will affect the name of the job as reported
 # by squeue:
-#SBATCH --job-name=CHEBGENCPU2
+#SBATCH --job-name=C2HEBGEN
  
 # when the job ends, send me an email at this email address.
 #SBATCH --mail-type=END
@@ -61,7 +61,7 @@ ulimit -c 0
 #RUNDIR=$SCRATCH/GA/run-${SLURM_JOB_ID/.*}
 #mkdir $RUNDIR
   
-OMP_NUM_THREADS=48
+OMP_NUM_THREADS=8
 
 
 SRCDIR=$HOME/GyroAveraging
@@ -74,5 +74,5 @@ B=$((SLURM_ARRAY_TASK_ID%6)) # B = [0-5]+3 = [3-8]
 # the script will have started running in $HOME, so we need to move into the
 # unique directory we just created
 cd $RUNDIR
-time $SRCDIR/GyroAverage-CUDA --calc=6 --func=1 --cache=/scratch/ob749/GA/cache/ --bits=64 --diag=1 --N=$A
+time $SRCDIR/GyroAverage-CUDA --calc=6 --func=1 --cache=/scratch/ob749/GA/cache/ --bits=32 --diag=1 --N=$A
 sstat  -j   $SLURM_JOB_ID   --format=JobID,MaxVMSize,AveCPU,MaxRSS,AveRSS
