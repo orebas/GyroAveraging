@@ -1,0 +1,4 @@
+functionName, calculator,N,initTime, calcTime, calcHz, bytes, maxError, blankColumn, err1, err2, err3, Blank
+SmoothRunge,CPUChebDense,8,364.104,44871,22286.1,4, 0.306002,,0.306002,0.135315,0.161825,
+SmoothRunge,CPUChebDense,12,2398.06,117721,8494.66,4, 0.126854,,0.126854,0.095071,0.0964719,
+SmoothRunge,CPUChebDense,16,5898.63,406088,2462.52,4, 0.0660082,,0.0660082,0.0288789,0.0349193,

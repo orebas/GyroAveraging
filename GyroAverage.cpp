@@ -604,8 +604,16 @@ int main(int argc, char* argv[]) {
         << "functionName, calculator,N,initTime, calcTime, calcHz, bytes, maxError, blankColumn, err1, err2, err3, Blank" << std::endl;
 
     if (diag_option == 1) {
-        testRunDiag<rhocount, double>(functionNameVec[func_option], calclist[calc_option], functionVec[func_option], g, &cache, cheb_grid_needed, diag_N);
+      if(bits_option == 64){
+      testRunDiag<rhocount, double>(functionNameVec[func_option], calclist[calc_option], functionVec[func_option], g, &cache, cheb_grid_needed, diag_N);
         return 0;
+      }
+      else {
+
+ testRunDiag<rhocount, float>(functionNameVec[func_option], calclist[calc_option], functionVec[func_option], g, &cache, cheb_grid_needed, diag_N);
+        return 0;
+
+      }
     }
     if (bits_option == 64) {
         testRunList<rhocount, double>(functionNameVec[func_option], calclist[calc_option], functionVec[func_option], g, &cache, cheb_grid_needed);

@@ -10,8 +10,8 @@
 # we need 1 node, will launch a maximum of one task and use one cpu for the task: 
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=8
-#SBATCH --array=31-36
+#SBATCH --cpus-per-task=48
+#SBATCH --array=30-40
 # change 1 to 20 
 
 # we expect the job to finish within 5 hours. If it takes longer than 5
@@ -20,7 +20,7 @@
 # change 1 to 10
    
 # we expect the job to use no more than 2GB of memory:
-#SBATCH --mem=20GB
+#SBATCH --mem=40GB
 # change 2 gb to 120
    
 # we want the job to be named "myTest" rather than something generated
@@ -61,7 +61,7 @@ ulimit -c 0
 #RUNDIR=$SCRATCH/GA/run-${SLURM_JOB_ID/.*}
 #mkdir $RUNDIR
   
-OMP_NUM_THREADS=8
+OMP_NUM_THREADS=48
 
 
 SRCDIR=$HOME/GyroAveraging

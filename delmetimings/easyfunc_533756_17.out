@@ -1,0 +1,6 @@
+functionName, calculator,N,initTime, calcTime, calcHz, bytes, maxError, blankColumn, err1, err2, err3, Blank
+NonsmoothRungeAbs,CPUBicubicQuad,8,0,3.22701e+08,3.09884,8, 0.0988643,,0.0740217,0.0988643,0.0727927,
+NonsmoothRungeAbs,CPUBicubicQuad,12,0,1.16909e+09,0.855367,8, 0.0313598,,0.0243146,0.0313598,0.029515,
+NonsmoothRungeAbs,CPUBicubicQuad,16,0,2.70206e+09,0.370088,8, 0.0144296,,0.0144275,0.00960404,0.0144296,
+NonsmoothRungeAbs,CPUBicubicQuad,20,0,4.83521e+09,0.206816,8, 0.0112397,,0.0112397,0.00633232,0.0100476,
+NonsmoothRungeAbs,CPUBicubicQuad,24,0,7.50946e+09,0.133165,8, 0.0121237,,0.0100895,0.00625856,0.0121237,

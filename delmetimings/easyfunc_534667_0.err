@@ -1,0 +1,5 @@
+/opt/slurm/data/slurmd/job534668/slurm_script: line 75: 1227099 Segmentation fault      (core dumped) $SRCDIR/GyroAverage-CUDA --calc=6 --func=1 --cache=/scratch/ob749/GA/cache/ --bits=64 --diag=1 --N=$A
+
+real	0m0.353s
+user	0m0.228s
+sys	0m0.010s

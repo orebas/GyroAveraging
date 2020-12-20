@@ -1,0 +1,4 @@
+functionName, calculator,N,initTime, calcTime, calcHz, bytes, maxError, blankColumn, err1, err2, err3, Blank
+SmoothPoly,CPUChebDense,8,362.034,40228,24858.3,4, 1.01107e-07,,6.23626e-08,7.94313e-08,1.01107e-07,
+SmoothPoly,CPUChebDense,12,2397.79,136507,7325.63,4, 1.98065e-07,,1.21683e-07,1.54483e-07,1.98065e-07,
+SmoothPoly,CPUChebDense,16,5866.93,397663,2514.69,4, 1.96532e-07,,9.05622e-08,7.65717e-08,1.96532e-07,

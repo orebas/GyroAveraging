@@ -20,7 +20,7 @@
 # change 1 to 10
    
 # we expect the job to use no more than 2GB of memory:
-#SBATCH --mem=20GB
+#SBATCH --mem=80GB
 # change 2 gb to 120
    
 # we want the job to be named "myTest" rather than something generated

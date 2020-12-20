@@ -1,0 +1,5 @@
+functionName, calculator,N,initTime, calcTime, calcHz, bytes, maxError, blankColumn, err1, err2, err3, Blank
+SmoothExp,CPUBicubicQuad,8,0,9.08015e+08,1.1013,8, 0.181978,,0.0510817,0.161952,0.181978,
+SmoothExp,CPUBicubicQuad,12,0,2.75032e+09,0.363594,8, 0.0517239,,0.0113759,0.0517239,0.045444,
+SmoothExp,CPUBicubicQuad,16,0,5.45265e+09,0.183397,8, 0.0159685,,0.00797649,0.0122879,0.0159685,
+SmoothExp,CPUBicubicQuad,20,0,8.87444e+09,0.112683,8, 0.00472815,,0.00472815,0.00351693,0.00322387,
