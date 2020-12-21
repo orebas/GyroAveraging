@@ -10,7 +10,7 @@
 # we need 1 node, will launch a maximum of one task and use one cpu for the task: 
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=8
+#SBATCH --cpus-per-task=4
 #SBATCH --array=0-17
 #SBATCH --gres=gpu:1
    
@@ -63,7 +63,7 @@ ulimit -c 0
 RUNDIR=$SCRATCH/GA/run-${SLURM_JOB_ID/.*}
 mkdir $RUNDIR
   
-OMP_NUM_THREADS=8
+OMP_NUM_THREADS=4
 SRCDIR=$HOME/GyroAveraging
 # we will be reading data in from somewhere, so define that too:
 #DATADIR=$SCRATCH/my_project/data
