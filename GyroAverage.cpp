@@ -459,7 +459,7 @@ void derivsGridTest() {
 }
 
 int main(int argc, char* argv[]) {
-    derivsGridTest();
+    //derivsGridTest();
     //fft_testing();
     //chebDevel();
     //fftw_cleanup();
