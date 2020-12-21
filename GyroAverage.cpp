@@ -378,7 +378,88 @@ class functionTemplateHack {
     RealT operator()(RealT a, RealT b, RealT c) {}
 };
 
+void derivsGridTest() {
+    using mainReal = double;
+    using RealT = double;
+    using OOGA::functionGrid;
+    using OOGA::GACalculator;
+    using OOGA::gridDomain;
+    using OOGA::LinearSpacedArray;
+
+    auto polyFunc = [](double row, double ex, double why) -> double {
+        return ((1.0 - ex * ex) * (1.0 - why * why) * (1 - 0.0 * 3.0 * ex * why));
+    };
+    auto px = [](double row, double ex, double why) -> double {
+        return -2.0 * ex * (1 - why * why);
+    };
+    auto py = [](double row, double ex, double why) -> double {
+        return -2.0 * why * (1 - ex * ex);
+    };
+
+    auto pxy = [](double row, double ex, double why) -> double {
+        return 4.0 * why * ex;
+    };
+
+    constexpr int N = 64;
+    constexpr mainReal mainRhoMin = 0.5;
+    constexpr mainReal mainRhoMax = 0.5;
+    constexpr mainReal mainxyMin = -1;
+    constexpr mainReal mainxyMax = 1;
+    constexpr int xcount = N;
+    constexpr int ycount = N;
+    OOGA::gridDomain g;
+    g.rhomax = mainRhoMax;
+    g.rhomin = mainRhoMin;
+    g.xmin = g.ymin = mainxyMin;
+    g.xmax = g.ymax = mainxyMax;
+    constexpr int rhocount = 1;
+
+    std::vector<mainReal> rhoset, xset, yset;
+
+    rhoset = LinearSpacedArray<RealT>(g.rhomin, g.rhomax, rhocount);
+    xset = LinearSpacedArray<RealT>(g.xmin, g.xmax, xcount);
+    yset = LinearSpacedArray<RealT>(g.ymin, g.ymax, ycount);
+
+    std::vector<mainReal> lin_xset = LinearSpacedArray<RealT>(g.xmin, g.xmax, xcount),
+                          lin_yset = LinearSpacedArray<RealT>(g.ymin, g.ymax, ycount);
+
+    OOGA::functionGrid<RealT>
+        f(rhoset, lin_xset, lin_yset),
+        dx(rhoset, lin_xset, lin_yset), dy(rhoset, lin_xset, lin_yset),
+        dxy(rhoset, lin_xset, lin_yset);
+    f.fill(polyFunc);
+    dx.fill(px);
+    dy.fill(py);
+    dxy.fill(pxy);
+    auto dfull = f.calcDerivsGrid();
+    auto d_exact = f.calcDerivsGrid();
+    auto d_diff = f.calcDerivsGrid();
+    for (int j = 0; j < xcount; j++) {
+        for (int k = 0; k < ycount; k++) {
+            d_exact(0, j, k, 0) = f.gridValues(0, j, k);
+            d_exact(0, j, k, 1) = dx.gridValues(0, j, k);
+            d_exact(0, j, k, 2) = dy.gridValues(0, j, k);
+            d_exact(0, j, k, 3) = dxy.gridValues(0, j, k);
+        }
+    }
+
+    std::cout << "j,	k,	i,	exact,	calc,	diff,	abs diff\n ";
+    for (int j = 0; j < xcount; j++) {
+        for (int k = 0; k < ycount; k++) {
+            for (int i = 0; i < 4; i++)
+                std::cout << j << ","
+                          << k << ","
+                          << i << ","
+                          << d_exact(0, j, k, i) << ","
+                          << dfull(0, j, k, i) << ","
+                          << d_exact(0, j, k, i) - dfull(0, j, k, i) << "," << std::abs(d_exact(0, j, k, i) - dfull(0, j, k, i))
+                          << std::endl;
+        }
+    }
+}
+
 int main(int argc, char* argv[]) {
+    derivsGridTest();
     //fft_testing();
     //chebDevel();
     //fftw_cleanup();
@@ -604,16 +685,13 @@ int main(int argc, char* argv[]) {
         << "functionName, calculator,N,initTime, calcTime, calcHz, bytes, maxError, blankColumn, err1, err2, err3, Blank" << std::endl;
 
     if (diag_option == 1) {
-      if(bits_option == 64){
-      testRunDiag<rhocount, double>(functionNameVec[func_option], calclist[calc_option], functionVec[func_option], g, &cache, cheb_grid_needed, diag_N);
-        return 0;
-      }
-      else {
-
- testRunDiag<rhocount, float>(functionNameVec[func_option], calclist[calc_option], functionVec[func_option], g, &cache, cheb_grid_needed, diag_N);
-        return 0;
-
-      }
+        if (bits_option == 64) {
+            testRunDiag<rhocount, double>(functionNameVec[func_option], calclist[calc_option], functionVec[func_option], g, &cache, cheb_grid_needed, diag_N);
+            return 0;
+        } else {
+            testRunDiag<rhocount, float>(functionNameVec[func_option], calclist[calc_option], functionVec[func_option], g, &cache, cheb_grid_needed, diag_N);
+            return 0;
+        }
     }
     if (bits_option == 64) {
         testRunList<rhocount, double>(functionNameVec[func_option], calclist[calc_option], functionVec[func_option], g, &cache, cheb_grid_needed);

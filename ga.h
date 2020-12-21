@@ -38,7 +38,7 @@
 #include <iterator>
 #include <string>
 #include <vector>*/
-#undef USE_POCKET_FFT 0
+#undef USE_POCKET_FFT
 
 #include "gautils.h"
 
@@ -587,7 +587,7 @@ class functionGrid {
                      -18.0 * g(i, j, ycount - 3) + 6.0 * g(i, j, ycount - 4) +
                      -1 * g(i, j, ycount - 5)) /
                     (12.0 * ydenom);
-                for (int k = 2; k < ycount - 3; k++) {
+                for (int k = 2; k < ycount - 2; k++) {
                     derivs(i, j, k, 2) =
                         (1.0 * g(i, j, k - 2) + -8.0 * g(i, j, k - 1) +
                          0.0 * g(i, j, k) + 8.0 * g(i, j, k + 1) +
@@ -631,13 +631,26 @@ class functionGrid {
                     (4 * xdenom * ydenom);
             }
             for (int j = 1; j < xcount - 1; j++) {
-                derivs(i, j, 0, 3) = (derivs(i, j + 1, 0, 2) - derivs(i, j - 1, 0, 2)) / 2.0;
-                derivs(i, j, ycount - 1, 3) = (derivs(i, j + 1, ycount - 1, 2) - derivs(i, j - 1, ycount - 1, 2)) / 2.0;
+                derivs(i, j, 0, 3) = (derivs(i, j + 1, 0, 2) - derivs(i, j - 1, 0, 2)) / (2.0 * xdenom);
+                derivs(i, j, ycount - 1, 3) = (derivs(i, j + 1, ycount - 1, 2) - derivs(i, j - 1, ycount - 1, 2)) / (2.0 * xdenom);
             }
             for (int k = 1; k < ycount - 1; k++) {
-                derivs(i, 0, k, 3) = (derivs(i, 0, k + 1, 1) - derivs(i, 0, k - 1, 1)) / 2.0;
-                derivs(i, xcount - 1, k, 3) = (derivs(i, xcount - 1, k + 1, 1) - derivs(i, xcount - 1, k - 1, 1)) / 2.0;
-            }  //TODO:calculate mixed derivatives at CORNERS.
+                derivs(i, 0, k, 3) = (derivs(i, 0, k + 1, 1) - derivs(i, 0, k - 1, 1)) / (2.0 * ydenom);
+                derivs(i, xcount - 1, k, 3) = (derivs(i, xcount - 1, k + 1, 1) - derivs(i, xcount - 1, k - 1, 1)) / (2.0 * ydenom);
+            }
+            derivs(i, 0, 0, 3) = (-25.0 / 12.0 * derivs(i, 0, 0, 2) + 4 * derivs(i, 1, 0, 2) - 3 * derivs(i, 2, 0, 2) +
+                                  (4.0 / 3.0) * derivs(i, 3, 0, 2) - 0.25 * derivs(i, 4, 0, 2)) /
+                                 (1.0 * xdenom);
+            derivs(i, xcount - 1, 0, 3) = (-25.0 / 12.0 * derivs(i, xcount - 1, 0, 2) + 4 * derivs(i, xcount - 2, 0, 2) - 3 * derivs(i, xcount - 3, 0, 2) +
+                                           (4.0 / 3.0) * derivs(i, xcount - 4, 0, 2) - 0.25 * derivs(i, xcount - 5, 0, 2)) /
+                                          (0 - 1.0 * xdenom);
+            derivs(i, 0, ycount - 1, 3) = (-25.0 / 12.0 * derivs(i, 0, ycount - 1, 1) + 4 * derivs(i, 0, ycount - 2, 1) - 3 * derivs(i, 0, ycount - 3, 1) +
+                                           (4.0 / 3.0) * derivs(i, 0, ycount - 4, 1) - 0.25 * derivs(i, 0, ycount - 5, 1)) /
+                                          (0 - 1.0 * xdenom);
+            ;
+            derivs(i, xcount - 1, ycount - 1, 3) = (-25.0 / 12.0 * derivs(i, xcount - 1, ycount - 1, 1) + 4 * derivs(i, xcount - 1, ycount - 2, 1) - 3 * derivs(i, xcount - 1, ycount - 3, 1) +
+                                                    (4.0 / 3.0) * derivs(i, xcount - 1, ycount - 4, 1) - 0.25 * derivs(i, xcount - 1, ycount - 5, 1)) /
+                                                   (0 - 1.0 * xdenom);
         }
         return derivs;
     }
