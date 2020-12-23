@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (MiKTeX 20.11) (preloaded format=pdflatex 2020.11.23)  16 DEC 2020 03:35
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (MiKTeX 20.11) (preloaded format=pdflatex 2020.11.23)  23 DEC 2020 00:24
 entering extended mode
 **./testLoader.tex
 (testLoader.tex
@@ -428,86 +428,125 @@ Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 85.
 )
-(NonsmoothrungeabsS.tex)
-Overfull \hbox (93.95343pt too wide) in paragraph at lines 2088--41
+(DoubleFloatRatio.tex)
+Overfull \hbox (93.95343pt too wide) in paragraph at lines 2968--36
 [][]
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2088--41
+Underfull \hbox (badness 10000) in paragraph at lines 2968--36
 
  []
 
 
-LaTeX Warning: Float too large for page by 75.69981pt on input line 41.
+LaTeX Warning: Float too large for page by 75.69981pt on input line 36.
+
+(GPUImpact.tex)
+Overfull \hbox (93.95343pt too wide) in paragraph at lines 859--39
+[][]
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 859--39
+
+ []
+
+
+LaTeX Warning: Float too large for page by 75.69981pt on input line 39.
+
+(NonsmoothabsS.tex)
+Overfull \hbox (93.95343pt too wide) in paragraph at lines 2092--43
+[][]
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2092--43
+
+ []
+
+
+LaTeX Warning: Float too large for page by 75.69981pt on input line 43.
+
+(NonsmoothrungeabsS.tex)
+Overfull \hbox (93.95343pt too wide) in paragraph at lines 2060--48
+[][]
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2060--48
+
+ []
+
+
+LaTeX Warning: Float too large for page by 75.69981pt on input line 48.
 
 (NonsmoothsqrtS.tex)
-Overfull \hbox (93.95343pt too wide) in paragraph at lines 2126--45
+Overfull \hbox (93.95343pt too wide) in paragraph at lines 2095--52
 [][]
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2126--45
+Underfull \hbox (badness 10000) in paragraph at lines 2095--52
 
  []
 
 
-LaTeX Warning: Float too large for page by 75.69981pt on input line 45.
+LaTeX Warning: Float too large for page by 75.69981pt on input line 52.
 
 (SmoothexpS.tex)
-Overfull \hbox (93.95343pt too wide) in paragraph at lines 2169--49
+Overfull \hbox (93.95343pt too wide) in paragraph at lines 2267--56
 [][]
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2169--49
+Underfull \hbox (badness 10000) in paragraph at lines 2267--56
 
  []
 
 
-LaTeX Warning: Float too large for page by 75.69981pt on input line 49.
+LaTeX Warning: Float too large for page by 75.69981pt on input line 56.
 
 (SmoothpolyS.tex)
-Overfull \hbox (93.95343pt too wide) in paragraph at lines 2138--53
+Overfull \hbox (93.95343pt too wide) in paragraph at lines 2086--60
 [][]
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2138--53
+Underfull \hbox (badness 10000) in paragraph at lines 2086--60
 
  []
 
 
-LaTeX Warning: Float too large for page by 75.69981pt on input line 53.
+LaTeX Warning: Float too large for page by 75.69981pt on input line 60.
 
 (SmoothrungeS.tex)
-Overfull \hbox (93.95343pt too wide) in paragraph at lines 2137--57
+Overfull \hbox (93.95343pt too wide) in paragraph at lines 2041--64
 [][]
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2137--57
+Underfull \hbox (badness 10000) in paragraph at lines 2041--64
 
  []
 
 
-LaTeX Warning: Float too large for page by 75.69981pt on input line 57.
+LaTeX Warning: Float too large for page by 75.69981pt on input line 64.
 
 [1{C:/Users/oreba/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}] [2]
-[3] [4] [5] (testLoader.aux) ) 
+[3] [4] [5] [6] [7] [8] (testLoader.aux) ) 
 Here is how much of TeX's memory you used:
- 12119 strings out of 479799
- 249587 string characters out of 2877658
- 1996838 words of memory out of 3000000
- 28919 multiletter control sequences out of 15000+200000
+ 12131 strings out of 479799
+ 249952 string characters out of 2877658
+ 2630372 words of memory out of 3000000
+ 28922 multiletter control sequences out of 15000+200000
  535088 words of font info for 29 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
  108i,8n,111p,410b,745s stack positions out of 5000i,500n,10000p,200000b,50000s
-<C:/Program Files/MiKTeX 2.9/fonts/type1/public/a
-msfonts/cm/cmr10.pfb>
-Output written on testLoader.pdf (5 pages, 343318 bytes).
+<C:/Program Files/MiKTeX 2.9/fonts/ty
+pe1/public/amsfonts/cm/cmr10.pfb>
+Output written on testLoader.pdf (8 pages, 466696 bytes).
 PDF statistics:
- 25 PDF objects out of 1000 (max. 8388607)
+ 36 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 
