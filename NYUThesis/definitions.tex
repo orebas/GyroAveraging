@@ -1,0 +1,215 @@
+%%
+%% Place here your \usepackage's. Some recommended packages are already included.
+%%
+
+% Graphics:
+\usepackage[final]{graphicx}
+%\usepackage{graphicx} % use this line instead of the above to suppress graphics in draft copies
+%\usepackage{graphpap} % \defines the \graphpaper command
+
+% Indent first line of each section:
+\usepackage{indentfirst}
+
+% Good AMS stuff:
+\usepackage{amsthm} % facilities for theorem-like environments
+\usepackage[tbtags]{amsmath} % a lot of good stuff!
+
+% Fonts and symbols:
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{physics}
+
+\usepackage{tikz}
+\usetikzlibrary{patterns,shapes.arrows}
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+\usepgfplotslibrary{external}
+\usepgfplotslibrary{groupplots,dateplot}
+\tikzexternalize
+
+
+\usepackage[utf8]{inputenc}
+\usepackage{pgfplots}
+%\DeclareUnicodeCharacter{2212}{−}  %this breaks
+
+
+
+% Formatting tools:
+%\usepackage{relsize} % relative font size selection, provides commands \textsmalle, \textlarger
+%\usepackage{xspace} % gentle spacing in macros, such as \newcommand{\acims}{\textsc{acim}s\xspace}
+
+% Page formatting utility:
+%\usepackage{geometry}
+
+%%
+%% Place here your \newcommand's and \renewcommand's. Some examples already included.
+%%
+\renewcommand{\le}{\leqslant}
+\renewcommand{\ge}{\geqslant}
+\renewcommand{\emptyset}{\ensuremath{\varnothing}}
+\newcommand{\ds}{\displaystyle}
+\newcommand{\R}{\ensuremath{\mathbb{R}}}
+\newcommand{\Q}{\ensuremath{\mathbb{Q}}}
+\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+\newcommand{\N}{\ensuremath{\mathbb{N}}}
+\newcommand{\T}{\ensuremath{\mathbb{T}}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\closure}[1]{\ensuremath{\overline{#1}}}
+%\newcommand{\acim}{\textsc{acim}\xspace}
+%\newcommand{\acims}{\textsc{acim}s\xspace}
+
+%%
+%% Place here your \newtheorem's:
+%%
+
+%% Some examples commented out below. Create your own or use these...
+%%%%%%%%%\swapnumbers % this makes the numbers appear before the statement name.
+%\theoremstyle{plain}
+%\newtheorem{thm}{Theorem}[chapter]
+%\newtheorem{prop}[thm]{Proposition}
+%\newtheorem{lemma}[thm]{Lemma}
+%\newtheorem{cor}[thm]{Corollary}
+
+%\theoremstyle{definition}
+%\newtheorem{define}{Definition}[chapter]
+
+%\theoremstyle{remark}
+%\newtheorem*{rmk*}{Remark}
+%\newtheorem*{rmks*}{Remarks}
+
+%% This defines the "proo" environment, which is the same as proof, but
+%% with "Proof:" instead of "Proof.". I prefer the former.
+%\newenvironment{proo}{\begin{proof}[Proof:]}{\end{proof}}
+
+
+
+\makeatletter
+\newcommand*{\mint}[1]{%
+	% #1: overlay symbol
+	\mint@l{#1}{}%
+}
+\newcommand*{\mint@l}[2]{%
+	% #1: overlay symbol
+	% #2: limits
+	\@ifnextchar\limits{%
+		\mint@l{#1}%
+	}{%
+		\@ifnextchar\nolimits{%
+			\mint@l{#1}%
+		}{%
+			\@ifnextchar\displaylimits{%
+				\mint@l{#1}%
+			}{%
+				\mint@s{#2}{#1}%
+			}%
+		}%
+	}%
+}
+\newcommand*{\mint@s}[2]{%
+	% #1: limits
+	% #2: overlay symbol
+	\@ifnextchar_{%
+		\mint@sub{#1}{#2}%
+	}{%
+		\@ifnextchar^{%
+			\mint@sup{#1}{#2}%
+		}{%
+			\mint@{#1}{#2}{}{}%
+		}%
+	}%
+}
+\def\mint@sub#1#2_#3{%
+	\@ifnextchar^{%
+		\mint@sub@sup{#1}{#2}{#3}%
+	}{%
+		\mint@{#1}{#2}{#3}{}%
+	}%
+}
+\def\mint@sup#1#2^#3{%
+	\@ifnextchar_{%
+		\mint@sup@sub{#1}{#2}{#3}%
+	}{%
+		\mint@{#1}{#2}{}{#3}%
+	}%
+}
+\def\mint@sub@sup#1#2#3^#4{%
+	\mint@{#1}{#2}{#3}{#4}%
+}
+\def\mint@sup@sub#1#2#3_#4{%
+	\mint@{#1}{#2}{#4}{#3}%
+}
+\newcommand*{\mint@}[4]{%
+	% #1: \limits, \nolimits, \displaylimits
+	% #2: overlay symbol: -, =, ...
+	% #3: subscript
+	% #4: superscript
+	\mathop{}%
+	\mkern-\thinmuskip
+	\mathchoice{%
+		\mint@@{#1}{#2}{#3}{#4}%
+		\displaystyle\textstyle\scriptstyle
+	}{%
+		\mint@@{#1}{#2}{#3}{#4}%
+		\textstyle\scriptstyle\scriptstyle
+	}{%
+		\mint@@{#1}{#2}{#3}{#4}%
+		\scriptstyle\scriptscriptstyle\scriptscriptstyle
+	}{%
+		\mint@@{#1}{#2}{#3}{#4}%
+		\scriptscriptstyle\scriptscriptstyle\scriptscriptstyle
+	}%
+	\mkern-\thinmuskip
+	\int#1%
+	\ifx\\#3\\\else_{#3}\fi
+	\ifx\\#4\\\else^{#4}\fi  
+}
+\newcommand*{\mint@@}[7]{%
+	% #1: limits
+	% #2: overlay symbol
+	% #3: subscript
+	% #4: superscript
+	% #5: math style
+	% #6: math style for overlay symbol
+	% #7: math style for subscript/superscript
+	\begingroup
+	\sbox0{$#5\int\m@th$}%
+	\sbox2{$#5\int_{}\m@th$}%
+	\dimen2=\wd0 %
+	% => \dimen2 = width of \int
+	\let\mint@limits=#1\relax
+	\ifx\mint@limits\relax
+	\sbox4{$#5\int_{\kern1sp}^{\kern1sp}\m@th$}%
+	\ifdim\wd4>\wd2 %
+	\let\mint@limits=\nolimits
+	\else
+	\let\mint@limits=\limits
+	\fi
+	\fi
+	\ifx\mint@limits\displaylimits
+	\ifx#5\displaystyle
+	\let\mint@limits=\limits
+	\fi
+	\fi
+	\ifx\mint@limits\limits
+	\sbox0{$#7#3\m@th$}%
+	\sbox2{$#7#4\m@th$}%
+	\ifdim\wd0>\dimen2 %
+	\dimen2=\wd0 %
+	\fi
+	\ifdim\wd2>\dimen2 %
+	\dimen2=\wd2 %
+	\fi
+	\fi
+	\rlap{%
+		$#5%
+		\vcenter{%
+			\hbox to\dimen2{%
+				\hss
+				$#6{#2}\m@th$%
+				\hss
+			}%
+		}%
+		$%
+	}%
+	\endgroup
+}

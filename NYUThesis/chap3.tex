@@ -1,0 +1,201 @@
+\chapter{Four discretizations\label{chap:one}}
+
+\section{Defining the problem\label{sec:ProblemDefinition}}
+We proceed by defining precisely the problem we are solving, and the four discretizations we have implemented.\\
+
+The input data are 
+\begin{enumerate}
+	\item A function $f(x,y,\rho) : [-1,1]^2 \times [0,2]  \to \mathbb{R}$
+	\item A set of $\rho_k \in [0,\infty)$ which represent gyroradii;
+	\item  We choose a set of $N^2$ nodes $(x_i,y_j)$ with $x_i, y_j\in [-1,1], 1 \leq i,j \leq N$.   
+	\item We are then given the values of $f$ at each of the nodes $x_i,y_j,\rho_k$. 
+\end{enumerate}
+
+    We assume the function is identically $0$ outside of the box $[-1,1]$ but that it may have nonzero derivatives on the boundary.  The two choices of input nodes $x_i$ and $y_i$ we investigate are 
+    \begin{enumerate}
+    	\item equispaced nodes
+    	\item Chebyshev nodes
+    \end{enumerate} 
+
+We then want to populate, for each $\rho_k$, a matrix $\mathcal{G}(f)$ with approximations to 
+\[ (\mathcal{G}f)_{\rho_k}(x'_i,y'_j) = \frac{1}{2 \pi}\int_{0}^{2\pi} f(x'_i+\rho_k \sin(\gamma), y'_j + \rho_k \cos(\gamma)) \dd{\gamma}\]
+Where the primed $x'_i, y'_j$ are equispaced nodes in every case (even when we sample at Chebyshev nodes to begin with.)  The choice of identical output space allows for uniform comparison of convergence between schemes, and it turns out it does not penalize the Chebyshev scheme.  For the remainder of this chapter we will suppress the variable $\rho_k$ and treat $f$ as a bivariate function.\\
+
+Given that the problem is basically a quadrature problem, we proceed as many quadrature schemes do: we interpolate between the given samples and try to integrate the interpolant exactly.  We have implemented four different interpolation schemes, which we detail one by one below.
+
+\section{Bilinear interpolation}
+Our simplest interpolation is bilinear.  Given equispaced nodes, on each rectangle $[x_i,x_{i+1}] \times [y_j, y_{j+1}]$ $f$ is represented by the unique polynomial of the form $A + Bx + Cy + Dxy$ which matches the sampled value at each corner.  This is a continuous but not necessarily differentiable approximation of $f$.  One can express the map from sampled values to parameters $(A,B,C,D)$ as a matrix, or compute interpolating values (for points between samples) on the fly.  \\
+
+Given bilinear interpolation, we have two algorithms which produce (roughly) the same mathematical quadrature but differ greatly in speed.  The first algorithm is to set up the bilinearly interpolated values of f as a function $\tilde{f}$ and feed this function into a black-box adaptive integration algorithm (we use an adaptive Gauss-Kronrod quadrature from the C++ Boost library; further details in chapter TODO).
+
+The second algorithm is one of the main innovations of this paper (and was suggested, more or less in full, by Prof. Cerfon.)  It has a modestly expensive precomputation step after which the gyroaveraging itself is represented by a sparse matrix which can be applied directly to the sample values matrix.  We describe first the precomputation with reference to figure TODO:
+
+\begin{enumerate}
+	\item Fix a particular $x_c, y_c$ and $\rho$ of interest.  We want to approximate
+\[	\mathcal{G}f(x_c,y_c) =  \frac{1}{2 \pi}\int_{0}^{2\pi} f(x_c+\rho \sin(\gamma), y_c + \rho \cos(\gamma)) \dd{\gamma} \]
+\item Enumerate the points of intersection between the circle $(x_c + \rho \sin \gamma, y_c - \rho \cos \gamma)$ and the grid lines $x=x_i$ and $y=y_j$.  This will produce a vector of angles $(\gamma_0=0, \gamma_1, \dotsc, \gamma_p \ = 2 \pi)$  such that
+\begin{enumerate}
+	\item Each arc corresponding to $[\gamma_i,\gamma_{i+1})$ lies entirely between grid lines, and so is represented by a single bilinear polynomial in that region
+	\item The disjoint union of the arcs is the entire circle
+\end{enumerate}
+Thus \[ \mathcal{G}f(x_c,y_c) =  \frac{1}{2 \pi} \sum_{p}\int_{\gamma_p}^{\gamma_{p+1}} f(x_c+\rho \sin(\gamma), y_c + \rho \cos(\gamma)) \dd{\gamma} \approx \]
+\[  \sum_{p}\int_{\gamma_p}^{\gamma_{p+1}} \tilde{f}_p(x_c+\rho \sin(\gamma), y_c + \rho \cos(\gamma)) \dd{\gamma}\]
+where 
+\[ \tilde{f}_p(x,y) = A_p + B_p x +C_p y +D_p xy \]
+We can analytically integrate, indeed
+\[  \int \tilde{f}_p(x_c+\rho \sin(\gamma), y_c + \rho \cos(\gamma)) \dd{\gamma} = \] \[ A_p\gamma + B_p(\gamma x_c-\rho \cos \gamma) + C_p(\gamma y_c - \rho \sin \gamma) +
+\frac{D_p}{2}(\rho^2 \cos^2 \gamma + 2 x_c y_c \gamma - 2 \rho y_c \cos \gamma - 2 \rho x_c \sin \gamma)  \]	
+Thus the contribution of each arc to the total gyroaverage is seen to be linear in the coefficients $A_p, B_p, C_p, D_p$.  
+\item These coefficients are themselves a linear combination of the sample values at the corners of the grid rectangle containing each arc.  For each arc, compose two matrices to find the contribution of that arc to $\mathcal{G}f(x_c,y_c)$ as a linear function of sample values.
+\item Form a sparse $N^2 \times N^2$ matrix which operates on sample values and outputs the matrix $\mathcal{G}f(x_c,y_c)$ flattened as a vector.  More precisely, each row represents one gyroaverage circle, and there will be 4 nonzero entries representing each arc in each row.  
+\end{enumerate}
+The number of nonzero entries in the resulting sparse matrix is $O(N^3)$: we have $N^2$ circles, and the number of arcs per circle is bounded by $4N$.
+
+This sparse matrix can be initialized and cached, and depends only on the domain and $\rho$.  After precomputation the actual gyroaveraging algorithm is simple: we multiply the sample value matrix by the precomputed sparse matrix.  This has runtime complexity of $O(N^3)$ and we expect it to scale very well, and to benefit from extensive prior work on sparse linear algebra.  We also expect to be constrained by the accuracy of a bilinear interpolation.     
+ 
+
+\section{Bicubic Interpolation\label{sec:Bicubic}}
+
+Here, using equispaced nodes, we approximate $f$ by the form
+\[ \tilde{f}(x,y) = \sum_{i,j=0}^{3} a_{ij} x^i y^j \]
+We need choose 16 coefficients for each grid space $[x_i,x_{i+1}] \times [y_j, y_{j+1}]$.  The most natural choice is to match values and first derivatives at each corner, as well the mixed derivative $f_{xy}$.  \\
+We don't have analytic derivatives available, so our code uses 4th order finite difference approximations (a 5-point stencil for $f_x$ and $f_y$, and 16-point stencil for $f_{xy}$.)  To reduce memory usage, we represent the stencil in code rather than represent the finite difference operator as a sparse matrix.  
+After calculating finite difference approximations, we use the below formula for bicubic interpolation.  There are a few standard ways to do this; the below was slightly faster than a 16x16 sparse matrix multiplication on one test machine (but this is almost certainly machine/language/compiler dependent.) 
+\subsection{Interpolation formula}
+Suppose we are interpolating on the square between $(x_0,y_0)$ and $(x_1,y_1)$.  Let superscripts $f^{00}, f^{10}, f ^{01}, f^{11}$ denote the sampled values of $f$ at $(x_0,y_0), (x_1,y_0), (x_0,y_1), (x_1,y_1)$ respectively.  Similarly let $f_x,f_y$,and $f_{xy}$ denote the finite difference approximations.  Then if define the matrix $ \{a_{ij}\}$ as
+\[  \begin{pmatrix}
+	a_{00} & a_{01} & a_{02} & a_{03} \\
+	a_{10} & a_{11} & a_{12} & a_{13} \\
+	a_{20} & a_{21} & a_{22} & a_{23} \\
+	a_{30} & a_{31} & a_{32} & a_{33} 
+\end{pmatrix}  = 
+\begin{pmatrix}
+	1 & x_0 & x_0^2 & x_0^3 \\
+	1 & x_1 & x_1^2 & x_1^3 \\
+0 & 1& 2x_0 &3x_0^2 \\
+	0 & 1& 2x_1 &3x_1^2 
+\end{pmatrix}^{-1}
+\begin{pmatrix}
+	f^{00} & f^{01} & f_y^{00} & f_y^{01} \\
+	f^{10} & f^{11} & f_y^{10} & f_y^{11} \\
+	f_x^{00} & f_x^{01} & f_{xy}^{00} & f_{xy}^{01} \\
+	f_x^{10} & f_x^{11} & f_{xy}^{10} & f_{xy}^{11} 
+\end{pmatrix}
+\begin{pmatrix}
+	1 & y_0 & y_0^2 & y_0^3 \\
+	1 & y_1 & y_1^2 & y_1^3 \\
+	0 & 1& 2y_0 &3y_0^2 \\
+	0 & 1& 2y_1 &3y_1^2 
+\end{pmatrix}^{-T}
+\]
+Then the polynomial $\sum a_{ij} x^i y^j$ matches all the appropriate values and derivatives at the corners.
+\subsection{Bicubic interpolation: Precomputed matrix}
+For fast bicubic interpolation, we take an array with $16N^2$ values, specifying a bicubic form for each square in the grid, and construct a sparse matrix similarly to the bilinear algorithm.  For a particular $(x_c,y_c)$ and given $\rho$, the gyroaverage has the same form \[  \sum_{p}\int_{\gamma_p}^{\gamma_{p+1}} \tilde{f}_p(x_c+\rho \sin(\gamma), y_c + \rho \cos(\gamma)) \dd{\gamma}\]
+where in the bicubic case 
+\[ \tilde{f}_p(x,y) = \sum_{i,j=0}^3 a_{ij;p} x^i y^j \]
+These terms are each analytically integrable.  The formulas are too large to include here. The source code that handles this integration was generated by SAGE and some post-processing, about is about 100 lines of code (for all 16 integrals).
+
+In the bicubic case, we form a sparse matrix which operates on the matrix of bicubic polynomial coefficients.  The breakup of circles into arcs is exactly the same as in the bilinear case.  The contribution of each arc to a particular gyroaverage takes exactly four times as many parameters (and the relationship is still linear.)  Thus applying this sparse matrix has the asymptotic complexity ($O(n^3)$) as the previous case, and precisely four times as many nonzeros entries.  
+
+\subsection{Bicubic Interpolation:  Gyroaveraging}
+After the precomputation step, the gyroaveraging calculation has three steps:
+\begin{enumerate}
+	\item Calculate finite difference approximations for $f_x$, $f_y$, and $f_{xy}$ (this can be represented as a stencil or a sparse matrix).  
+	\item Solve for bicubic parameters on each grid space (this is $16N^2$ elements)
+	\item Multiply bicubic parameter matrix by sparse precomputed gyroaverage operator matrix ( this is $O(N^3)$ as discussed above)
+\end{enumerate}
+As in the bilinear case, the precomputed sparse matrix depends only on the domain and $\rho$.  The asymptotic complexity is the same, and the flop count almost precisely four times larger than the bilinear case.  We expect similar scaling but greater accuracy from higher order interpolation.  
+
+\section{Fourier transform based gyroaveraging}
+The next scheme is suggested by (TODO)
+%Paper on padded FFT poisson solver
+and is intended for the case where $f$ is numerically compactly supported, i.e. the function and all of its derivatives are 0 on the boundary.  In this case we can view the function as periodic, in which case the conclusions of TODO apply.  In this case, the gyroaveraging operator is diagonal, and we we can compute a gyroaverage with the following algorithm:  
+
+\begin{enumerate}
+	\item First, pad the sample data with zeros on all sides.  The size of this padding needs to be as large as the largest $\rho$ under consideration.  If we failed to pad, this algorithm would interpret $f$ as periodic.
+	\item Second, transform the (padded) sample data via a 2-dimensional DCT (discrete cosine transform).  If we call the padded data $f'_{ij}$, then we have a matrix $a_{pq}$ and the decomposition of the sample data as
+	\[  f'_{ij} = \sideset{}{'}\sum_{p=0}^{N-1} \sideset{}{'}\sum_{q=0}^{N-1} \hat{f}'_{pq} \cos \left( \frac{\pi p (2i+1)}{2N} \right)  \cos \left( \frac{\pi q (2j+1)}{2N} \right) \]
+	The primed sums indicate that for $p=0$ or $q=0$ we add a $\frac{1}{2}$ coefficient before $\hat{f}'_{pq}$.  There are various conventions; this is the convention in the FFTW package with the parameter REDFT10.  
+	\item Perform an entry-wise (``Hadamard")  multiplication of this matrix by the matrix $B_{pq}$ where
+	\[ B_{pq} = \frac{J_0\left(  \left( \frac{\pi p \rho (N-1)}{Nw}  \right)^2  +  \left( \frac{\pi q \rho (N-1)}{Nw}  \right)^2   \right)}{4N^2} \]
+	where $J_0$ is the Bessel function of the first kind and $w$ is the width of the expanded domain after padding.
+	\item Apply the inverse discrete cosine transform (in the FFTW package, this is named ``REDFT01") to the matrix $B_{pq}\hat{f'}_{pq}$
+	\item Throw out the matrix elements corresponding to the padding.
+\end{enumerate}
+For this algorithm, we expect spectral accuracy for smooth functions where the boundary conditions are satisfied, and poor convergence (including Gibbs-style artifacts) when they are not.  The algorithmic complexity is $O(N^2 \log n)$.  The matrix of Bessel values can be precomputed and cached, and with sufficient care (and spare memory) the padding can be reused from one gyroaveraging to the next.  Thus the main bottleneck in this algorithm is the extremely well optimized FFT-based DCT calculation, and scales with parallelism as the FFT does.
+
+\section{Chebyshev Spectral gyroaveraging}
+Our final interpolation method is bivariate Chebyshev interpolation.  Here $f$ is represented by the bivariate Chebyshev series
+\[  \tilde{f}(x,y) = \sideset{}{''}\sum_{p=0}^{N-1} \sideset{}{''}\sum_{q=0}^{N-1} \hat{f}_{pq}  T_p(-x) T_q(-y) \]
+where here the primed sums indicate the first and last coefficients are halved.  \\
+
+The Chebyshev series is computed stably and efficiently via a DCT, given that we have samples at the Chebyshev nodes.  Indeed, let  $x_m = -\cos( \frac{m \pi}{N-1})$, $y_n = -\cos( \frac{n \pi}{N-1})$, for $0 \leq m,n \leq N-1$.   Define the function $D_{pq}(x,y) = a_p b_q T_p(-x) T_q(-y)$. Here $a_p$ and $b_q$ are indicators which ``undo'' the double primed summation below; $a_p=\frac{1}{2}$ for $p=0$ or $N-1$ and $a_p=1$ otherwise, and the same for $b_q$.  These are the basis functions against which we are decomposing $f$.  We prove, below, a special case of ``orthogonality relations", i.e. that the particular DCT below, applied to one of these functions, results in a matrix with a single nonzero entry.
+
+At any of the nodes $(x_m,y_n)$ we have
+\[  D_{pq}(x_m,y_n) = a_p b_qT_p(-x_m)T_q(-y_n) = a_p b_q\cos (p \cos^{-1}(-x_m))  \cos (q \cos^{-1}(-y_n)) = \]
+\[a_p b_q \cos \frac{m p \pi}{N-1} \cos \frac{n q \pi}{N-1}  \] 
+
+Furthermore, define the 2D type-I DCT (named ``REDFT00" in the FFTW package), given an input matrix $f_{mn}$, as 
+\[ \hat{f}_{k,\ell} = \sideset{}{''}\sum_{m=0}^{N-1} \sideset{}{''}\sum_{n=0}^{N-1}f_{mn} \cos \frac{m \pi k}{N-1} \cos \frac{n \pi \ell}{N-1} \]
+Here the double primed summation means the first and last terms are halved.
+Then, if we apply this transform to a basis function $D_{pq}$ evaluated at the Chebyshev nodes, we find that
+\[ \hat{D}_{k,l} = \sideset{}{''}\sum_{m=0}^{N-1} \sideset{}{''}\sum_{n=0}^{N-1} D_{pq}(x_m,y_n) \cos \frac{m \pi k}{N-1} \cos \frac{n \pi \ell}{N-1} =  \]
+\[ \sideset{}{''}\sum_{m=0}^{N-1} \sideset{}{''}\sum_{n=0}^{N-1} a_p b_q \cos \frac{m p \pi}{N-1} \cos \frac{n q \pi}{N-1} \cos \frac{m \pi k}{N-1} \cos \frac{n \pi \ell}{N-1}  =  \]
+\[ a_p b_q \sideset{}{''} \sum_{m=0}^{N-1}  \left( \cos \frac{m p \pi}{N-1} \cos \frac{m \pi k}{N-1} \left( \sideset{}{''} \sum_{n=0}^{N-1} \cos \frac{n q \pi}{N-1}  \cos \frac{n \pi \ell}{N-1}  \right) \right)= \]
+
+
+%\[  \frac{1}{2}   \sum_{m=0}^{N-1}  \left( \cos \frac{m (p+k) \pi}{N-1} + \cos \frac{m (p-k)\pi }{N-1} \right)   + \frac{1}{2} \sum_{n=0}^{N-1} \left( \cos \frac{n (q+\ell) \pi}{N-1} + \cos \frac{n (q - \ell) \pi }{N-1} \right) \]%
+Focusing on the term inside the parenthesis, by product-to-sum for cosines, we want
+\[ \frac{1}{2}  \sideset{}{''} \sum_{n=0}^{N-1} \left( \cos \frac{n (q+\ell) \pi}{N-1} + \cos \frac{n (q - \ell) \pi }{N-1} \right)  \]
+Adopt the notation $e(\theta) = e^{\frac{i \pi \theta}{N-1}}$, let $u=q+\ell, v = q-\ell$  then the above is
+\[ \frac{1}{4} \sideset{}{''}  \sum_{n=0}^{N-1} \left( (e(q+\ell))^n +  (e(-q-\ell))^n + (e(q-\ell))^n +  (e(-q+\ell))^n \right)\] 
+Note that for $x\neq1$, we have (this is just a ``primed" geometric series):
+\[ \sideset{}{''}  \sum_{n=0}^{N-1} x^n = \frac{(x+1)(x^{N-1} - 1)}{2(x-1)} \]
+Applied here, this makes our sum 
+\[ \frac{1}{8}\left( 
+\frac{(e(u) + 1)(-1^u-1)}{e(u) - 1}+
+\frac{(e(-u) + 1)(-1^u-1)}{e(-u) - 1} \right)+\]\[
+\frac{1}{8}\left(
+\frac{(e(v) + 1)(-1^v-1)}{e(v) - 1}+
+\frac{(e(-v) + 1)(-1^v-1)}{e(-v) - 1}
+  \right)
+\] 
+
+Since $e(-\theta) = e(\theta)^{-1}$, after clearing denominators the above collapses to 0.  This holds whenever $q \neq l$.  By the same argument, the summation will be $0$ unless $k=p$ as well.   
+
+The above shows that if $f$ is given globally by 
+\[ f(x,y)= \sideset{}{''}\sum_{p=0}^{N-1} \sideset{}{''}\sum_{q=0}^{N-1} a_{pq}  D_{pq}(x,y)\]
+Then the DCT will recover the coefficients $a_{pq}$.  Furthermore, by decomposing $f$ into this basis, we can compute the gyroaverage of $f$ as the linear combination of gyroaverages of the basis functions $D_{pq}$.  If the gyroaverages of the basis functions are known analytically, or with high precision, then error will mainly come from the Chebyshev approximation, which is spectral for smooth functions and enjoys many other extremal properties as outlined in TODO.
+%might refer to previos chapter or straight to Rivlin or ATAP  
+\subsection{Dense Chebyshev gyroaveraging matrix:  Precomputation}
+For this algorithm, we form as a dense matrix the operator which takes a vector (flattened 2D matrix) of Chebyshev coefficients $(a_{pq}$ above, or $\hat{f}_{pq}$ below) and returns a vector (also a flattened 2D matrix) of gyroaverages.  This matrix is a flattened version of a 4-parameter array.  The entries that need to be computed are
+\[ I_{\rho}(p,q,i,j) =  (\mathcal{G}D_{pq})(x_i,y_j) =  
+\frac{1}{2 \pi}\int_{0}^{2\pi} T_p(x_i+\rho \sin(\gamma))T_q (y_j + \rho \cos(\gamma))) \dd{\gamma}\]
+The above needs a few points of precision however:
+\begin{enumerate}
+	\item The $x_i,y_i$ can actually be any set of points.  Our code actually targets equispaced points but targeting Chebyshev nodes has the same cost.
+	\item The above definition is assuming that $T_n(x)$ is defined to be identically 0 outside $[-1,1]$.  Alternatively we could have included an indicator function in our definition.  This point is critical; we handle it in our code by specifying bounds of integration so that arcs outside the unit square are skipped.   
+\end{enumerate}
+%TODO here could include a nice picture of: gradient for some high degree D_pq, and a couple of circles draw on top of them.
+%Or just 1d graphs of what we are taking the quadrature of.
+This matrix is a dense matrix with $N^4$ entries. It scales poorly with $N$ and is indeed quite expensive to precompute (multiple core-days for $N \approx 80$, on 2020 hardware).  After trying some shortcuts, the current iteration of our code computes these integrals very literally, using the same adaptive Gauss-Kronrod quadrature from the Boost package as mentioned earlier (TODO).  A few thoughts on this precomputation:
+\begin{enumerate}
+	\item These integrals are all analytically integrable and look like (large, complicated) polynomials in $\sin(\gamma)$ and $\cos(\gamma)$.  However, already for $p=q=20$ the SAGE package seems to give up.
+	\item There are some more-or-less obvious symmetries which we do not currently exploit.
+	\item These integrals are somewhat oscillatory, especially for large $p,q$ and near the boundary, and a Filon or Levin type quadrature might be much faster.  Indeed, we saw some evidence of ``thrashing" when running these precomputations.
+	\item We would ideally want these integrals accurate to machine precision, which is not really something one can guarantee unless the quadrature itself is done in higher precision.  Defaulting to 128-bit doubles is probably better, but we have not implemented that.  For the lower degree Chebyshev polynomials, Gauss-Kronod integration should be close to machine accurate anyway.
+	\item The values of $I_{\rho}(p,q,i,j)$ seem like they might obey a Clenshaw-style recurrence relation for fixed $i,j$ and versus lower degrees of $p,q$.  This is motivated by various recurrence formulas for $T_n$ and its integrals and derivatives, as well as reduction-of-power formulas for integration of powers of trigonometric functions.  This would speed up the precomputation (and indeed probably bring it to ``real-time".)  However we have not discovered this yet.
+\end{enumerate}
+
+\subsection{Chebyshev gyroaveraging: Algorithm }
+After the above dense matrix is precomputed, the gyroaveraging algorithm is simple:
+\begin{enumerate}
+	\item Starting with $f_{mn}$, the values of $f$ sampled at Chebyshev tensor product nodes, perform the below DCT (same as defined above) 
+	
+	\[ \hat{f}_{k,\ell} = \sideset{}{''}\sum_{m=0}^{N-1} \sideset{}{''}\sum_{n=0}^{N-1}f_{mn} \cos \frac{m \pi k}{N-1} \cos \frac{n \pi \ell}{N-1} \]
+	which computes the Chebyshev coefficients (with $O(N^2 \log(N)$ complexity.)
+	\item Flatten the above coefficient matrix into a vector with $N^2$ elements, and apply the precomputed dense $N^2 \times N^2$ matrix.
+\end{enumerate}
+ The dense multiplication is the bottleneck, and as we see later, can benefit greatly from parallelism (in particular GPU acceleration.)  For this algorithm, we expect spectral accuracy for functions with are smooth on the rectangular domain.
+
+ 

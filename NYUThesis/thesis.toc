@@ -1,0 +1,27 @@
+\contentsline {section}{Abstract}{iii}{}%
+\contentsline {section}{List of Figures}{v}{}%
+\contentsline {section}{List of Tables}{vi}{}%
+\contentsline {chapter}{\numberline {1}Introduction}{1}{}%
+\contentsline {section}{\numberline {1.1}Background}{1}{}%
+\contentsline {section}{\numberline {1.2}Outline}{2}{}%
+\contentsline {chapter}{\numberline {2}Background}{3}{}%
+\contentsline {section}{\numberline {2.1}Harmonic Analysis}{3}{}%
+\contentsline {section}{\numberline {2.2}Harmonic Analysis of the Spherical Mean }{4}{}%
+\contentsline {section}{\numberline {2.3}Chebyshev Approximation}{5}{}%
+\contentsline {chapter}{\numberline {3}Four discretizations}{7}{}%
+\contentsline {section}{\numberline {3.1}Defining the problem}{7}{}%
+\contentsline {section}{\numberline {3.2}Bilinear interpolation}{8}{}%
+\contentsline {section}{\numberline {3.3}Bicubic Interpolation}{10}{}%
+\contentsline {subsection}{\numberline {3.3.1}Interpolation formula}{10}{}%
+\contentsline {subsection}{\numberline {3.3.2}Bicubic interpolation: Precomputed matrix}{10}{}%
+\contentsline {subsection}{\numberline {3.3.3}Bicubic Interpolation: Gyroaveraging}{11}{}%
+\contentsline {section}{\numberline {3.4}Fourier transform based gyroaveraging}{11}{}%
+\contentsline {section}{\numberline {3.5}Chebyshev Spectral gyroaveraging}{12}{}%
+\contentsline {subsection}{\numberline {3.5.1}Dense Chebyshev gyroaveraging matrix: Precomputation}{14}{}%
+\contentsline {subsection}{\numberline {3.5.2}Chebyshev gyroaveraging: Algorithm }{15}{}%
+\contentsline {chapter}{\numberline {4}Numerical Results}{17}{}%
+\contentsline {section}{\numberline {4.1}Gallery of test functions}{17}{}%
+\contentsline {section}{\numberline {4.2}Testing environment and setup}{18}{}%
+\contentsline {section}{\numberline {4.3}Performance and Convergence Plots}{19}{}%
+\contentsline {chapter}{\numberline {A}One more comment}{23}{}%
+\contentsline {chapter}{Bibliography}{24}{}%

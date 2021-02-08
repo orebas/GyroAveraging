@@ -1,0 +1,60 @@
+\chapter{Introduction\label{chap:one}}
+
+\section{Background\label{sec:Background}}
+Given a function $f$ taking real or complex values on some domain in $\mathbb{R}^2$, and an additional parameter specifying a radius $\rho$, define the gyroaveraging operator as
+\[ \mathcal{G}(f)(x,y;\rho) = \frac{1}{2 \pi}\int_{0}^{2\pi} f(x+\rho \sin(\gamma), y + \rho \cos(\gamma)) \dd{\gamma}\]
+%REFERENCES: Evans, Guadagni Thesis, wikipedia, other standard PDE books
+This operator is a special case of what is called in various texts a spherical mean operator, peripheral mean operator,  or spherical Radon transform.  The spherical mean transform is defined for any dimension $n \geq 1$ as 
+\[ \mathcal{J}(f)(\mathbf{x};\rho) = \frac{1}{\omega_n}\int_{\abs{\mathbf{y}}=1} f(x+\rho \mathbf{y}) \dd{S(\mathbf{y})} = \mint{-}_{\partial B(\mathbf{x}, \rho)} f(\mathbf{y})\dd{S(\mathbf{y})}\]
+%TODO expand on terms above
+This operator is introduced in many PDE textbooks, among other applications, to solve the wave equation in $n$ dimensions.  Our interest in the numerical calculation of the 2D case, as well as the name ``gyroaverage", comes from an application in plasma physics: solving the ``Vlasov-Poisson" equations to simulate a beam of charged particles in a cyclotron. While a detailed derivation is out of the scope of this thesis, and is described in detail in REFERENCE, a very brief description of the scheme is given (in REFERENCE) as:
+%REFERENCE: guadagni & cerfon, and [4] in guadagni thesis (Earlier cerfon paper)
+
+\begin{quote} Briefly, our method of solution of the VPE consists of the following steps: (1) calculate $\mathcal{G}$f via various numerical
+	algorithms, (2) compute $\chi$ with a free-boundary Poisson solver, and (3) time-advance $f$ in the
+	Vlasov equation.
+\end{quote}
+The Poisson solver and time-stepping parts of the solver are well-studied and have many well-known schemes (as well as many freely available implementations); meanwhile the gyroaveraging operator is being applied inside the time-stepping loop and suffers from (as is apparent from the definition) nonlocal ``everywhere-to-everywhere" dependence.  Thus it is reasonable to expect gains from speeding up the gyroaveraging as the lowest hanging fruit in improving this particular solver. 
+
+Another application  (described in REFERENCE) is in the field of thermoacoustic tomography.  Very briefly, an electromagnetic radiation source is applied to a body of biologic tissue, which generates heat pulses in the tissue; this in turn causes small, temporary expansions.  These expansions radiate outwards as sound waves, and are detected at the boundary of the tissue by an array of transducers.  The reconstruction of an image from the transducer signals is, mathematically, a problem of inverting the spherical mean transform.  One angle of attack for the inverse problem is via iterative methods, which rely on applying the forward transform to repeatedly refine potential inverses; for these methods efficient and scalable algorithms for the forward transform translate into gains for the inverse.  
+%Torsten Gorner thesis
+%wikipedia on thermoacoustic imaging
+
+
+%figure~\ref{fig:afigure}.
+%\begin{figure}[htb]
+%  \begin{center}
+%    \emph{This statement is false.}
+%  \end{center}%
+%\caption[This alternate caption appears in the list of figures.]{This is the
+%caption that appears under the figure. It may be quite long---you wouldn't want
+%such a long caption to appear in the ``list of figures''.}
+%\label{fig:afigure}
+%\end{figure}
+
+%More blah, blah. There is nothing interesting about
+%table~\ref{tab:atable} either.
+%\begin{table}[htb]
+%\caption[Strange rules.]{For some reason unfamiliar to me,
+%typesetting rules require one to place captions above tables,
+%but below figures. Go figure.}\label{tab:atable}
+%  \begin{center}
+%    \framebox{You could put a table here. I won't.}
+%  \end{center}
+%\end{table}
+
+\section{Outline\label{Outline}}
+In the remainder of this paper, we will focus on the forward gyroaveraging operator alone, in a 2D setting.  We assume that we are in the context of a numerical solver, and that we have access to function values alone (and not an analytic representation), and that our domain of interest is bounded (i.e. we are gyroaveraging functions of compact support.)  
+
+Chapter TODO will recall some basic facts needed for the rest of the paper, including: Fourier analysis, Chebyshev approximation theory and spline approximation, as well as basic properties of the spherical mean transform.
+
+Chapter TODO will describe four different discretizations which we implemented, and the mathematical operation of applying the gyroaverage operator onto each.  In the case of smooth functions, we present some error estimates.
+
+Chapter TODO adds implementation details, including details on memory usage, asymptotic runtime complexity, CPU multicore parallelism, GPU parallelism, and the extent and nature of precomputation necessary.
+
+Chapter TODO presents numerical results; we start by defining six functions with different salient features and in each case analyze converge and calculation speed, for each implemented algorithm.
+
+Chapter TODO is a brief summary of the API implemented; we have tried to make a user-friendly self-contained C++ header-only library with dependencies on publicly available free software.  In addition via RAII and templates we allow the user fine control over memory usage with no overhead in interface complexity, and the ability to pass any sort of callable object.
+
+Chapter TODO summarizes the numerical results and outlines areas for further improvement and investigation.
+
