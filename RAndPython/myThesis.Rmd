@@ -1,0 +1,166 @@
+---
+output: 
+  pdf_document:
+    number_sections: true
+    keep_tex: true
+classoption: landscape
+geometry: "left=3.8cm,right=2.5cm,top=2.5cm,bottom=2.5cm"
+papersize: letter
+header-includes:
+  \usepackage{amsmath}
+  \usepackage{pdflscape}
+  \usepackage{tikz}
+  \usepackage{xcolor}
+
+  \newcommand{\blandscape}{\begin{landscape}}
+  \newcommand{\elandscape}{\end{landscape}}
+
+  \newcommand{\bcenter}{\begin{center}}
+  \newcommand{\ecenter}{\end{center}}
+
+
+
+# bibliography: bibliography.bib
+# csl: vancouver-imperial-college-london.csl
+---
+
+```{r include = FALSE}
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+library(plyr)
+library(readr)
+library(tikzDevice)
+
+data_all <- list.files(path = ".",     # Identify all csv files in folder
+                       pattern = "*.out", full.names = TRUE) %>% 
+  lapply(read_csv) %>%                                            # Store all files in list
+  bind_rows                                                       # Combine data sets into one data set
+```
+
+
+
+
+
+```{r include = TRUE, echo=TRUE}
+print(data_all)
+
+  uniqModels <- unique(data_all[,1])
+
+```
+
+
+
+\pagenumbering{roman}     <!-- first page with Roman numbering -->
+
+\newpage                  <!-- new page -->
+
+\bcenter         % <!-- center text -->
+
+\LARGE{My Report or Thesis Title} % <!-- make large text -->
+
+\bigskip                % <!-- blank lines -->
+\bigskip
+
+\large{Dr Hale}
+
+\ecenter              <!-- end center -->
+
+\newpage 
+
+\bcenter 
+
+\large{Abstract}
+
+\ecenter
+
+\bigskip
+
+...this is the abstract text...
+
+\newpage 
+
+\tableofcontents
+
+\newpage
+# List of tables{-}
+\renewcommand{\listtablename}{} <!-- removes default section name -->
+\listoftables
+
+\newpage
+# List of figures{-}
+\renewcommand{\listfigurename}{}
+\listoffigures
+
+\newpage
+
+\pagenumbering{arabic}
+
+# Introduction{#intro}
+
+# Methods{#meths}
+## Equations
+This is an $x=y$ equation.
+
+## Bullets
+
+# Results{#res}
+## R-code chunk
+## R-code inline
+## Images
+## Figures{#resultsFigs}
+
+<!-- fig.cap=paste(uniqModels,"\\label{fig:figLand}") -->
+ <!-- eval.after='fig.cap', -->
+
+<!-- Figure \ref{fig:figLand} is on a landscape page. -->
+
+
+```{r, include=TRUE, echo=FALSE, message=FALSE, warning=FALSE, fig.height=5.2, fig.width=9.5, fig.align="center", dev="tikz", sanitize=TRUE, fig.cap = "Smooth Exp (Double)"}
+data_all = filter (data_all, calculator != "CPU-DCT-nopad")
+data_double = filter(data_all, bytes == 8)
+data_float = filter(data_all, bytes == 4)
+ggplot(data=data_double[data_double$function_name == "Smooth_exp",],aes( N,'max-error', color=calculator,linetype=calculator))+geom_line()+geom_point() + scale_y_continuous(trans="log10", breaks = c(.1,.01,.001,1e-4,1e-5,1e-6,1e-7,1e-8,1e-9,1e-10,1e-11)) + scale_x_continuous(trans="log2",breaks=c(2,4,8 ,16,32,64,128,256)) 
+```
+
+
+```{r, include=TRUE, echo=FALSE, message=FALSE, warning=FALSE, fig.height=5.2, fig.width=9.5, fig.align="center", dev="tikz",  sanitize=TRUE, fig.cap = "Smooth Poly"}
+ggplot(data=data_double[data_double$function_name == "Smooth_poly",],aes( N,max-error, color=calculator,linetype=calculator))+geom_line()+geom_point() + scale_y_continuous(trans="log10", breaks = c(.1,.01,.001,1e-4,1e-5,1e-6,1e-7,1e-8,1e-9,1e-10,1e-11)) + scale_x_continuous(trans="log2",breaks=c(2,4,8,16,32,64,128,256)) 
+```
+
+
+```{r, include=TRUE, echo=FALSE, message=FALSE, warning=FALSE, fig.height=5.2, fig.width=9.5, fig.align="center", dev="tikz", sanitize=TRUE, fig.cap = "Smooth Runge"}
+ggplot(data=data_double[data_double$function_name == "Smooth_runge",],aes( N,max-error, color=calculator,linetype=calculator))+geom_line()+geom_point() + scale_y_continuous(trans="log10", breaks = c(.1,.01,.001,1e-4,1e-5,1e-6,1e-7,1e-8,1e-9,1e-10,1e-11)) + scale_x_continuous(trans="log2",breaks=c(2,4,8,16,32,64,128,256))
+```
+
+```{r, include=TRUE, echo=FALSE, message=FALSE, warning=FALSE, fig.height=5.2, fig.width=9.5, fig.align="center", dev="tikz", sanitize=TRUE,fig.cap = "Nonsmooth Sqrt"}
+ggplot(data=data_double[data_double$function_name == "Nonsmooth_sqrt",],aes( N,max-error, color=calculator,linetype=calculator))+geom_line()+geom_point() + scale_y_continuous(trans="log10", breaks = c(.1,.01,.001,1e-4,1e-5,1e-6,1e-7,1e-8,1e-9,1e-10,1e-11)) + scale_x_continuous(trans="log2",breaks=c(2,4,8,16,32,64,128,256)) 
+```
+
+```{r, include=TRUE, echo=FALSE, message=FALSE, warning=FALSE, fig.height=5.2, fig.width=9.5, fig.align="center", dev="tikz", sanitize=TRUE, fig.cap = "Nonsmooth Abs"}
+ggplot(data=data_double[data_double$function_name == "Nonsmooth_abs",],aes( N,'max-error', color=calculator,linetype=calculator))+geom_line()+geom_point() + scale_y_continuous(trans="log10", breaks = c(.1,.01,.001,1e-4,1e-5,1e-6,1e-7,1e-8,1e-9,1e-10,1e-11)) + scale_x_continuous(trans="log2",breaks=c(2,4,8,16,32,64,128,256)) 
+```
+
+```{r, include=TRUE, echo=FALSE, message=FALSE, warning=FALSE, fig.height=5.2, fig.width=9.5, fig.align="center", dev="tikz", sanitize=TRUE, fig.cap = "NonSmooth Runge Abs"}
+ggplot(data=data_double[data_double$function_name == "Nonsmooth_runge_abs",],aes( N,'max-error', color=calculator,linetype=calculator))+geom_line()+geom_point() +scale_y_continuous(trans="log10", breaks = c(.1,.01,.001,1e-4,1e-5,1e-6,1e-7,1e-8,1e-9,1e-10,1e-11)) + scale_x_continuous(trans="log2",breaks=c(2,4,8,16,32,64,128,256)) 
+```
+
+
+
+#}
+
+## Tables{#resultsTables}
+
+# Conclusion{#con}
+We described methods in Section \ref{meths} and plotted the results in Section \ref{resultsFigs}. 
+Supplementary material is in Appendix \ref{app:mat}.
+
+# References{-}
+<div id="refs"></div>
+
+\renewcommand{\thesection}{\Alph{section}}
+\setcounter{section}{1}
+
+# Appendix{-}
+## Supporting material{#app:mat}
+## Supporting code
