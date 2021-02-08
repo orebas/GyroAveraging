@@ -21,10 +21,12 @@
 \maketitle
 
 \begin{abstract}
-In solving the gyrokinetic Vlasov-Poisson system, it is necessary to apply the gyroaverage operator.  We benchmark various schemes to numerically approximate this operator: using both equispaced nodes, chebyshev nodes, and local spline approximation vs global spectral methods.  In particular we quantify the impact of shared-memory parallelism and the use of GPU accelators to speed up calculations, as well as the trade-off of accuracy vs computational cost.  \end{abstract}
+We implement and evaluate a variety of schemes for calculating gyroaverages in the 2D, compactly supported non periodic setting.  Schemes implemented include bilinear spline collocation, bicubic spline collocation, padded (bivariate) FFT interpolation, and bivariate tensor Chebyshev interpolation. In particular we quantify the impact of shared-memory parallelism and the use of GPU accelerators to speed up calculations, as well as the trade-off of accuracy vs computational cost, for both smooth functions and those with singularities.  \end{abstract}
 
 
 \noindent
+\section{Introduction}
+\subsection*{Background}
 In solving the gyrokinetic Vlasov-Poisson system, at every time step one must calculate a gyroaverage.  Given a function $f(x,y,\rho) : \mathbb{R}^3 \to \mathbb{R}$ we define the \textit{gyroaverage operator:} 
  \[ G(f)(x_c,y_c,\rho) = \int_0^{2\pi}  f(x_c + \rho \sin(\gamma), y_c - \rho \cos(\gamma), \rho)  \mathrm{d} \gamma\]
 
@@ -57,7 +59,7 @@ The simplest scheme we have implemented is to feed our bilinear interpolated fun
 
 The scheme is as follows; we suppress the third parameter of $f$ for clarity:
 \begin{enumerate}
-	\item Seperate the integral
+	\item Separate the integral
 	\[ G(f)(x_c,y_c) = \int_0^{2\pi}  f(x_c + \rho \sin(\gamma), y_c - \rho \cos(\gamma))  \mathrm{d} \gamma\]
 	into arcs wherever the circle of radius $\rho$ passes through a grid line (the border of a rectangle on across which the bilinear interpolation parameters change.).  
 	\item On each of these arcs, $f$ is approximated as bilinear, i.e. 
