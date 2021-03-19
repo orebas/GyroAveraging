@@ -1,97 +1,100 @@
-\chapter{Numerical Results\label{chap:NumericalResults}}
+\chapter{Design Considerations\label{chap:DesignConsiderations}}
 
-\section{Gallery of test functions\label{sec:TestFunctions}}
 
-In this section we present numerical results, running the each gyroaveraging algorithm described above against the below test functions.  In each case the domain is the unit square and we tested three values for $\rho$: $\{0.625, 0.46875,0.875 \}  $.  \\
+In this chapter we have two main goals:  to describe some software engineering objectives and how we achieved them; and to document, in an abbreviated way, the API.
+
+
+\section{Objectives}
+
+From the outset, we intended to build a reusable library that could slip into other numerical solvers easily.  To that end, here were some guiding objectives: 
 \begin{enumerate}
-	\item The first function  is from REF and has an analytic gyroaverage. The parameter $A$ is set to $22$ so this function has compact support up to machine double precision on the boundary of the unit square.
-	\[  \text{SmoothExp}(x,y) = e^{-A(x^2+y^2)} e^{-B\rho^2}\]
-	%\item  The second function is a very simple polynomial.  Unlike the above its derivatives are nonzero on the boundary. \[\text{SmoothPoly}(x,y) = (1-x^2)(1-y^2)\].  
-	\item The second function is a bivariate version of Runge's function, which is known to cause difficulties for high-degree equispaced polynomial interpolation.
-	\[ \text{SmoothRunge}(x,y) = \frac{(1-x^2)(1-y^2) }{1 + 25(   (x-0.2)^2 + (y+0.5)^2)} \]  
-	\item Next, we introduce a point singularity.  The below horn is continuous but not differentiable at 0.
-	\[  \text{NonsmoothSqrt}(x,y) = \sqrt{(x-0.2)^2 + (y+0.5)^2} \]
-	\item Our next function has 3 non-differentiable kinks, at $x=y$ and $\abs{x-y} = 0.75$.
-	\[  \text{NonsmoothRidge}(x,y) = \max(0,0.75-\abs{x-y})^4(4\abs{x-y}+1) \]
-%\item Finally, we combine the bivariate runge function with the ridges above, and steepen the edges a bit:
-%\[ \text{NonsmoothDoublePeak}(x,y)= \]\[ (\max(0,0.75-\abs{x-y}))^4 (4 \abs{x-y} + 1) + \frac{(1 - x^2)^{\frac{1}{3}}  (1  - y^2)^{\frac{1}{3}}}{ (1 + 25(x - 0.2)^2  + (y + 0.5)^2)} \]
-\end{enumerate}
-
-
-
-%figure~\ref{fig:afigure}.
-\begin{figure}[h!]
-  \centering
-  	\begin{tikzpicture}
-  		\begin{groupplot}[
-  			group style={group size=2 by 2,vertical sep=0.9in},
-  			small,
-  			width=2.8in, 
-  			height=2.8in,
-  			domain=-1:1,
-  			y domain=-1:1,
-  			]
-  			\nextgroupplot[title=SmoothExp]
-  			\addplot3[surf, samples=41] {50* exp(-22*(x^2+y^2))*exp(-1.1*0.5)};
-  			%\nextgroupplot[title=SmoothPoly]
-  			%\addplot3[surf, samples=41] {(1-x^2) *(1-y^2)};
-  			\nextgroupplot[title=SmoothRunge]
-  			\addplot3[surf, samples=41] {(1-x^2) *(1-y^2) /	(1 + 25*((x-0.2)^2+(y+0.5)^2))		};
-  			\nextgroupplot[view={40}{25},title=NonsmoothSqrt]
-  			\addplot3[surf, samples=41] {sqrt((x-0.2)^2 + (y+0.5)^2)		};
-  			\nextgroupplot[view={305}{30}, title=NonsmoothRidge]
-  			\addplot3[surf, samples=41] { (max(0,0.75-abs(x-y)))^4*(4*abs(x-y)+1) * (1-x^2) *(1-y^2)		};
-  			%\nextgroupplot[	view={305}{30},title=NonsmoothDoublePeak]
-  			%\addplot3[surf, samples=51] {(max(0,0.75-abs(x-y)))^4*(4*abs(x-y)+1) + ((1-x^2) *(1-y^2))^(1/3)  / (1 + 25*((x-0.2)^2+(y+0.5)^2))	     };	
-  		\end{groupplot}
-  	\end{tikzpicture}
-\caption[Gallery of test functions]{Gallery of test functions}
-\label{fig:afigure}
-\end{figure}
-
-\section{Testing environment and setup\label{sec:Environment}}
-The benchmarking process is outlined below:
-\begin{enumerate}
-	\item First, each algorithm is run on each function to completion for increasing $N$ until a memory exception is triggered.  This has two effects
-	\begin{enumerate}
-		\item Precomputed matrices for the sparse and dense matrix-vector product algorithms are generated and cached
-		\item Precomputed benchmark gyroaverage for each function and $N$ is generated and cached.  This is calculated straight from the definition using black-box Gauss-Kronod quadrature from the Boost C++ library.  For the smooth functions this was verified to be correct within one digit of machine precision vs a double-precision analytic calculation.  
-	\end{enumerate}
-	\item After a complete precomputation step, for each triple of (algorithm, function, $N$),
-	\begin{enumerate}
-		\item Run a single gyroaverage calculation, to warm up cache, and force initialization of GPUs and compilation of GPU machine code
-		\item Rerun the gyroaverage calculation, bechmarking the wall-clock time
-		\item storing the a vector of errors for each value of $\rho$.  The error is defined, given matrices $f'_{ij}$ the approximation and $\hat{f}_{ij}$ representing the benchmark, as
-		\[  \frac{\max\limits_{i,j} \abs{\hat{f}_{ij} - f'_{ij} } }{\max\limits_{i,j} \abs{\hat{f}_{ij}} } \] 
-	\end{enumerate}
-	The benchmarks were run on the NYU Greene supercomputing cluster around December 2020, using two different classes of nodes.  The CPU nodes are 48 cores (2 2.9Ghz Intel Xeon 24C CPUs) with 192Gb of memory.  The GPU nodes are additionally equipped with 4 RTX8000 GPUs.  We used, for our testing, a single GPU at a time and a maximum of 20 cores.  In all cases the input data and output data are held in CPU memory and the full penalty of GPU memory transfer is included in the benchmarks.  
-	\section{Performance and Convergence Plots}
-	See below for numerical results; the plots are intended to speak for themselves.
-%TODO put figure numbers
-Figure 3.2 presents the perfomance scaling properties of each algorithm.  \\
-The next four plots present convergence scaling properties, which depend strongly on the smoothness of the initial data.
-
-	
-	\begin{figure}[htbp!] 
- \includegraphics[scale=1]{SpeedVsN.eps}	
- 	\caption{Calculation speed as grid size grows.  The slope is a linear regression coefficient for the displayed log-log plot.   Note that while the CPU-bound Chebyshev algorithm exhibits worse than quartic scaling, the GPU version scales with lower exponent (-2.61); this reflects the significance of the cost of CPU-GPU memory transfer which scales like $N^2$. }  	\end{figure}
-	
-	
-	\begin{figure}[htbp!]
-		\includegraphics[scale=1]{ConvergenceAllNew.pdf}	
-		\caption{Error vs grid size.  By construction, no one algorithm is a clear winner.  For smooth functions, we get spectral accuracy from the chebyshev interplation, and the Fourier method as well in the numerically periodic case.     }  	\end{figure}
-
-	\begin{figure}[htbp!]
-	\includegraphics[scale=1]{OptimalAllNew.pdf}	
-	\caption{The trade-off between accuracy and execution speed.     }  	\end{figure}
-
-
-	
-	
+	\item Performance.  The main contribution of this work is dramatically higher performance, without the more drastic step of distributed memory parallelism.  To be more precise, we wanted to achieve close to the best performance possible by a non-specialist exercising a ``reasonable" amount of effort.
+	\item Portability and reusability.
+	\item No ``re-inventing the wheel" - in particular, to achieve high-performance, we wanted to use existing highly-tuned libraries that are openly and widely available.
+	\item Modern idioms for scientific computing - for instance, templates and OOP where they are helpful, and fine-grained control of memory usage only when it is desired.
 \end{enumerate}  
+\section{Design decisions}
+ The space of languages widely used in the scientific community is not so large. For fine-grained memory management and control over performance the most plausible choices are C/C++ and Fortan, and we went with C++.  Getting similiar performance from Python or Matlab is certainly possible with a great deal of care. 
+ 
+ C++ has a mature ecosystem for basic scientific computing, with many libraries available for basic linear algebra.  Each of our dependencies is mature and widely installed on scientific computing platforms.  With the exception of Boost, they are header-only and can be distributed with our software. Specifically:
+ \begin{enumerate}
+ 	\item Boost provides Bessel functions and various Chebyshev-related functionality, and many basic utilities
+ 	\item Eigen is a standard library for linear algebra.  It is header-only, templated, and handles vectorization, multi-threading, and other performance optimizations for both sparse and dense linear algebra.
+ 	\item FFTW is probably the most widely used FFT library, at least in C++.
+ 	\item ViennaCL deserves some special mention.  ViennaCL is built for sparse linear algebra, specifically on accelerated multi-core platforms (i.e. GPUs and others.)  It allows run-time switching between CUDA, OpenCL, and CPU calculation, for both dense and sparse linear algebra, and is competitive with native CUDA in each case.  Thus our software has a header-only dependency on ViennaCL, but is fully portable to systems without, e.g., NVIDIA headers or the nvcc compiler.    
+ \end{enumerate}
+The other obvious choice for (CPU) linear algebra and FFTs is Intel's MKL.  MKL is proprietary, but Eigen has the ability to compile against it, and MKL has an FFTW compatibility layer which one could compile against for moderate performance gains. 
+%mention DCT not supposed by FFTW in MKL  
+
+Before delving further into implementation decisions, it will be helpful to have a usage example to refer to. 
+
+\begin{listing}[H]
+	\begin{minted}[
+		frame=lines,
+		framesep=2mm,
+		baselinestretch=1.2,
+		fontsize=\footnotesize,
+		linenos
+		]{C++}
+int main(int argc, char* argv[]) {
+  const int N = 64;
+  const int rhocount = 35;
+  const double rhomin = 0.2;
+  const double rhomax = 0.85;
+  
+  auto testFunc = [](double rho, double x, double y) -> double {
+    return std::exp(-10 * (x * x + y * y));
+  };
+  
+  OOGA::gridDomain g(rhomin, rhomax); //defaults grid to [-1,1]^2
+  OOGA::functionGrid testGrid(g, rhocount, N,false); 
+  OOGA::functionGrid exact = testGrid;
+  exact.fillTruncatedAlmostExactGA(testFunc);
+  testGrid.fill(testFunc);
+  auto calctype = OOGA::calculatorType::bicubicDotProductCPU;
+  auto calculator = 
+    OOGA::GACalculator<double>::Factory::newCalculator(calctype, g, testGrid);
+  auto result = calculator->calculate(testGrid);
+  
+  fftw_cleanup();
+}
+    
+  \end{minted}
+  
+\caption{Minimal usage of gyroaveraging library.}
+\label{lst:example}
+\end{listing}
+
+In this listing, we ask for a $64\times64$ grid, using the default domain $[-1,1]^2$.  We will do $35$ gyroaverages with $\rho$ varying from $0.2$ to $0.85$.  The function of interest is $f(\rho,x,y) = e^{-10(x^2+y^2)}$.  Lines 11, 12,and 13 create 2 grids.  The function \mintinline{C++}{fillTruncatedAlmostExactGA} performs naive quadrature to evaluate the gyroaverages.  Line 15 populates the test grid with sampled function values.  Lines 16 and 17 select the calculator type and construct the calculator, and line 19 performs the actual calculation.  
+
+The class \mintinline{C++}{functionGrid<class RealT=double>} is not remarkable; it stores vectors for the $x_i,y_j$,$\rho_k$ and for the 2d matrix of sampled values.  It has methods for printing, norms, finite differencing, and other utilities.  It is templated and should support any reasonable floating point type.  The underlying data is exposed publicly as a row-major vector and could, for instance, be mapped to an Eigen matrix or other library.
+
+The class \mintinline{C++}{GACalculator<class RealT=double>} is a virtual base class from which each of the actual calculator classes derive.  The interface is very simple; construction is restricted to the \mintinline{C++}{Factory::newCalculator} method.  There is a \mintinline{C++}{calculate} method and a destructor.  That's the whole API in a nutshell.
+
+The constructor for the calculator has the below signature which merits explanation: 
+\begin{minted}[fontsize=\footnotesize]
+	{C++}
+static std::unique_ptr<GACalculator<RealT>>
+newCalculator(calculatorType c, const gridDomain &g, functionGrid<RealT> &f, 
+fileCache *cache = nullptr, int padcount = 0)
+\end{minted}
+ 
+
+The return type is a \mintinline{c++}{std::unique_ptr}.  All of the classes in the gyroaveraging package use the RAII (``Resource acquisition is initialization") idiom for resource management.  Specifically, object construction allocates memory, reads precomputed data from cache, allocates GPU memory, creates GPU handles, etc.  All of this is undone by object destruction. The \mintinline{c++}{std::unique_ptr} is a standard C++ way of managing resource intensive objects; it automatically destructs objects when it goes out of scope, and disallows copies.  The resources can be manually freed by calling \mintinline{C++}{reset()} on the \mintinline{c++}{std::unique_ptr}.  This idiom allows both fine-grained resource management (i.e. user can control exactly when the GPU memory is allocated and freed) as well as code that ignores it altogether (like the example above.)\\
+
+\setmintedinline{breaklines}
+\mintinline{C++}{calculatorType} is an enum class which chooses the algorithm.  Currently exposed are \mintinline{C++}{(linearCPU, linearDotProductCPU,bicubicCPU, bicubicDotProductCPU, 	DCTCPUPaddedCalculator2, bicubicDotProductGPU, linearDotProductGPU, chebCPUDense,  chebGPUDense).}
+The next two parameters define the grid.  A calculator does all of it precomputation during construction, so a single calculator can only run on a fixed grid size, set of $\rho_k$, and domain.  Attempting to calculate on a different sized grid will in most cases give a run-time error, but in some cases is undefined behavior.  This is not currently checked.\\
+
+The next parameter is an object which specifies a cache directory for large precomputed files.  All of the classes with significant precomputation allow caching.  The default behavior is to try to read a cache file, and if reading fails, to write the cache file.  The sizes of the files can be quite large; the testing for this paper generated some 2.5TB of data.  The individual sizes are fairly predictable (for instance $N^4$ doubles for the Chebyshev grids.) \\
 
 
+The final parameter is for fine-tuning the padding for the FFT-based algorithm.  The default triples the length and width of the grid and this parameter allows for smaller padding if the user is sure it is safe.   \\
 
+Note how the function \mintinline{C++}{testFunc} was defined - while lambdas are certainly expedient, a standard C++ templating trick allows functions to be defined in other ways as well, including the \mintinline{c++}{std::function} wrapper, any object with \mintinline{C++}{operator()} defined, or an old-fashioned function pointer.  
 
+Some of the API is hidden behind the scenes, and should be mentioned.  The multi-threading is handled by OpenMP, and standard environment variables control how many threads are available to accelerate matrix operations.  The potential use of a GPU is enabled by the compile time flag  \mintinline{C++}{-DVIENNACL_WITH_OPENCL} and ViennaCL will generally fall back to CPU-based algorithms if it decides it needs to.  \\
+
+At the other end of the API, the dependencies on the FFTW library (and the quadrature and bessel functions of BOOST) are generally contained in an intermediate wrapper function.  We were able to swap in various other FFT libraries and quadrature schemes during testing fairly easily due to this extra indirection.  Currently we only support floats and doubles for FFT-based algorithms, though larger floating point types are supported on some platforms by FFTW and other FFT libraries.
 
 

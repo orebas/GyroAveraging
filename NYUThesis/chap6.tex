@@ -1,0 +1,20 @@
+\chapter{Conclusion\label{chap:Conclusion}}
+
+\section{Proof of concept}
+  We can conclude from the previous chapter three main points:
+  \begin{enumerate}
+  	\item As a proof of concept, the bicubic and bilinear interpolation schemes for gyroaveraging were successfully translated into sparse linear algebra operations, and parallelized/accelerated using existing state-of-the-art linear algebra libraries.
+  	\item These schemes were shown to be competitive with spectral methods when, for instance, singularities make the advantages of spectral methods moot.
+  	\item  All methods were implemented efficiently so that $10^3$ gyroaverage calculations could be achieved per second on a single machine (with, admittedly, expensive hardware.)  This required in some cases reframing the discretization so that GPU acceleration could be brought to bear on the problem.
+  \end{enumerate}
+
+\section{Further development}
+There are many avenues for further testing and development, including:
+\begin{enumerate}
+	\item Distributed memory parallelism:  Both dense and sparse linear algebra are easily distributed on an HPC grid.  Since the main operation of our algorithms is a single large fixed matrix applied to a relatively small vector, the communication bottleneck should not be severe and all algorithms might scale quite well.
+	\item Faster and more accurate precomputation of the dense Chebshev matrix, as described in \ref{chebPrecomp}.
+	\item ``Low rank" Chebyshev representations of functions:  The Chebfun2 package, as described in \cite{chebfun2} documents an efficient way to calculate low-rank representations of bivariate functions with the same Chebyshev basis functions we use.  Such low-rank approximations would require only a small portion of the $N^4$ matrix we use, though we would still have to precompute the whole thing.  Easier would be filtering the results of the DCT (i.e. very small Chebyshev coefficients) or, perhaps, throwing out the bottom right half of the Chebyshev coefficients (i.e. high frequency mixed modes.)
+	\item Adaptivity.  By using adaptive refinement but on fixed precomputed grids, one could choose the $N$ to approximate the input to some tolerance, and insure a simliar tolerance for the gyroaverages.  This is already non-trivial for the equispaced grids and may not work for Chebyshev.
+	\item Integration into a fully GPU workflow: FFTs, finite differencing, and even Poisson solving are all available for GPUs.  For each of the gyroaveraging applications mentioned in the introduction, it is possible that one could avoid GPU-host memory transfer by doing all of the work (including time-stepping or other iteration) on the GPU device.  This is of course very application dependent.
+\end{enumerate}
+

@@ -1,33 +1,33 @@
-\chapter{Background\label{chap:two}}
+\chapter{Background\label{chap:background}}
 
 We use this chapter to record some basic facts we will use later.  Mainly we will be quoting from references.
 
 \section{Harmonic Analysis\label{sec:Harmonic}}
 %reference Zygmund, Boyd Spectral methods, Trefethen spectral methods
-The below follows the notation and presentation from (REFERENCE: ATAP for periodic functions).  Let $f$ be a Lipschitz continuous periodic function defined on $[0,2 \pi]$.  Then $f$ is associated to a Fourier series
+The below follows the notation and presentation from the expanded edition of \cite{trefethenATAP}, which includes the appendix ``ATAP for Periodic Functions."  Let $f$ be a Lipschitz continuous periodic function defined on $[0,2 \pi]$.  Then $f$ is associated to a Fourier series
 \[  f(t) = \sum_{k=-\infty}^{k=\infty} c_k e^{ikt}\]
 where the coefficients are given by the formula
 \[c_k = \frac{1}{2\pi}  \int_{0}^{2\pi} f(t) e^{-ikt} \dd{t}. \]
 We can truncate this expansion:
 \[f_n(t) = \sum_{k=-n}^{n} c_k e^{ikt}\]
 which is an approximation to $f$, the ``degree $n$ trigonometric projection" of $n$.\\
-In practice, we may not have access to the exact coefficients $c_k$, but must rely only on values of $f$ sampled at $N$ points, generally equispaced in $[0,2\pi]$. Let $f_j = f \left( \frac{2 \pi j  }{N} \right) $  Then we can use the formula
+In practice, we may not have access to the exact coefficients $c_k$, but must rely only on values of $f$ sampled at $N$ points, generally equispaced in $[0,2\pi]$. Let $f_j = f \left( \frac{2 \pi j  }{N} \right)$.  Then we can use the formula
 \[  \tilde{c}_k = \frac{1}{N} \sum_{j=0}^{N-1} f_k e^{-ikt}\] 
  which gives, via the same truncated expansion as above, the ``trigonometric interpolant" $p_n$ to $f$.   \\
  
- Now, if $f$ satisfies some smoothness condition, a standard argument involving repeated integration by parts yields the below error bounds.  This is Theorem B.2 in (REFERENCE: ATAP for periodic functions)
+ Now, if $f$ satisfies some smoothness condition, a standard argument involving repeated integration by parts yields the below error bounds.  This is Theorem B.2 in \cite[Appendix B]{trefethenATAP}.
  
  \newtheorem*{ATAPB-2}{Theorem B.2} 
  \begin{ATAPB-2}If $f$ is $\nu \geq 1$ times differentiable and $f^{(\nu)}$ is of bounded 
  variation $V$ on $[0,2\pi]$, then its degree $n$ trigonometric projection and interpolant satisfy
  \[ \norm{f - f_n}_\infty \leq \frac{V}{\pi \nu n^\nu}, \quad \norm{f - p_n}_\infty \leq \frac{2V}{\pi \nu n^\nu} \]
- If $f$ is analytic with $\abs{f(t) \leq M}$ in the open strip of half-width $\alpha$ around the real axis in the complex $t$-place, they satisfy
+ If $f$ is analytic with $\abs{f(t) \leq M}$ in the open strip of half-width $\alpha$ around the real axis in the complex $t$-plane, they satisfy
  \[ \norm{f - f_n}_\infty \leq \frac{2Me^{-\alpha n}}{e^\alpha-1}, \quad \norm{f - p_n}_\infty \leq \frac{4M e^{-\alpha n}}{e^\alpha -1} \]
  \end{ATAPB-2}
 
 \section{Harmonic Analysis of the Spherical Mean \label{sec:Harmonic2}}
 Our interest in Fourier analysis is justified by the following calculation, which shows how the gyroaverage is greatly simplified in frequency space.  We focus on the bivariate case.  Suppose we have a Lipschitz continuous function $f$ on $\Omega = [0,2\pi]^2$, which is continuous and doubly periodic.  We have the Fourier series
-\[ f(x,y) = \sum_{k=\infty}^{\infty} \sum_{\ell = \infty}^{\infty} c_{k,\ell} e^{2 \pi i (kx+\ell y)}  \]
+\[ f(x,y) = \sum_{k=-\infty}^{\infty} \sum_{\ell = -\infty}^{\infty} c_{k,\ell} e^{2 \pi i (kx+\ell y)}  \]
 where
 \[ c_{k,\ell} = \int_{0}^{2 \pi} \int_{0}^{2 \pi} f(t_1,t_2) e^{-2 \pi i (kt_1 + \ell t_2)} \dd{t_1} \dd{t_2}\]
 
@@ -36,12 +36,12 @@ If we recall the definition of the gyroaverage
 We can ask what happens to a Fourier basis function under this operator.  Let
 \[ f_{k, \ell} (x,y) = e^{2 \pi i (kx+\ell y)}   \]
 Then
-\[ \mathcal{G}(f_{k,\ell}) = \frac{1}{2 \pi}  \int_{0}^{2\pi} f(x+\rho \sin(\gamma), y + \rho \cos(\gamma)) \dd{\gamma} =  \]
+\[ \mathcal{G}(f_{k,\ell}) = \frac{1}{2 \pi}  \int_{0}^{2\pi} f_{k,\ell}(x+\rho \sin(\gamma), y + \rho \cos(\gamma)) \dd{\gamma} =  \]
 \[  \frac{1}{2 \pi}  \int_{0}^{2\pi} e^{2 \pi i (k(x + \rho \sin \gamma) + \ell(y + \rho \cos \gamma))} \dd{\gamma} =   \frac{e^{2 \pi i (kx + \ell y)}}{2 \pi}\int_{0}^{2\pi} e^{2 \pi i \rho (k \sin \gamma + \ell \cos \gamma)} \dd{\gamma} =   \]
 \[ f_{k,\ell} \frac{1}{2 \pi}\int_{0}^{2\pi} e^{2 \pi i \rho (k \sin \gamma + \ell \cos \gamma)} \dd{\gamma} \]
 Next we use the identity $k \sin \gamma + \ell \cos \gamma = C \cos (\gamma + \phi)$, where $C = \sqrt{k^2 + \ell^2}$ and $\phi = \tan[-1](-\frac{k}{l})$.  The above is then 
 \[ \mathcal{G}(f_{k,\ell}) = f_{k,\ell} \frac{1}{2 \pi} \int_{0}^{2 \pi} e^{2 \pi i \rho C \cos(\gamma + \phi)} = f_{k,l}  \cdot J_0(2 \pi \rho \sqrt{k^2 + \ell^2}) \]
-Where $J_0(\cdot)$ is a Bessel function of the first kind, and the above is one form of the integral representation" found, e.g. in (REFERENCE: wikipedia). 
+Where $J_0(\cdot)$ is a Bessel function of the first kind, and the above is one form of the ``integral representation" found, e.g. in \cite{wikipediaBesselFunction} or \cite[Eq ~10.9.17]{NIST:DLMF}. 
 %or abramowitz/stegun).  
 Applied to the Fourier series expansion of an arbitrary function $f$, we see that
 \[\mathcal{G}(f)(x,y;\rho) = \sum_{k=\infty}^{\infty} \sum_{\ell = \infty}^{\infty}  J_0(2 \pi \rho \sqrt{k^2 + \ell^2}) c_{k,\ell} e^{2 \pi i (kx+\ell y)}   \] 
@@ -56,9 +56,9 @@ This is expected, as the gyroaverage is a form of convolution; in Fourier space 
 
 
 \section{Chebyshev Approximation\label{Chebyshev}}
-A full review of Chebyshev polynomials and their use in approximation theory is beyond the scope of this paper.  For one who is comfortable with Fourier analysis, the easiest point of view is that to approximate a function $f$ on $[-1,1]$, wrap it around the unit circle by the transform
+A full review of Chebyshev polynomials and their use in approximation theory is beyond the scope of this paper, and the primary subject of \cite{trefethenATAP}.  For one who is comfortable with Fourier analysis, the easiest point of view is that to approximate a function $f$ on $[-1,1]$, wrap it around the unit circle by the transform
 \[ \theta = \cos^{-1} x \]
-Then $f(\cos(\theta))$ is a periodic, even function which is then subject to decomposition and approximation by (cosine) Fourier methods.  We quote 3 theorems from (REFERENCE : ATAP) which are analogous to the results for Fourier series above.
+Then $f(\cos(\theta))$ is a periodic, even function  of $\theta$ which is then subject to decomposition and approximation by (cosine) Fourier methods.  We quote 3 theorems, all from \cite{trefethenATAP} which are analogous to the results for Fourier series above. \\
 
 Define the Chebyshev polynomials as 
 \[  T_k(x) = \cos(k \cos^{-1}(x))\]
@@ -70,7 +70,7 @@ except that $\frac{2}{\pi}$ becomes $\frac{1}{\pi}$ for $k=0$.
 We can truncate this series and obtain 
 \[ f_n(x) = \sum_{k=0}^{n} a_k T_k(x) \]
 or, in analogy to the Fourier case, we can admit that in practice we may not have access to the integrals defining $a_k$.  Then we sample at Chebyshev nodes, $x_j = \cos \left(  \frac{j \pi}{n} \right)$ and interpolate to find coefficients $c_k$, such that\[p_n(x) =   \sum_{k=0}^{n} c_k T_k(x) \]
-satisfies $p_n(x_j) = f(x_j)$.  (This interpolation is a discrete cosine transform, and is handled efficiently by FFT-based algorithms.)  Then we have the following theorems bounding the error of the above, quoted from ATAP.  We will not pause to define every term, and indeed Bernstein ellipses are somewhat technical.  The moral is that smoother functions will have faster convergence from interpolants than less smooth functions.
+satisfies $p_n(x_j) = f(x_j)$.  (This interpolation is a discrete cosine transform, and is handled efficiently by FFT-based algorithms.)  Then we have the following theorems bounding the error of the above, quoted from \cite{trefethenATAP}.  We will not pause to define every term, and indeed Bernstein ellipses are somewhat technical.  The moral is that smoother functions will have faster convergence from interpolants than less smooth functions.
 \newtheorem*{ATAP7-2}{Theorem 7.2 Convergence for differentiable functions}
 \begin{ATAP7-2}
 	For any integer $\nu \ge 0$, let $f$ and its derivatives through $f^{\nu -1}$ be absolutely continuous on $[-1,1]$ and suppose the $\nu$th derivative is of bounded variation $V$, then for any $n > \nu$, the Chebyshev projections satisfy 

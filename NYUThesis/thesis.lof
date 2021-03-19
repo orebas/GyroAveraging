@@ -1,9 +1,23 @@
+\boolfalse {citerequest}\boolfalse {citetracker}\boolfalse {pagetracker}\boolfalse {backtracker}\relax 
+\defcounter {refsection}{0}\relax 
 \addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
 \addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
 \addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces Gallery of test functions}}{18}{}%
-\contentsline {figure}{\numberline {4.2}{\ignorespaces Calculation speed as grid size grows. The slope is a linear regression coefficient for the displayed log-log plot. Note that while the CPU-bound Chebyshev algorithm exhibits worse than quartic scaling, the GPU version scales with lower exponent (-2.61); this reflects the significance of the cost of CPU-GPU memory transfer which scales like $N^2$. }}{20}{}%
-\contentsline {figure}{\numberline {4.3}{\ignorespaces Error vs grid size. By construction, no one algorithm is a clear winner. For smooth functions, we get spectral accuracy from the chebyshev interplation, and the Fourier method as well in the numerically periodic case. }}{21}{}%
-\contentsline {figure}{\numberline {4.4}{\ignorespaces The trade-off between accuracy and execution speed. }}{22}{}%
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Gallery of test functions}}{23}{}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Gyroaveraging speed vs grid size}}{25}{}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {5.3}{\ignorespaces Gyroaveraging error vs grid size}}{26}{}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {5.4}{\ignorespaces The trade-off between accuracy and execution speed.}}{27}{}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {5.5}{\ignorespaces The benefit from GPU acceleration}}{28}{}%
+\defcounter {refsection}{0}\relax 
 \addvspace {10\p@ }

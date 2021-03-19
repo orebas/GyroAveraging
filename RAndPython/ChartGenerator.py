@@ -86,10 +86,10 @@ def main():
     HzOnlyWide2 = HzOnly[HzOnly['bytes'] == 8]
     HzOnlyWide2 = HzOnlyWide2[HzOnlyWide2['N'] < 290]
     RatioChart = HzOnlyWide2.pivot(index=('N'),columns='calculator', values='speed')
-    RatioChart['LinearSpeedup'] = RatioChart['GPULinearSparse'] /  RatioChart['CPULinearSparse']
-    RatioChart['BicubicSpeedup'] = RatioChart['GPUBicubicSparse'] /  RatioChart['CPUBicubicSparse']
-    RatioChart['ChebSpeedup'] = RatioChart['GPUChebDense'] /  RatioChart['CPUChebDense']
-    RatioChart = RatioChart[['LinearSpeedup','BicubicSpeedup','ChebSpeedup']]
+    RatioChart['Linear'] = RatioChart['GPULinearSparse'] /  RatioChart['CPULinearSparse']
+    RatioChart['Bicubic'] = RatioChart['GPUBicubicSparse'] /  RatioChart['CPUBicubicSparse']
+    RatioChart['Chebyshev'] = RatioChart['GPUChebDense'] /  RatioChart['CPUChebDense']
+    RatioChart = RatioChart[['Linear','Bicubic','Chebyshev']]
     RatioChart = RatioChart.melt(ignore_index=False).dropna()
 
     SpeedVsN = data_double
@@ -122,6 +122,20 @@ def main():
         'CPULinearSparse': 'Sparse CPU',
         'GPULinearSparse': 'Sparse GPU',
     }
+
+    RatioChart = RatioChart.replace(interpDict)
+    RatioChart = RatioChart.replace(displayNameDict)
+    #print(RatioChart)
+    RatioChart = RatioChart[(RatioChart['calculator'] != 'Linear') | (RatioChart['value'] < 7) ] #one bad data point
+
+    GP = sns.relplot(data=RatioChart, x='N', y='value', hue='calculator',col='calculator', facet_kws={"sharey": False, "sharex": False},height=3,
+                     col_wrap=2,legend=False)
+    plt.autoscale(True)
+
+    GP.set_axis_labels("$N$", "Speedup from GPU acceleration")
+    GP.set_titles('{col_name}')
+    plt.savefig(f"GPUAccel.pdf", bbox_inches='tight')
+    #plt.show()
 
     regSpeedVsN = SpeedVsN.groupby(['calculator']).apply(lambda x: log_log_slope (x, 'N', 'speed'))
     myfig,myax = plt.subplots(ncols=1)
@@ -171,8 +185,9 @@ def main():
 
     #sns.relplot(data=HzOnlyWide,x='N',y='ratio',hue='calculator')
     #plt.show()
-    #sns.relplot(data=RatioChart, x='N', y='value', col = 'calculator', facet_kws={"sharey":False, "sharex":False})
-    #plt.show()
+
+
+
 
 #The below section is going to study error convergence vs N for each interp method.
     tempdata = data_double

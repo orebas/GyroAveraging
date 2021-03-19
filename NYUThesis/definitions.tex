@@ -18,6 +18,8 @@
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{physics}
+\usepackage{listings}
+\usepackage[cache=false]{minted}
 
 \usepackage{tikz}
 \usetikzlibrary{patterns,shapes.arrows}
@@ -26,6 +28,9 @@
 \usepgfplotslibrary{external}
 \usepgfplotslibrary{groupplots,dateplot}
 \tikzexternalize
+
+\usepackage{biblatex}
+\addbibresource{GABib.bib}
 
 
 \usepackage[utf8]{inputenc}
@@ -84,7 +89,7 @@
 
 
 \makeatletter
-\newcommand*{\mint}[1]{%
+\newcommand*{\mintlocal}[1]{%
 	% #1: overlay symbol
 	\mint@l{#1}{}%
 }
