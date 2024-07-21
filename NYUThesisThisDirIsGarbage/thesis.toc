@@ -1,0 +1,23 @@
+\contentsline {section}{Abstract}{iii}{}%
+\contentsline {section}{List of Figures}{v}{}%
+\contentsline {section}{List of Tables}{vi}{}%
+\contentsline {chapter}{\numberline {1}Introduction}{1}{}%
+\contentsline {section}{\numberline {1.1}Background}{1}{}%
+\contentsline {section}{\numberline {1.2}Outline}{2}{}%
+\contentsline {chapter}{\numberline {2}Four discretizations}{3}{}%
+\contentsline {section}{\numberline {2.1}Defining the problem}{3}{}%
+\contentsline {section}{\numberline {2.2}Bilinear interpolation}{4}{}%
+\contentsline {section}{\numberline {2.3}Bicubic Interpolation}{6}{}%
+\contentsline {subsection}{\numberline {2.3.1}Interpolation formula}{6}{}%
+\contentsline {subsection}{\numberline {2.3.2}Bicubic interpolation: Precomputed matrix}{6}{}%
+\contentsline {subsection}{\numberline {2.3.3}Bicubic Interpolation: Gyroaveraging}{7}{}%
+\contentsline {section}{\numberline {2.4}Fourier transform based gyroaveraging}{7}{}%
+\contentsline {section}{\numberline {2.5}Chebyshev Spectral gyroaveraging}{8}{}%
+\contentsline {subsection}{\numberline {2.5.1}Dense Chebyshev gyroaveraging matrix: Precomputation}{10}{}%
+\contentsline {subsection}{\numberline {2.5.2}Chebyshev gyroaveraging: Algorithm }{11}{}%
+\contentsline {chapter}{\numberline {3}Numerical Results}{13}{}%
+\contentsline {section}{\numberline {3.1}Gallery of test functions}{13}{}%
+\contentsline {section}{\numberline {3.2}Testing environment and setup}{14}{}%
+\contentsline {section}{\numberline {3.3}Convergence Study}{15}{}%
+\contentsline {chapter}{\numberline {A}One more comment}{17}{}%
+\contentsline {chapter}{Bibliography}{18}{}%

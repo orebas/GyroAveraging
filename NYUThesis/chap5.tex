@@ -2,9 +2,9 @@
 
 \section{Gallery of test functions\label{sec:TestFunctions}}
 
-In this section we present numerical results, running the each gyroaveraging algorithm described above against the below test functions.  In each case the domain is the unit square and we tested three values for $\rho$: $\{0.625, 0.46875,0.875 \}  $.  \\
+In this section we present numerical results, running each gyroaveraging algorithm described above against the below test functions.  In each case the domain is the unit square and we tested three values for $\rho$: $\{0.625, 0.46875,0.875 \}  $.  \\
 \begin{enumerate}
-	\item The first function  is from REF and has an analytic gyroaverage. The parameter $A$ is set to $22$ so this function has compact support up to machine double precision on the boundary of the unit square.
+	\item The first function  is from \cite{guadagniThesis} and has an analytic gyroaverage. The parameter $A$ is set to $22$ so this function has compact support up to machine double precision on the boundary of the unit square.
 	\[  \text{SmoothExp}(x,y) = e^{-A(x^2+y^2)} e^{-B\rho^2}\]
 	%\item  The second function is a very simple polynomial.  Unlike the above its derivatives are nonzero on the boundary. \[\text{SmoothPoly}(x,y) = (1-x^2)(1-y^2)\].  
 	\item The second function is a bivariate version of Runge's function, which is known to cause difficulties for high-degree equispaced polynomial interpolation.
@@ -64,32 +64,41 @@ The benchmarking process is outlined below:
 		\item storing the a vector of errors for each value of $\rho$.  The error is defined, given matrices $f'_{ij}$ the approximation and $\hat{f}_{ij}$ representing the benchmark, as
 		\[  \frac{\max\limits_{i,j} \abs{\hat{f}_{ij} - f'_{ij} } }{\max\limits_{i,j} \abs{\hat{f}_{ij}} } \] 
 	\end{enumerate}
+\end{enumerate}  
+
 	The benchmarks were run on the NYU Greene supercomputing cluster around December 2020, using two different classes of nodes.  The CPU nodes are 48 cores (2 2.9Ghz Intel Xeon 24C CPUs) with 192Gb of memory.  The GPU nodes are additionally equipped with 4 RTX8000 GPUs.  We used, for our testing, a single GPU at a time and a maximum of 20 cores.  In all cases the input data and output data are held in CPU memory and the full penalty of GPU memory transfer is included in the benchmarks.  
+	
+
 	\section{Performance and Convergence Plots}
 	See below for numerical results; the plots are intended to speak for themselves.
 %TODO put figure numbers
-Figure 3.2 presents the perfomance scaling properties of each algorithm.  \\
-The next four plots present convergence scaling properties, which depend strongly on the smoothness of the initial data.
+Figure 5.2 presents the perfomance scaling properties of each algorithm.  \\
+Figure 5.3 present convergence scaling properties, which depend strongly on the smoothness of the initial data.  Figure 5.4 attempts to show an ``efficient frontier" for the trade-off between accuracy and speed.
 
 	
 	\begin{figure}[htbp!] 
  \includegraphics[scale=1]{SpeedVsN.eps}	
- 	\caption{Calculation speed as grid size grows.  The slope is a linear regression coefficient for the displayed log-log plot.   Note that while the CPU-bound Chebyshev algorithm exhibits worse than quartic scaling, the GPU version scales with lower exponent (-2.61); this reflects the significance of the cost of CPU-GPU memory transfer which scales like $N^2$. }  	\end{figure}
+ 	\caption[Gyroaveraging speed vs grid size]{Calculation speed as grid size grows.  The slope is a linear regression coefficient for the displayed log-log plot.   Note that while the CPU-bound Chebyshev algorithm exhibits worse than quartic scaling, the GPU version scales with lower exponent (-2.61); this reflects the significance of the cost of CPU-GPU memory transfer which scales like $N^2$. }  	\end{figure}
 	
 	
 	\begin{figure}[htbp!]
 		\includegraphics[scale=1]{ConvergenceAllNew.pdf}	
-		\caption{Error vs grid size.  By construction, no one algorithm is a clear winner.  For smooth functions, we get spectral accuracy from the chebyshev interplation, and the Fourier method as well in the numerically periodic case.     }  	\end{figure}
+		\caption[Gyroaveraging error vs grid size]{Error vs grid size.  By construction, no one algorithm is a clear winner.  For smooth functions, we get spectral accuracy from the Chebyshev interplation, and the Fourier method as well in the numerically periodic case.}  	\end{figure}
 
 	\begin{figure}[htbp!]
 	\includegraphics[scale=1]{OptimalAllNew.pdf}	
-	\caption{The trade-off between accuracy and execution speed.     }  	\end{figure}
+	\caption{The trade-off between accuracy and execution speed.}  	\end{figure}
 
+	\begin{figure}[htbp!]
+	\includegraphics[scale=1]{GPUAccel.pdf}	
+	\caption[The benefit from GPU acceleration]{The speed benefit of GPU parallelism.  These acceleration ratios are typical for sparse vs. dense linear algebra.  This includes the full penalty of CPU-GPU memory transfer in both directions.}  	\end{figure}
 
 	
+	\section{Discussion of numerical results}  First, as a reference point, it will be useful to refer to \cite[P. 16]{guadagniThesis}.  The author describes a single gyroaverage calculation (for 35 values of $\rho$) of the same ``Smooth Exponential" function we have used, to accuracy $10^{-13}$, taking approximately 13 seconds.  To be clear, \cite{guadagniThesis} was not focused on performance, and notes various potential improvements including parallelization.  
 	
-\end{enumerate}  
-
+	This work has gained 3-4 orders of magnitude performance increase for similar accuracy on this smooth function.  We can trace this to a few different sources, including:  1) Matlab vs C++, 2) multi-core CPU parallelism, 3) GPU acceleration in some cases.
+	
+	However, both \cite{gorner2012} and \cite{guadagniThesis} present FFT-based methods, which are not expected to converge well for non-smooth functions, nor for functions which are not numerically of compact support.  Except for the ``smooth exponential" function, the bicubic interpolation and Chebyshev based algorithms are competitive with respect to both accuracy and speed with the padded FFT algorithm.  Indeed, as expected, the bicubic interpolation is most robust to the ``horn" singularity.  On the other hand, the Chebyshev interpolation alone is able to demonstrate spectral accuracy for the non-compactly supported ``Runge" function.
 
 
 

@@ -1,4 +1,4 @@
-This is LuaHBTeX, Version 1.12.0 (MiKTeX 20.11) (format=lualatex 2021.1.13)  7 FEB 2021 01:23
+This is LuaHBTeX, Version 1.12.0 (MiKTeX 20.11) (format=lualatex 2021.1.13)  17 FEB 2021 04:43
  system commands enabled.
 **thesis.tex
 (./thesis.tex
@@ -222,17 +222,194 @@ File: l3backend-luatex.def 2020-09-24 L3 backend support: PDF output (LuaTeX)
 Package: xparse 2020-10-27 L3 Experimental document command parser
 
 ("C:/Program Files/MiKTeX 2.9/tex/latex/l3packages/xparse/xparse-generic.tex")))
- ("C:/Program Files/MiKTeX 2.9/tex/latex/pgf/frontendlayer/tikz.sty"
+ ("C:/Program Files/MiKTeX 2.9/tex/latex/listings/listings.sty"
+\lst@mode=\count193
+\lst@gtempboxa=\box50
+\lst@token=\toks27
+\lst@length=\count194
+\lst@currlwidth=\dimen150
+\lst@column=\count195
+\lst@pos=\count196
+\lst@lostspace=\dimen151
+\lst@width=\dimen152
+\lst@newlines=\count197
+\lst@lineno=\count198
+\lst@maxwidth=\dimen153
+
+("C:/Program Files/MiKTeX 2.9/tex/latex/listings/lstmisc.sty"
+File: lstmisc.sty 2020/03/24 1.8d (Carsten Heinz)
+\c@lstnumber=\count199
+\lst@skipnumbers=\count266
+\lst@framebox=\box51
+)
+("C:/Program Files/MiKTeX 2.9/tex/latex/listings/listings.cfg"
+File: listings.cfg 2020/03/24 1.8d listings configuration
+))
+Package: listings 2020/03/24 1.8d (Carsten Heinz)
+
+(C:/Users/oreba/AppData/Roaming/MiKTeX/2.9/tex/latex/minted/minted.sty
+Package: minted 2017/07/19 v2.5 Yet another Pygments shim for LaTeX
+
+(C:/Users/oreba/AppData/Roaming/MiKTeX/2.9/tex/latex/kvoptions/kvoptions.sty
+Package: kvoptions 2020-10-07 v3.14 Key value format for package options (HO)
+
+(C:/Users/oreba/AppData/Roaming/MiKTeX/2.9/tex/generic/ltxcmds/ltxcmds.sty
+Package: ltxcmds 2020-05-10 v1.25 LaTeX kernel commands for general use (HO)
+)
+(C:/Users/oreba/AppData/Roaming/MiKTeX/2.9/tex/generic/kvsetkeys/kvsetkeys.sty
+Package: kvsetkeys 2019/12/15 v1.18 Key value parser (HO)
+)) (C:/Users/oreba/AppData/Roaming/MiKTeX/2.9/tex/latex/fvextra/fvextra.sty
+Package: fvextra 2019/02/04 v1.4 fvextra - extensions and patches for fancyvrb
+
+("C:/Program Files/MiKTeX 2.9/tex/latex/base/ifthen.sty"
+Package: ifthen 2014/09/29 v1.1c Standard LaTeX ifthen package (DPC)
+)
+("C:/Program Files/MiKTeX 2.9/tex/latex/etoolbox/etoolbox.sty"
+Package: etoolbox 2020/10/05 v2.5k e-TeX tools for LaTeX (JAW)
+\etb@tempcnta=\count267
+)
+(C:/Users/oreba/AppData/Roaming/MiKTeX/2.9/tex/latex/fancyvrb/fancyvrb.sty
+Package: fancyvrb 2021/01/20 v3.7 verbatim text (tvz,hv)
+\FV@CodeLineNo=\count268
+\FV@InFile=\read2
+\FV@TabBox=\box52
+\c@FancyVerbLine=\count269
+\FV@StepNumber=\count270
+\FV@OutFile=\write3
+)
+(C:/Users/oreba/AppData/Roaming/MiKTeX/2.9/tex/latex/upquote/upquote.sty
+Package: upquote 2012/04/19 v1.3 upright-quote and grave-accent glyphs in verbat
+im
+
+("C:/Program Files/MiKTeX 2.9/tex/latex/base/textcomp.sty"
+Package: textcomp 2020/02/02 v2.0n Standard LaTeX package
+))
+(C:/Users/oreba/AppData/Roaming/MiKTeX/2.9/tex/latex/lineno/lineno.sty
+Package: lineno 2005/11/02 line numbers on paragraphs v4.41
+\linenopenalty=\count271
+\output=\toks28
+\linenoprevgraf=\count272
+\linenumbersep=\dimen154
+\linenumberwidth=\dimen155
+\c@linenumber=\count273
+\c@pagewiselinenumber=\count274
+\c@LN@truepage=\count275
+\c@internallinenumber=\count276
+\c@internallinenumbers=\count277
+\quotelinenumbersep=\dimen156
+\bframerule=\dimen157
+\bframesep=\dimen158
+\bframebox=\box53
+LaTeX Info: Redefining \\ on input line 3056.
+)
+\c@FV@TrueTabGroupLevel=\count278
+\c@FV@TrueTabCounter=\count279
+\FV@TabBox@Group=\box54
+\FV@TmpLength=\skip55
+\c@FV@HighlightLinesStart=\count280
+\c@FV@HighlightLinesStop=\count281
+\FV@LoopCount=\count282
+\FV@NCharsBox=\box55
+\FV@BreakIndent=\dimen159
+\FV@BreakIndentNChars=\count283
+\FV@BreakSymbolSepLeft=\dimen160
+\FV@BreakSymbolSepLeftNChars=\count284
+\FV@BreakSymbolSepRight=\dimen161
+\FV@BreakSymbolSepRightNChars=\count285
+\FV@BreakSymbolIndentLeft=\dimen162
+\FV@BreakSymbolIndentLeftNChars=\count286
+\FV@BreakSymbolIndentRight=\dimen163
+\FV@BreakSymbolIndentRightNChars=\count287
+\c@FancyVerbLineBreakLast=\count288
+\FV@LineBox=\box56
+\FV@LineIndentBox=\box57
+\FV@LineWidth=\dimen164
+)
+("C:/Program Files/MiKTeX 2.9/tex/latex/tools/calc.sty"
+Package: calc 2017/05/25 v4.3 Infix arithmetic (KKT,FJ)
+\calc@Acount=\count289
+\calc@Bcount=\count290
+\calc@Adimen=\dimen165
+\calc@Bdimen=\dimen166
+\calc@Askip=\skip56
+\calc@Bskip=\skip57
+LaTeX Info: Redefining \setlength on input line 80.
+LaTeX Info: Redefining \addtolength on input line 81.
+\calc@Ccount=\count291
+\calc@Cskip=\skip58
+)
+("C:/Program Files/MiKTeX 2.9/tex/latex/tools/shellesc.sty"
+Package: shellesc 2019/11/08 v1.0c unified shell escape interface for LaTeX
+Package shellesc Info: Unrestricted shell escape enabled on input line 75.
+)
+(C:/Users/oreba/AppData/Roaming/MiKTeX/2.9/tex/latex/ifplatform/ifplatform.sty
+Package: ifplatform 2017/10/13 v0.4a Testing for the operating system
+
+("C:/Program Files/MiKTeX 2.9/tex/generic/pdftexcmds/pdftexcmds.sty"
+Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO)
+
+
+(C:/Users/oreba/AppData/Roaming/MiKTeX/2.9/tex/generic/infwarerr/infwarerr.sty
+Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
+) ("C:/Program Files/MiKTeX 2.9/tex/generic/iftex/iftex.sty"
+Package: iftex 2020/03/06 v1.0d TeX engine tests
+)
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+\pdftexcmds@toks=\toks29
+)
+(C:/Users/oreba/AppData/Roaming/MiKTeX/2.9/tex/generic/catchfile/catchfile.sty
+Package: catchfile 2019/12/09 v1.8 Catch the contents of a file (HO)
+
+(C:/Users/oreba/AppData/Roaming/MiKTeX/2.9/tex/generic/etexcmds/etexcmds.sty
+Package: etexcmds 2019/12/15 v1.7 Avoid name clashes with e-TeX commands (HO)
+))
+("C:/Program Files/MiKTeX 2.9/tex/generic/iftex/ifluatex.sty"
+Package: ifluatex 2019/10/25 v1.5 ifluatex legacy package. Use iftex instead.
+))
+(C:/Users/oreba/AppData/Roaming/MiKTeX/2.9/tex/latex/xstring/xstring.sty
+(C:/Users/oreba/AppData/Roaming/MiKTeX/2.9/tex/generic/xstring/xstring.tex
+\integerpart=\count292
+\decimalpart=\count293
+)
+Package: xstring 2019/02/06 v1.83 String manipulations (CT)
+)
+(C:/Users/oreba/AppData/Roaming/MiKTeX/2.9/tex/latex/framed/framed.sty
+Package: framed 2011/10/22 v 0.96: framed or shaded text with page breaks
+\OuterFrameSep=\skip59
+\fb@frw=\dimen167
+\fb@frh=\dimen168
+\FrameRule=\dimen169
+\FrameSep=\dimen170
+)
+(C:/Users/oreba/AppData/Roaming/MiKTeX/2.9/tex/latex/float/float.sty
+Package: float 2001/11/08 v1.3d Float enhancements (AL)
+\c@float@type=\count294
+\float@exts=\toks30
+\float@box=\box58
+\@float@everytoks=\toks31
+\@floatcapt=\box59
+)
+\minted@appexistsfile=\read3
+\minted@bgbox=\box60
+\minted@code=\write4
+\c@minted@FancyVerbLineTemp=\count295
+\c@minted@pygmentizecounter=\count296
+\@float@every@listing=\toks32
+\c@listing=\count297
+)
+("C:/Program Files/MiKTeX 2.9/tex/latex/pgf/frontendlayer/tikz.sty"
 ("C:/Program Files/MiKTeX 2.9/tex/latex/pgf/basiclayer/pgf.sty"
 ("C:/Program Files/MiKTeX 2.9/tex/latex/pgf/utilities/pgfrcs.sty"
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/utilities/pgfutil-common.tex"
-\pgfutil@everybye=\toks27
-\pgfutil@tempdima=\dimen150
-\pgfutil@tempdimb=\dimen151
+\pgfutil@everybye=\toks33
+\pgfutil@tempdima=\dimen171
+\pgfutil@tempdimb=\dimen172
 
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/utilities/pgfutil-common-lists.te
 x")) ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/utilities/pgfutil-latex.def"
-\pgfutil@abb=\box50
+\pgfutil@abb=\box61
 ) ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/utilities/pgfrcs.code.tex"
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/pgf.revision.tex")
 Package: pgfrcs 2020/10/01 v3.1.6a (3.1.6a)
@@ -245,33 +422,33 @@ Package: pgf 2020/10/01 v3.1.6a (3.1.6a)
 Package: pgfsys 2020/10/01 v3.1.6a (3.1.6a)
 
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/utilities/pgfkeys.code.tex"
-\pgfkeys@pathtoks=\toks28
-\pgfkeys@temptoks=\toks29
+\pgfkeys@pathtoks=\toks34
+\pgfkeys@temptoks=\toks35
 
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/utilities/pgfkeysfiltered.code.te
 x"
-\pgfkeys@tmptoks=\toks30
+\pgfkeys@tmptoks=\toks36
 ))
-\pgf@x=\dimen152
-\pgf@y=\dimen153
-\pgf@xa=\dimen154
-\pgf@ya=\dimen155
-\pgf@xb=\dimen156
-\pgf@yb=\dimen157
-\pgf@xc=\dimen158
-\pgf@yc=\dimen159
-\pgf@xd=\dimen160
-\pgf@yd=\dimen161
-\w@pgf@writea=\write3
-\r@pgf@reada=\read2
-\c@pgf@counta=\count193
-\c@pgf@countb=\count194
-\c@pgf@countc=\count195
-\c@pgf@countd=\count196
-\t@pgf@toka=\toks31
-\t@pgf@tokb=\toks32
-\t@pgf@tokc=\toks33
-\pgf@sys@id@count=\count197
+\pgf@x=\dimen173
+\pgf@y=\dimen174
+\pgf@xa=\dimen175
+\pgf@ya=\dimen176
+\pgf@xb=\dimen177
+\pgf@yb=\dimen178
+\pgf@xc=\dimen179
+\pgf@yc=\dimen180
+\pgf@xd=\dimen181
+\pgf@yd=\dimen182
+\w@pgf@writea=\write5
+\r@pgf@reada=\read4
+\c@pgf@counta=\count298
+\c@pgf@countb=\count299
+\c@pgf@countc=\count300
+\c@pgf@countd=\count301
+\t@pgf@toka=\toks37
+\t@pgf@tokb=\toks38
+\t@pgf@tokc=\toks39
+\pgf@sys@id@count=\count302
  ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/systemlayer/pgf.cfg"
 File: pgf.cfg 2020/10/01 v3.1.6a (3.1.6a)
 )
@@ -287,8 +464,8 @@ File: pgfsys-common-pdf.def 2020/10/01 v3.1.6a (3.1.6a)
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/systemlayer/pgfsyssoftpath.code.t
 ex"
 File: pgfsyssoftpath.code.tex 2020/10/01 v3.1.6a (3.1.6a)
-\pgfsyssoftpath@smallbuffer@items=\count198
-\pgfsyssoftpath@bigbuffer@items=\count199
+\pgfsyssoftpath@smallbuffer@items=\count303
+\pgfsyssoftpath@bigbuffer@items=\count304
 )
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/systemlayer/pgfsysprotocol.code.t
 ex"
@@ -317,12 +494,12 @@ Package: pgfcore 2020/10/01 v3.1.6a (3.1.6a)
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/math/pgfmathcalc.code.tex"
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/math/pgfmathutil.code.tex")
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/math/pgfmathparser.code.tex"
-\pgfmath@dimen=\dimen162
-\pgfmath@count=\count266
-\pgfmath@box=\box51
-\pgfmath@toks=\toks34
-\pgfmath@stack@operand=\toks35
-\pgfmath@stack@operation=\toks36
+\pgfmath@dimen=\dimen183
+\pgfmath@count=\count305
+\pgfmath@box=\box62
+\pgfmath@toks=\toks40
+\pgfmath@stack@operand=\toks41
+\pgfmath@stack@operation=\toks42
 )
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/math/pgfmathfunctions.code.tex"
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/math/pgfmathfunctions.basic.code.
@@ -342,58 +519,58 @@ ex")
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/math/pgfmathfunctions.integerarit
 hmetics.code.tex")))
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/math/pgfmathfloat.code.tex"
-\c@pgfmathroundto@lastzeros=\count267
+\c@pgfmathroundto@lastzeros=\count306
 ))
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/math/pgfint.code.tex")
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/basiclayer/pgfcorepoints.code.tex
 "
 File: pgfcorepoints.code.tex 2020/10/01 v3.1.6a (3.1.6a)
-\pgf@picminx=\dimen163
-\pgf@picmaxx=\dimen164
-\pgf@picminy=\dimen165
-\pgf@picmaxy=\dimen166
-\pgf@pathminx=\dimen167
-\pgf@pathmaxx=\dimen168
-\pgf@pathminy=\dimen169
-\pgf@pathmaxy=\dimen170
-\pgf@xx=\dimen171
-\pgf@xy=\dimen172
-\pgf@yx=\dimen173
-\pgf@yy=\dimen174
-\pgf@zx=\dimen175
-\pgf@zy=\dimen176
+\pgf@picminx=\dimen184
+\pgf@picmaxx=\dimen185
+\pgf@picminy=\dimen186
+\pgf@picmaxy=\dimen187
+\pgf@pathminx=\dimen188
+\pgf@pathmaxx=\dimen189
+\pgf@pathminy=\dimen190
+\pgf@pathmaxy=\dimen191
+\pgf@xx=\dimen192
+\pgf@xy=\dimen193
+\pgf@yx=\dimen194
+\pgf@yy=\dimen195
+\pgf@zx=\dimen196
+\pgf@zy=\dimen197
 )
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/basiclayer/pgfcorepathconstruct.c
 ode.tex"
 File: pgfcorepathconstruct.code.tex 2020/10/01 v3.1.6a (3.1.6a)
-\pgf@path@lastx=\dimen177
-\pgf@path@lasty=\dimen178
+\pgf@path@lastx=\dimen198
+\pgf@path@lasty=\dimen199
 )
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/basiclayer/pgfcorepathusage.code.
 tex"
 File: pgfcorepathusage.code.tex 2020/10/01 v3.1.6a (3.1.6a)
-\pgf@shorten@end@additional=\dimen179
-\pgf@shorten@start@additional=\dimen180
+\pgf@shorten@end@additional=\dimen256
+\pgf@shorten@start@additional=\dimen257
 )
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/basiclayer/pgfcorescopes.code.tex
 "
 File: pgfcorescopes.code.tex 2020/10/01 v3.1.6a (3.1.6a)
-\pgfpic=\box52
-\pgf@hbox=\box53
-\pgf@layerbox@main=\box54
-\pgf@picture@serial@count=\count268
+\pgfpic=\box63
+\pgf@hbox=\box64
+\pgf@layerbox@main=\box65
+\pgf@picture@serial@count=\count307
 )
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/basiclayer/pgfcoregraphicstate.co
 de.tex"
 File: pgfcoregraphicstate.code.tex 2020/10/01 v3.1.6a (3.1.6a)
-\pgflinewidth=\dimen181
+\pgflinewidth=\dimen258
 )
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/basiclayer/pgfcoretransformations
 .code.tex"
 File: pgfcoretransformations.code.tex 2020/10/01 v3.1.6a (3.1.6a)
-\pgf@pt@x=\dimen182
-\pgf@pt@y=\dimen183
-\pgf@pt@temp=\dimen184
+\pgf@pt@x=\dimen259
+\pgf@pt@y=\dimen260
+\pgf@pt@temp=\dimen261
 )
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/basiclayer/pgfcorequick.code.tex"
 File: pgfcorequick.code.tex 2020/10/01 v3.1.6a (3.1.6a)
@@ -409,13 +586,13 @@ File: pgfcorepathprocessing.code.tex 2020/10/01 v3.1.6a (3.1.6a)
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/basiclayer/pgfcorearrows.code.tex
 "
 File: pgfcorearrows.code.tex 2020/10/01 v3.1.6a (3.1.6a)
-\pgfarrowsep=\dimen185
+\pgfarrowsep=\dimen262
 )
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/basiclayer/pgfcoreshade.code.tex"
 File: pgfcoreshade.code.tex 2020/10/01 v3.1.6a (3.1.6a)
-\pgf@max=\dimen186
-\pgf@sys@shading@range@num=\count269
-\pgf@shadingcount=\count270
+\pgf@max=\dimen263
+\pgf@sys@shading@range@num=\count308
+\pgf@shadingcount=\count309
 ) ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/basiclayer/pgfcoreimage.code.te
 x"
 File: pgfcoreimage.code.tex 2020/10/01 v3.1.6a (3.1.6a)
@@ -423,7 +600,7 @@ File: pgfcoreimage.code.tex 2020/10/01 v3.1.6a (3.1.6a)
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/basiclayer/pgfcoreexternal.code.t
 ex"
 File: pgfcoreexternal.code.tex 2020/10/01 v3.1.6a (3.1.6a)
-\pgfexternal@startupbox=\box55
+\pgfexternal@startupbox=\box66
 ))
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/basiclayer/pgfcorelayers.code.tex
 "
@@ -442,15 +619,15 @@ File: pgfcorerdf.code.tex 2020/10/01 v3.1.6a (3.1.6a)
 ))) ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/modules/pgfmoduleshapes.code.
 tex"
 File: pgfmoduleshapes.code.tex 2020/10/01 v3.1.6a (3.1.6a)
-\pgfnodeparttextbox=\box56
+\pgfnodeparttextbox=\box67
 ) ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/modules/pgfmoduleplot.code.tex"
 File: pgfmoduleplot.code.tex 2020/10/01 v3.1.6a (3.1.6a)
 )
 ("C:/Program Files/MiKTeX 2.9/tex/latex/pgf/compatibility/pgfcomp-version-0-65.
 sty"
 Package: pgfcomp-version-0-65 2020/10/01 v3.1.6a (3.1.6a)
-\pgf@nodesepstart=\dimen187
-\pgf@nodesepend=\dimen188
+\pgf@nodesepstart=\dimen264
+\pgf@nodesepend=\dimen265
 )
 ("C:/Program Files/MiKTeX 2.9/tex/latex/pgf/compatibility/pgfcomp-version-1-18.
 sty"
@@ -464,10 +641,10 @@ Package: pgfcomp-version-1-18 2020/10/01 v3.1.6a (3.1.6a)
 Package: pgffor 2020/10/01 v3.1.6a (3.1.6a)
 
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/math/pgfmath.code.tex")
-\pgffor@iter=\dimen189
-\pgffor@skip=\dimen190
-\pgffor@stack=\toks37
-\pgffor@toks=\toks38
+\pgffor@iter=\dimen266
+\pgffor@skip=\dimen267
+\pgffor@stack=\toks43
+\pgffor@toks=\toks44
 ))
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex"
 Package: tikz 2020/10/01 v3.1.6a (3.1.6a)
@@ -475,33 +652,33 @@ Package: tikz 2020/10/01 v3.1.6a (3.1.6a)
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/libraries/pgflibraryplothandlers.
 code.tex"
 File: pgflibraryplothandlers.code.tex 2020/10/01 v3.1.6a (3.1.6a)
-\pgf@plot@mark@count=\count271
-\pgfplotmarksize=\dimen191
+\pgf@plot@mark@count=\count310
+\pgfplotmarksize=\dimen268
 )
-\tikz@lastx=\dimen192
-\tikz@lasty=\dimen193
-\tikz@lastxsaved=\dimen194
-\tikz@lastysaved=\dimen195
-\tikz@lastmovetox=\dimen196
-\tikz@lastmovetoy=\dimen197
-\tikzleveldistance=\dimen198
-\tikzsiblingdistance=\dimen199
-\tikz@figbox=\box57
-\tikz@figbox@bg=\box58
-\tikz@tempbox=\box59
-\tikz@tempbox@bg=\box60
-\tikztreelevel=\count272
-\tikznumberofchildren=\count273
-\tikznumberofcurrentchild=\count274
-\tikz@fig@count=\count275
+\tikz@lastx=\dimen269
+\tikz@lasty=\dimen270
+\tikz@lastxsaved=\dimen271
+\tikz@lastysaved=\dimen272
+\tikz@lastmovetox=\dimen273
+\tikz@lastmovetoy=\dimen274
+\tikzleveldistance=\dimen275
+\tikzsiblingdistance=\dimen276
+\tikz@figbox=\box68
+\tikz@figbox@bg=\box69
+\tikz@tempbox=\box70
+\tikz@tempbox@bg=\box71
+\tikztreelevel=\count311
+\tikznumberofchildren=\count312
+\tikznumberofcurrentchild=\count313
+\tikz@fig@count=\count314
 
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/modules/pgfmodulematrix.code.tex"
 File: pgfmodulematrix.code.tex 2020/10/01 v3.1.6a (3.1.6a)
-\pgfmatrixcurrentrow=\count276
-\pgfmatrixcurrentcolumn=\count277
-\pgf@matrix@numberofcolumns=\count278
+\pgfmatrixcurrentrow=\count315
+\pgfmatrixcurrentcolumn=\count316
+\pgf@matrix@numberofcolumns=\count317
 )
-\tikz@expandcount=\count279
+\tikz@expandcount=\count318
 
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/frontendlayer/tikz/libraries/tikz
 librarytopaths.code.tex"
@@ -531,12 +708,12 @@ Package: pgfplots 2020/02/29 v1.17 Data Visualization (1.17)
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgfplots/pgfplotscore.code.tex"
 Package pgfplots info on input line 124: Initializing with LUA version Lua 5.3
 \pgfplots@luabackend@table=\catcodetable12
-\t@pgfplots@toka=\toks39
-\t@pgfplots@tokb=\toks40
-\t@pgfplots@tokc=\toks41
-\pgfplots@tmpa=\dimen256
-\c@pgfplots@coordindex=\count280
-\c@pgfplots@scanlineindex=\count281
+\t@pgfplots@toka=\toks45
+\t@pgfplots@tokb=\toks46
+\t@pgfplots@tokc=\toks47
+\pgfplots@tmpa=\dimen277
+\c@pgfplots@coordindex=\count319
+\c@pgfplots@scanlineindex=\count320
 
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgfplots/sys/pgfplotssysgeneric.code.
 tex"))
@@ -561,14 +738,14 @@ ructure.code.tex")
 ructureext.code.tex")
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgfplots/liststructure/pgfplotsarray.
 code.tex"
-\c@pgfplotsarray@tmp=\count282
+\c@pgfplotsarray@tmp=\count321
 )
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgfplots/liststructure/pgfplotsmatrix
 .code.tex")
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgfplots/numtable/pgfplotstableshared
 .code.tex"
-\c@pgfplotstable@counta=\count283
-\t@pgfplotstable@a=\toks42
+\c@pgfplotstable@counta=\count322
+\t@pgfplotstable@a=\toks48
 )
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgfplots/liststructure/pgfplotsdeque.
 code.tex")
@@ -580,7 +757,7 @@ e.tex"))
 tex")
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgfplots/libs/pgflibrarypgfplots.surf
 shading.code.tex"
-\c@pgfplotslibrarysurf@no=\count284
+\c@pgfplotslibrarysurf@no=\count323
 
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgfplots/sys/pgflibrarypgfplots.surfs
 hading.pgfsys-luatex.def")))
@@ -607,16 +784,16 @@ ex")))
 librarydecorations.code.tex"
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/modules/pgfmoduledecorations.code
 .tex"
-\pgfdecoratedcompleteddistance=\dimen257
-\pgfdecoratedremainingdistance=\dimen258
-\pgfdecoratedinputsegmentcompleteddistance=\dimen259
-\pgfdecoratedinputsegmentremainingdistance=\dimen260
-\pgf@decorate@distancetomove=\dimen261
-\pgf@decorate@repeatstate=\count285
-\pgfdecorationsegmentamplitude=\dimen262
-\pgfdecorationsegmentlength=\dimen263
+\pgfdecoratedcompleteddistance=\dimen278
+\pgfdecoratedremainingdistance=\dimen279
+\pgfdecoratedinputsegmentcompleteddistance=\dimen280
+\pgfdecoratedinputsegmentremainingdistance=\dimen281
+\pgf@decorate@distancetomove=\dimen282
+\pgf@decorate@repeatstate=\count324
+\pgfdecorationsegmentamplitude=\dimen283
+\pgfdecorationsegmentlength=\dimen284
 )
-\tikz@lib@dec@box=\box61
+\tikz@lib@dec@box=\box72
 )
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/frontendlayer/tikz/libraries/tikz
 librarydecorations.pathmorphing.code.tex"
@@ -626,13 +803,13 @@ ecorations.pathmorphing.code.tex"))
 librarydecorations.pathreplacing.code.tex"
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/libraries/decorations/pgflibraryd
 ecorations.pathreplacing.code.tex"))
-\pgfplots@numplots=\count286
-\pgfplots@xmin@reg=\dimen264
-\pgfplots@xmax@reg=\dimen265
-\pgfplots@ymin@reg=\dimen266
-\pgfplots@ymax@reg=\dimen267
-\pgfplots@zmin@reg=\dimen268
-\pgfplots@zmax@reg=\dimen269
+\pgfplots@numplots=\count325
+\pgfplots@xmin@reg=\dimen285
+\pgfplots@xmax@reg=\dimen286
+\pgfplots@ymin@reg=\dimen287
+\pgfplots@ymax@reg=\dimen288
+\pgfplots@zmin@reg=\dimen289
+\pgfplots@zmax@reg=\dimen290
 )
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/frontendlayer/tikz/libraries/tikz
 libraryplotmarks.code.tex"
@@ -646,23 +823,6 @@ File: pgflibraryplotmarks.code.tex 2020/10/01 v3.1.6a (3.1.6a)
 ernal.code.tex"
 ("C:/Program Files/MiKTeX 2.9/tex/latex/pgf/frontendlayer/libraries/tikzlibrary
 external.code.tex"
-("C:/Program Files/MiKTeX 2.9/tex/generic/pdftexcmds/pdftexcmds.sty"
-Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO)
-
-
-(C:/Users/oreba/AppData/Roaming/MiKTeX/2.9/tex/generic/infwarerr/infwarerr.sty
-Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
-) ("C:/Program Files/MiKTeX 2.9/tex/generic/iftex/iftex.sty"
-Package: iftex 2020/03/06 v1.0d TeX engine tests
-)
-(C:/Users/oreba/AppData/Roaming/MiKTeX/2.9/tex/generic/ltxcmds/ltxcmds.sty
-Package: ltxcmds 2020-05-10 v1.25 LaTeX kernel commands for general use (HO)
-)
-Package pdftexcmds Info: \pdf@primitive is available.
-Package pdftexcmds Info: \pdf@ifprimitive is available.
-Package pdftexcmds Info: \pdfdraftmode found.
-\pdftexcmds@toks=\toks43
-)
 ("C:/Program Files/MiKTeX 2.9/tex/latex/base/atveryend-ltx.sty"
 Package: atveryend-ltx 2020/08/19 v1.0a Emulation of the original atvery package
 
@@ -672,9 +832,9 @@ with kernel methods
 externalshared.code.tex")))
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgfplots/libs/tikzlibrarypgfplots.gro
 upplots.code.tex"
-\pgfplots@group@current@plot=\count287
-\pgfplots@group@current@row=\count288
-\pgfplots@group@current@column=\count289
+\pgfplots@group@current@plot=\count326
+\pgfplots@group@current@row=\count327
+\pgfplots@group@current@column=\count328
 
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/frontendlayer/tikz/libraries/tikz
 librarycalc.code.tex"
@@ -687,33 +847,270 @@ eplot.code.tex"
 File: pgfcalendar.code.tex 2020/10/01 v3.1.6a (3.1.6a)
 
 ("C:/Program Files/MiKTeX 2.9/tex/generic/pgf/math/pgfint.code.tex")
-\pgfcalendarcurrentjulian=\count290
-\pgf@cal@easter@Y=\count291
-\pgf@cal@easter@G=\count292
-\pgf@cal@easter@C=\count293
-\pgf@cal@easter@X=\count294
-\pgf@cal@easter@Z=\count295
-\pgf@cal@easter@D=\count296
-\pgf@cal@easter@E=\count297
-\pgf@cal@easter@N=\count298
-\pgf@cal@easter@M=\count299
-\pgf@cal@easter@julianday=\count300
+\pgfcalendarcurrentjulian=\count329
+\pgf@cal@easter@Y=\count330
+\pgf@cal@easter@G=\count331
+\pgf@cal@easter@C=\count332
+\pgf@cal@easter@X=\count333
+\pgf@cal@easter@Z=\count334
+\pgf@cal@easter@D=\count335
+\pgf@cal@easter@E=\count336
+\pgf@cal@easter@N=\count337
+\pgf@cal@easter@M=\count338
+\pgf@cal@easter@julianday=\count339
 )))
-\openout3 = thesis.auxlock
+\openout5 = thesis.auxlock
 
+("C:/Program Files/MiKTeX 2.9/tex/latex/biblatex/biblatex.sty"
+Package: biblatex 2020/08/23 v3.15a programmable bibliographies (PK/MW)
+
+(C:/Users/oreba/AppData/Roaming/MiKTeX/2.9/tex/latex/logreq/logreq.sty
+Package: logreq 2010/08/04 v1.0 xml request logger
+\lrq@indent=\count340
+
+(C:/Users/oreba/AppData/Roaming/MiKTeX/2.9/tex/latex/logreq/logreq.def
+File: logreq.def 2010/08/04 v1.0 logreq spec v1.0
+))
+("C:/Program Files/MiKTeX 2.9/tex/latex/url/url.sty"
+\Urlmuskip=\muskip17
+Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
+)
+\c@tabx@nest=\count341
+\c@listtotal=\count342
+\c@listcount=\count343
+\c@liststart=\count344
+\c@liststop=\count345
+\c@citecount=\count346
+\c@citetotal=\count347
+\c@multicitecount=\count348
+\c@multicitetotal=\count349
+\c@instcount=\count350
+\c@maxnames=\count351
+\c@minnames=\count352
+\c@maxitems=\count353
+\c@minitems=\count354
+\c@citecounter=\count355
+\c@maxcitecounter=\count356
+\c@savedcitecounter=\count357
+\c@uniquelist=\count358
+\c@uniquename=\count359
+\c@refsection=\count360
+\c@refsegment=\count361
+\c@maxextratitle=\count362
+\c@maxextratitleyear=\count363
+\c@maxextraname=\count364
+\c@maxextradate=\count365
+\c@maxextraalpha=\count366
+\c@abbrvpenalty=\count367
+\c@highnamepenalty=\count368
+\c@lownamepenalty=\count369
+\c@maxparens=\count370
+\c@parenlevel=\count371
+\blx@tempcnta=\count372
+\blx@tempcntb=\count373
+\blx@tempcntc=\count374
+\blx@maxsection=\count375
+\blx@maxsegment@0=\count376
+\blx@notetype=\count377
+\blx@parenlevel@text=\count378
+\blx@parenlevel@foot=\count379
+\blx@sectionciteorder@0=\count380
+\blx@entrysetcounter=\count381
+\blx@biblioinstance=\count382
+\labelnumberwidth=\skip60
+\labelalphawidth=\skip61
+\biblabelsep=\skip62
+\bibitemsep=\skip63
+\bibnamesep=\skip64
+\bibinitsep=\skip65
+\bibparsep=\skip66
+\bibhang=\skip67
+\blx@bcfin=\read5
+\blx@bcfout=\write6
+\blx@langwohyphens=\language2
+\c@mincomprange=\count383
+\c@maxcomprange=\count384
+\c@mincompwidth=\count385
+Package biblatex Info: Trying to load biblatex default data model...
+Package biblatex Info: ... file 'blx-dm.def' found.
+
+("C:/Program Files/MiKTeX 2.9/tex/latex/biblatex/blx-dm.def"
+File: blx-dm.def 2020/08/23 v3.15a biblatex localization (PK/MW)
+)
+Package biblatex Info: Trying to load biblatex custom data model...
+Package biblatex Info: ... file 'biblatex-dm.cfg' not found.
+\c@afterword=\count386
+\c@savedafterword=\count387
+\c@annotator=\count388
+\c@savedannotator=\count389
+\c@author=\count390
+\c@savedauthor=\count391
+\c@bookauthor=\count392
+\c@savedbookauthor=\count393
+\c@commentator=\count394
+\c@savedcommentator=\count395
+\c@editor=\count396
+\c@savededitor=\count397
+\c@editora=\count398
+\c@savededitora=\count399
+\c@editorb=\count400
+\c@savededitorb=\count401
+\c@editorc=\count402
+\c@savededitorc=\count403
+\c@foreword=\count404
+\c@savedforeword=\count405
+\c@holder=\count406
+\c@savedholder=\count407
+\c@introduction=\count408
+\c@savedintroduction=\count409
+\c@namea=\count410
+\c@savednamea=\count411
+\c@nameb=\count412
+\c@savednameb=\count413
+\c@namec=\count414
+\c@savednamec=\count415
+\c@translator=\count416
+\c@savedtranslator=\count417
+\c@shortauthor=\count418
+\c@savedshortauthor=\count419
+\c@shorteditor=\count420
+\c@savedshorteditor=\count421
+\c@labelname=\count422
+\c@savedlabelname=\count423
+\c@institution=\count424
+\c@savedinstitution=\count425
+\c@lista=\count426
+\c@savedlista=\count427
+\c@listb=\count428
+\c@savedlistb=\count429
+\c@listc=\count430
+\c@savedlistc=\count431
+\c@listd=\count432
+\c@savedlistd=\count433
+\c@liste=\count434
+\c@savedliste=\count435
+\c@listf=\count436
+\c@savedlistf=\count437
+\c@location=\count438
+\c@savedlocation=\count439
+\c@organization=\count440
+\c@savedorganization=\count441
+\c@origlocation=\count442
+\c@savedoriglocation=\count443
+\c@origpublisher=\count444
+\c@savedorigpublisher=\count445
+\c@publisher=\count446
+\c@savedpublisher=\count447
+\c@language=\count448
+\c@savedlanguage=\count449
+\c@origlanguage=\count450
+\c@savedoriglanguage=\count451
+\c@pageref=\count452
+\c@savedpageref=\count453
+\shorthandwidth=\skip68
+\shortjournalwidth=\skip69
+\shortserieswidth=\skip70
+\shorttitlewidth=\skip71
+\shortauthorwidth=\skip72
+\shorteditorwidth=\skip73
+\locallabelnumberwidth=\skip74
+\locallabelalphawidth=\skip75
+\localshorthandwidth=\skip76
+\localshortjournalwidth=\skip77
+\localshortserieswidth=\skip78
+\localshorttitlewidth=\skip79
+\localshortauthorwidth=\skip80
+\localshorteditorwidth=\skip81
+Package biblatex Info: Trying to load enhanced support for Unicode engines...
+Package biblatex Info: ... file 'blx-unicode.def' found.
+
+("C:/Program Files/MiKTeX 2.9/tex/latex/biblatex/blx-unicode.def")
+Package biblatex Info: Trying to load compatibility code...
+Package biblatex Info: ... file 'blx-compat.def' found.
+
+("C:/Program Files/MiKTeX 2.9/tex/latex/biblatex/blx-compat.def"
+File: blx-compat.def 2020/08/23 v3.15a biblatex compatibility (PK/MW)
+)
+Package biblatex Info: expl3
+(biblatex)             2020-10-27 L3 programming layer (loader) 
+(biblatex)             is new enough (at least 2020/04/06),
+(biblatex)             setting 'casechanger=expl3'.
+Package biblatex Info: Trying to load expl3 case changing code...
+Package biblatex Info: ... file 'blx-case-expl3.def' found.
+
+("C:/Program Files/MiKTeX 2.9/tex/latex/biblatex/blx-case-expl3.def"
+File: blx-case-expl3 2020/08/23 v3.15a expl3 case changing code for biblatex
+)
+Package biblatex Info: Trying to load generic definitions...
+Package biblatex Info: ... file 'biblatex.def' found.
+
+("C:/Program Files/MiKTeX 2.9/tex/latex/biblatex/biblatex.def"
+File: biblatex.def 2020/08/23 v3.15a biblatex compatibility (PK/MW)
+\c@textcitecount=\count454
+\c@textcitetotal=\count455
+\c@textcitemaxnames=\count456
+\c@biburlbigbreakpenalty=\count457
+\c@biburlbreakpenalty=\count458
+\c@biburlnumpenalty=\count459
+\c@biburlucpenalty=\count460
+\c@biburllcpenalty=\count461
+\biburlbigskip=\muskip18
+\biburlnumskip=\muskip19
+\biburlucskip=\muskip20
+\biburllcskip=\muskip21
+\c@smartand=\count462
+)
+Package biblatex Info: Trying to load bibliography style 'numeric'...
+Package biblatex Info: ... file 'numeric.bbx' found.
+
+("C:/Program Files/MiKTeX 2.9/tex/latex/biblatex/bbx/numeric.bbx"
+File: numeric.bbx 2020/08/23 v3.15a biblatex bibliography style (PK/MW)
+Package biblatex Info: Trying to load bibliography style 'standard'...
+Package biblatex Info: ... file 'standard.bbx' found.
+
+("C:/Program Files/MiKTeX 2.9/tex/latex/biblatex/bbx/standard.bbx"
+File: standard.bbx 2020/08/23 v3.15a biblatex bibliography style (PK/MW)
+\c@bbx:relatedcount=\count463
+\c@bbx:relatedtotal=\count464
+))
+Package biblatex Info: Trying to load citation style 'numeric'...
+Package biblatex Info: ... file 'numeric.cbx' found.
+
+("C:/Program Files/MiKTeX 2.9/tex/latex/biblatex/cbx/numeric.cbx"
+File: numeric.cbx 2020/08/23 v3.15a biblatex citation style (PK/MW)
+Package biblatex Info: Redefining '\cite'.
+Package biblatex Info: Redefining '\parencite'.
+Package biblatex Info: Redefining '\footcite'.
+Package biblatex Info: Redefining '\footcitetext'.
+Package biblatex Info: Redefining '\smartcite'.
+Package biblatex Info: Redefining '\supercite'.
+Package biblatex Info: Redefining '\textcite'.
+Package biblatex Info: Redefining '\textcites'.
+Package biblatex Info: Redefining '\cites'.
+Package biblatex Info: Redefining '\parencites'.
+Package biblatex Info: Redefining '\smartcites'.
+)
+Package biblatex Info: Trying to load configuration file...
+Package biblatex Info: ... file 'biblatex.cfg' found.
+
+("C:/Program Files/MiKTeX 2.9/tex/latex/biblatex/biblatex.cfg"
+File: biblatex.cfg 
+))
 ("C:/Program Files/MiKTeX 2.9/tex/latex/base/inputenc.sty"
 Package: inputenc 2020/08/01 v1.3d Input encoding file
-\inpenc@prehook=\toks44
-\inpenc@posthook=\toks45
+\inpenc@prehook=\toks49
+\inpenc@posthook=\toks50
 
 
 Package inputenc Warning: inputenc package ignored with utf8 based engines.
 
-)) (./thesis.aux
-
-LaTeX Warning: Label `chap:one' multiply defined.
-
-)
+))
+runsystem(for ^%i in (pygmentize.exe pygmentize.bat pygmentize.cmd) do set > the
+sis.aex <nul: /p x=^%~$PATH:i>> thesis.aex)...failed 
+runsystem(del thesis.aex)...executed
+\@quotelevel=\count465
+\@quotereset=\count466
+ (./thesis.aux)
 \openout1 = thesis.aux
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 69.
@@ -740,17 +1137,17 @@ LaTeX Font Info:    ... okay on input line 69.
 
 ("C:/Program Files/MiKTeX 2.9/tex/context/base/mkii/supp-pdf.mkii"
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count301
-\scratchdimen=\dimen270
-\scratchbox=\box62
-\nofMPsegments=\count302
-\nofMParguments=\count303
-\everyMPshowfont=\toks46
-\MPscratchCnt=\count304
-\MPscratchDim=\dimen271
-\MPnumerator=\count305
-\makeMPintoPDFobject=\count306
-\everyMPtoPDFconversion=\toks47
+\scratchcounter=\count467
+\scratchdimen=\dimen291
+\scratchbox=\box73
+\nofMPsegments=\count468
+\nofMParguments=\count469
+\everyMPshowfont=\toks51
+\MPscratchCnt=\count470
+\MPscratchDim=\dimen292
+\MPnumerator=\count471
+\makeMPintoPDFobject=\count472
+\everyMPtoPDFconversion=\toks52
 ) ("C:/Program Files/MiKTeX 2.9/tex/latex/epstopdf-pkg/epstopdf-base.sty"
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 
@@ -761,12 +1158,6 @@ Package: grfext 2019/12/03 v1.3 Manage graphics extensions (HO)
 s.sty
 Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
 ))
-(C:/Users/oreba/AppData/Roaming/MiKTeX/2.9/tex/latex/kvoptions/kvoptions.sty
-Package: kvoptions 2020-10-07 v3.14 Key value format for package options (HO)
-
-(C:/Users/oreba/AppData/Roaming/MiKTeX/2.9/tex/generic/kvsetkeys/kvsetkeys.sty
-Package: kvsetkeys 2019/12/15 v1.18 Key value parser (HO)
-))
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 48
 5.
 Package grfext Info: Graphics extension search list:
@@ -774,39 +1165,58 @@ Package grfext Info: Graphics extension search list:
 ,.JBIG2,.JB2,.eps]
 (grfext)             \AppendGraphicsExtensions on input line 504.
 )
+\c@lstlisting=\count473
+
 Package pgfplots notification 'compat/show suggested version=true': document has
  been generated with the most recent feature set (\pgfplotsset{compat=1.17}).
 
-[1
+Package biblatex Info: Trying to load language 'english'...
+Package biblatex Info: ... file 'english.lbx' found.
+("C:/Program Files/MiKTeX 2.9/tex/latex/biblatex/lbx/english.lbx"
+File: english.lbx 2020/08/23 v3.15a biblatex localization (PK/MW)
+)
+Package biblatex Info: LuaTeX detected.
+(biblatex)             Assuming input encoding 'utf8'.
+Package biblatex Info: Automatic encoding selection.
+(biblatex)             Assuming data encoding 'utf8'.
 
-{C:/Users/oreba/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}] [2]
-(./abstract.tex) [3] (./thesis.toc
-LaTeX Font Info:    Trying to load font information for U+msa on input line 1.
+\openout6 = thesis.bcf
+Package biblatex Info: Trying to load bibliographic data...
+Package biblatex Info: ... file 'thesis.bbl' found.
+
+(./thesis.bbl)
+Package biblatex Info: Reference section=0 on input line 69.
+Package biblatex Info: Reference segment=0 on input line 69.
+ [1
+
+{C:/Users/oreba/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}] [2] (./abst
+ract.tex) [3] (./thesis.toc
+LaTeX Font Info:    Trying to load font information for U+msa on input line 3.
 
 ("C:/Program Files/MiKTeX 2.9/tex/latex/amsfonts/umsa.fd"
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 1.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 3.
 
 ("C:/Program Files/MiKTeX 2.9/tex/latex/amsfonts/umsb.fd"
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ))
-\tf@toc=\write4
+\tf@toc=\write7
 
-\openout4 = thesis.toc
+\openout7 = thesis.toc
  [4
 
 ] (./thesis.lof)
-\tf@lof=\write5
+\tf@lof=\write8
 
-\openout5 = thesis.lof
+\openout8 = thesis.lof
 
 [5
 
 ] (./thesis.lot)
-\tf@lot=\write6
+\tf@lot=\write9
 
-\openout6 = thesis.lot
+\openout9 = thesis.lot
  [6
 
 ] (./chap1.tex
@@ -822,10 +1232,25 @@ Underfull \hbox (badness 10000) in paragraph at lines 15--17
 
 [3
 
-] [4] [5]) (./chap3.tex [6]
+] [4]
+Underfull \hbox (badness 10000) in paragraph at lines 60--62
+
+ []
+
+[5]) (./chap3.tex [6]
 Chapter 3.
 
-Underfull \hbox (badness 10000) in paragraph at lines 23--25
+Underfull \hbox (badness 10000) in paragraph at lines 4--5
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 21--23
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 24--25
 
  []
 
@@ -837,7 +1262,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 29--30
  []
 
 [8]
-Overfull \hbox (46.05936pt too wide) detected at line 49
+Overfull \hbox (46.05936pt too wide) detected at line 50
 \OML/cmm/m/it/12 A[] \OT1/cmr/m/n/12 + \OML/cmm/m/it/12 B[]\OT1/cmr/m/n/12 (\O
 ML/cmm/m/it/12 x[] \OMS/cmsy/m/n/12 ^^@ \OML/cmm/m/it/12  [] \OT1/cmr/m/n/12
  ) + \OML/cmm/m/it/12 C[]\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 y[] \OMS/cmsy/m/n/1
@@ -845,7 +1270,7 @@ ML/cmm/m/it/12 x[] \OMS/cmsy/m/n/12 ^^@ \OML/cmm/m/it/12  [] \OT1/cmr/m/n/12
  []
 
 [9]
-Overfull \hbox (45.66513pt too wide) in paragraph at lines 67--68
+Overfull \hbox (45.66513pt too wide) in paragraph at lines 68--69
 \TU/lmr/m/n/12 per-scripts $\OML/cmm/m/it/12 f[]; f[]; f[]; f[]$ \TU/lmr/m/n/12
  de-note the sam-pled val-ues of $\OML/cmm/m/it/12 f$ \TU/lmr/m/n/12 at $\OT1/c
 mr/m/n/12 (\OML/cmm/m/it/12 x[]; y[]\OT1/cmr/m/n/12 )\OML/cmm/m/it/12 ; \OT1/cm
@@ -855,22 +1280,160 @@ m/n/12 (\OML/cmm/m/it/12 x[]; y[]\OT1/cmr/m/n/12 )$
  []
 
 
-Overfull \hbox (55.60435pt too wide) detected at line 92
+Overfull \hbox (55.60435pt too wide) detected at line 93
 [] \OT1/cmr/m/n/12 = [][] [] [][]
  []
 
 [10] [11]
-Underfull \hbox (badness 10000) in paragraph at lines 131--133
+Underfull \hbox (badness 10000) in paragraph at lines 134--136
 
  []
 
 [12]
-Overfull \hbox (1.44127pt too wide) detected at line 137
+Overfull \hbox (1.44127pt too wide) detected at line 140
 \OML/cmm/m/it/12 D[]\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 x[]; y[]\OT1/cmr/m/n/12 ) = \OML/cmm/m/it/12 a[]b[]T[]\OT1/cmr/m/n/12 (\OMS/cmsy/m/n/12 ^^@\OML/cmm/m/it/12 x[]\OT1/cmr/m/n/12 )\OML/cmm/m/it/12 T[]\OT1/cmr/m/n/12 (\OMS/cmsy/m/n/12 ^^@\OML/cmm/m/it/12 y[]\OT1/cmr/m/n/12 ) = \OML/cmm/m/it/12 a[]b[] [][][] [][][] \OT1/cmr/m/n/12 =
  []
 
 [13] [14] [15]) (./chap4.tex [16]
 Chapter 4.
+[17
+
+]
+\openout3 = thesis.pyg
+
+runsystem(pygmentize -S default -f latex -P commandprefix=PYG > thesis.out.pyg).
+..executed
+ (./thesis.out.pyg)
+runsystem(pygmentize -S default -f latex -P commandprefix=PYGdefault > thesis.ou
+t.pyg)...executed
+ (./thesis.out.pyg)
+runsystem(pygmentize -l C++ -f latex -P commandprefix=PYG -F tokenmerge -o thesi
+s.out.pyg thesis.pyg)...executed
+ (./thesis.out.pyg
+LaTeX Font Info:    Font shape `TU/lmtt/bx/n' in size <10> not available
+(Font)              Font shape `TU/lmtt/b/n' tried instead on input line 2.
+) [18]
+\openout4 = thesis.pyg
+
+runsystem(pygmentize -l C++ -f latex -P commandprefix=PYG -F tokenmerge -o thesi
+s.out.pyg thesis.pyg)...executed
+
+(./thesis.out.pyg)
+\openout4 = thesis.pyg
+
+runsystem(pygmentize -l C++ -f latex -P commandprefix=PYG -F tokenmerge -o thesi
+s.out.pyg thesis.pyg)...executed
+ (./thesis.out.pyg
+LaTeX Font Info:    Font shape `TU/lmtt/bx/n' in size <12> not available
+(Font)              Font shape `TU/lmtt/b/n' tried instead on input line 2.
+)
+\openout4 = thesis.pyg
+
+runsystem(pygmentize -l C++ -f latex -P commandprefix=PYG -F tokenmerge -o thesi
+s.out.pyg thesis.pyg)...executed
+ (./thesis.out.pyg)
+\openout4 = thesis.pyg
+
+runsystem(pygmentize -l C++ -f latex -P commandprefix=PYG -F tokenmerge -o thesi
+s.out.pyg thesis.pyg)...executed
+ (./thesis.out.pyg)
+\openout4 = thesis.pyg
+
+runsystem(pygmentize -l C++ -f latex -P commandprefix=PYG -F tokenmerge -o thesi
+s.out.pyg thesis.pyg)...executed
+
+(./thesis.out.pyg) [19]
+\openout3 = thesis.pyg
+
+runsystem(pygmentize -l C++ -f latex -P commandprefix=PYG -F tokenmerge -o thesi
+s.out.pyg thesis.pyg)...executed
+ (./thesis.out.pyg)
+\openout4 = thesis.pyg
+
+runsystem(pygmentize -l c++ -f latex -P commandprefix=PYG -F tokenmerge -o thesi
+s.out.pyg thesis.pyg)...executed
+ (./thesis.out.pyg)
+\openout4 = thesis.pyg
+
+runsystem(pygmentize -l c++ -f latex -P commandprefix=PYG -F tokenmerge -o thesi
+s.out.pyg thesis.pyg)...executed
+ (./thesis.out.pyg)
+\openout4 = thesis.pyg
+
+runsystem(pygmentize -l C++ -f latex -P commandprefix=PYG -F tokenmerge -o thesi
+s.out.pyg thesis.pyg)...executed
+ (./thesis.out.pyg)
+\openout4 = thesis.pyg
+
+runsystem(pygmentize -l c++ -f latex -P commandprefix=PYG -F tokenmerge -o thesi
+s.out.pyg thesis.pyg)...executed
+ (./thesis.out.pyg)
+Underfull \hbox (badness 10000) in paragraph at lines 83--84
+
+ []
+
+
+\openout4 = thesis.pyg
+runsystem(pygmentize -l C++ -f latex -P commandprefix=PYG -F tokenmerge -o thesi
+s.out.pyg thesis.pyg)...executed
+(./thesis.out.pyg)
+\openout4 = thesis.pyg
+
+runsystem(pygmentize -l C++ -f latex -P commandprefix=PYG -F tokenmerge -o thesi
+s.out.pyg thesis.pyg)...executed
+ (./thesis.out.pyg)
+Overfull \hbox (32.53334pt too wide) in paragraph at lines 2--88
+\TU/lmr/m/n/12 posed are \TU/lmtt/m/n/12 (linearCPU, linearDotProductCPU,bicubic
+CPU, bicubicDotProductCPU,
+ []
+
+
+Overfull \hbox (44.33324pt too wide) in paragraph at lines 2--88
+[]\TU/lmtt/m/n/12 DCTCPUPaddedCalculator2, bicubicDotProductGPU, linearDotProduc
+tGPU,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2--88
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 89--90
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 92--93
+
+ []
+
+
+\openout4 = thesis.pyg
+runsystem(pygmentize -l C++ -f latex -P commandprefix=PYG -F tokenmerge -o thesi
+s.out.pyg thesis.pyg)...executed
+(./thesis.out.pyg)
+\openout4 = thesis.pyg
+
+runsystem(pygmentize -l c++ -f latex -P commandprefix=PYG -F tokenmerge -o thesi
+s.out.pyg thesis.pyg)...executed
+ (./thesis.out.pyg)
+\openout4 = thesis.pyg
+
+runsystem(pygmentize -l C++ -f latex -P commandprefix=PYG -F tokenmerge -o thesi
+s.out.pyg thesis.pyg)...executed
+ (./thesis.out.pyg)
+\openout4 = thesis.pyg
+
+runsystem(pygmentize -l C++ -f latex -P commandprefix=PYG -F tokenmerge -o thesi
+s.out.pyg thesis.pyg)...executed
+ (./thesis.out.pyg)
+Underfull \hbox (badness 10000) in paragraph at lines 96--97
+
+ []
+
+[20]) (./chap5.tex [21]
+Chapter 5.
 
 Underfull \hbox (badness 10000) in paragraph at lines 5--6
 
@@ -880,14 +1443,9 @@ Underfull \hbox (badness 10000) in paragraph at lines 5--6
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[17
+[22
 
-] [18<./thesis-figure0.pdf>]
-Overfull \hbox (2.09663pt too wide) in paragraph at lines 67--68
-\TU/lmr/m/n/12 The bench-marks were run on the NYU Greene su-per-com-put-ing clu
-s-ter around
- []
-
+] [23<./thesis-figure0.pdf>]
 Package epstopdf Info: Source file: <SpeedVsN.eps>
 (epstopdf)                    date: 2021-02-03 05:43:12
 (epstopdf)                    size: 229701 bytes
@@ -896,75 +1454,93 @@ Package epstopdf Info: Source file: <SpeedVsN.eps>
 (epstopdf)                    size: 21787 bytes
 (epstopdf)             Command: <epstopdf --outfile=SpeedVsN-eps-converted-to.pd
 f SpeedVsN.eps>
-(epstopdf)             \includegraphics on input line 76.
+(epstopdf)             \includegraphics on input line 80.
 Package epstopdf Info: Output file is already uptodate.
-<SpeedVsN-eps-converted-to.pdf, id=119, 357.335pt x 398.48875pt>
+<SpeedVsN-eps-converted-to.pdf, id=139, 357.335pt x 398.48875pt>
 File: SpeedVsN-eps-converted-to.pdf Graphic file (type pdf)
 <use SpeedVsN-eps-converted-to.pdf>
-Package luatex.def Info: SpeedVsN-eps-converted-to.pdf  used on input line 76.
+Package luatex.def Info: SpeedVsN-eps-converted-to.pdf  used on input line 80.
 (luatex.def)             Requested size: 357.33412pt x 398.48778pt.
-<ConvergenceAllNew.pdf, id=120, 445.99678pt x 451.07257pt>
+<ConvergenceAllNew.pdf, id=140, 445.99678pt x 451.07257pt>
 File: ConvergenceAllNew.pdf Graphic file (type pdf)
 <use ConvergenceAllNew.pdf>
-Package luatex.def Info: ConvergenceAllNew.pdf  used on input line 81.
+Package luatex.def Info: ConvergenceAllNew.pdf  used on input line 85.
 (luatex.def)             Requested size: 445.99568pt x 451.07147pt.
 
-Overfull \hbox (26.82947pt too wide) in paragraph at lines 81--82
+Overfull \hbox (26.82947pt too wide) in paragraph at lines 85--86
 [][] 
  []
 
-<OptimalAllNew.pdf, id=121, 449.07356pt x 425.41074pt>
+<OptimalAllNew.pdf, id=141, 449.07356pt x 425.41074pt>
 File: OptimalAllNew.pdf Graphic file (type pdf)
 <use OptimalAllNew.pdf>
-Package luatex.def Info: OptimalAllNew.pdf  used on input line 85.
+Package luatex.def Info: OptimalAllNew.pdf  used on input line 89.
 (luatex.def)             Requested size: 449.07245pt x 425.4097pt.
 
-Overfull \hbox (29.90623pt too wide) in paragraph at lines 85--86
+Overfull \hbox (29.90623pt too wide) in paragraph at lines 89--90
 [][] 
  []
 
-) (./app1.tex [19] [20<./SpeedVsN-eps-converted-to.pdf>] [21<./ConvergenceAllNew
-.pdf>] [22<./OptimalAllNew.pdf>]
-Appendix A.
-) (./biblio.tex [23
+<GPUAccel.pdf, id=142, 439.80858pt x 439.80858pt>
+File: GPUAccel.pdf Graphic file (type pdf)
+<use GPUAccel.pdf>
+Package luatex.def Info: GPUAccel.pdf  used on input line 93.
+(luatex.def)             Requested size: 439.8075pt x 439.8075pt.
 
-]) [24
+Overfull \hbox (20.64128pt too wide) in paragraph at lines 93--94
+[][] 
+ []
 
-] (./thesis.aux)
+[24] [25<./SpeedVsN-eps-converted-to.pdf>] [26<./ConvergenceAllNew.pdf>]
+[27<./OptimalAllNew.pdf>] [28<./GPUAccel.pdf>]) (./chap6.tex [29]
+Chapter 6.
+[30
 
-LaTeX Warning: There were multiply-defined labels.
+]) (./biblio.tex [31] [32
 
+]) [33] (./thesis.aux)
+runsystem(del thesis.pyg)...executed
+runsystem(del thesis.out.pyg)...executed
+Package logreq Info: Writing requests to 'thesis.run.xml'.
+
+\openout1 = thesis.run.xml
 )
 
 Here is how much of LuaTeX's memory you used:
- 26460 strings out of 479005
- 100000,1144653 words of node,token memory allocated
- 743 words of node memory still in use:
+ 38168 strings out of 479005
+ 125176,1977958 words of node,token memory allocated
+ 833 words of node memory still in use:
    6 hlist, 2 vlist, 2 rule, 2 glue, 4 kern, 1 sub_mlist, 1 glyph, 68 attribute,
- 53 glue_spec, 68 attribute_list, 2 write nodes
-   avail lists: 2:531,3:194,4:72,5:509,6:46,7:6470,8:83,9:816,10:20,11:612
- 44882 multiletter control sequences out of 65536+200000
- 56 fonts using 5878443 bytes
- 89i,7n,138p,835b,326s stack positions out of 5000i,500n,10000p,200000b,50000s
-<//?/c:/program files/miktex 2.9/fonts/opentype/public/lm/lmroman12-italic.otf><
-//?/c:/program files/miktex 2.9/fonts/opentype/public/lm/lmroman12-regular.otf><
-//?/c:/program files/miktex 2.9/fonts/opentype/public/lm/lmroman12-bold.otf><C:/
-Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Program F
-iles/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx8.pfb><C:/Program Files/MiKTe
-X 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Program Files/MiKTeX 2.9/fon
-ts/type1/public/amsfonts/cm/cmmi12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/
-public/amsfonts/cm/cmmi6.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/ams
-fonts/cm/cmmi8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/c
-mr12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr6.pfb><C
-:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Program F
-iles/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files/MiKT
-eX 2.9/fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Program Files/MiKTeX 2.9/fon
-ts/type1/public/amsfonts/cm/cmsy8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/p
-ublic/amsfonts/symbols/msam10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/publi
-c/amsfonts/symbols/msbm10.pfb>
-Output written on thesis.pdf (30 pages, 845805 bytes).
+ 71 glue_spec, 68 attribute_list, 2 write nodes
+   avail lists: 2:989,3:293,4:285,5:515,6:74,7:6385,8:83,9:818,10:20,11:528
+ 56050 multiletter control sequences out of 65536+200000
+ 64 fonts using 6897611 bytes
+ 89i,7n,138p,1311b,1236s stack positions out of 5000i,500n,10000p,200000b,50000s
+<//?/c:/program files/miktex 2.9/fonts/opentype/public/lm/lmromancaps10-regular.
+otf><//?/c:/program files/miktex 2.9/fonts/opentype/public/lm/lmmono12-regular.o
+tf><//?/c:/program files/miktex 2.9/fonts/opentype/public/lm/lmmono10-italic.otf
+><//?/c:/program files/miktex 2.9/fonts/opentype/public/lm/lmmono10-regular.otf>
+<//?/c:/program files/miktex 2.9/fonts/opentype/public/lm/lmmonolt10-bold.otf></
+/?/c:/program files/miktex 2.9/fonts/opentype/public/lm/lmroman6-regular.otf><//
+?/c:/program files/miktex 2.9/fonts/opentype/public/lm/lmroman12-italic.otf><//?
+/c:/program files/miktex 2.9/fonts/opentype/public/lm/lmroman12-regular.otf><//?
+/c:/program files/miktex 2.9/fonts/opentype/public/lm/lmroman12-bold.otf><C:/Pro
+gram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Program File
+s/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx8.pfb><C:/Program Files/MiKTeX 2
+.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Program Files/MiKTeX 2.9/fonts/
+type1/public/amsfonts/cm/cmmi12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/pub
+lic/amsfonts/cm/cmmi6.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfon
+ts/cm/cmmi8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr1
+2.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr6.pfb><C:/P
+rogram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Program File
+s/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files/MiKTeX 
+2.9/fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Program Files/MiKTeX 2.9/fonts/
+type1/public/amsfonts/cm/cmsy8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/publ
+ic/amsfonts/symbols/msam10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/a
+msfonts/symbols/msbm10.pfb>
+Output written on thesis.pdf (39 pages, 1039815 bytes).
 
-PDF statistics: 271 PDF objects out of 1000 (max. 8388607)
+PDF statistics: 366 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 131072)
  16 words of extra memory for PDF output out of 10000 (max. 100000000)
 

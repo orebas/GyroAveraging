@@ -1,0 +1,498 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.1 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{nty/global//global/global}
+    \entry{wikipediaBesselFunction}{inreference}{}
+      \field{sortinit}{B}
+      \field{sortinithash}{8de16967003c7207dae369d874f1456e}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Bessel functions, first defined by the mathematician Daniel Bernoulli and then generalized by Friedrich Bessel, are canonical solutions y(x) of Bessel's differential equation x 2 d 2 y d x 2 + x d y d x + ( x 2 − α 2 ) y = 0 \{\textbackslash displaystyle x\^\{2\}\{\textbackslash frac \{d\^\{2\}y\}\{dx\^\{2\}\}\}+x\{\textbackslash frac \{dy\}\{dx\}\}+\textbackslash left(x\^\{2\}-\textbackslash alpha \^\{2\}\textbackslash right)y=0\} for an arbitrary complex number α, the order of the Bessel function. Although α and −α produce the same differential equation, it is conventional to define different Bessel functions for these two values in such a way that the Bessel functions are mostly smooth functions of α. The most important cases are when α is an integer or half-integer. Bessel functions for integer α are also known as cylinder functions or the cylindrical harmonics because they appear in the solution to Laplace's equation in cylindrical coordinates. Spherical Bessel functions with half-integer α are obtained when the Helmholtz equation is solved in spherical coordinates.}
+      \field{annotation}{Page Version ID: 1005618018}
+      \field{booktitle}{Wikipedia}
+      \field{day}{8}
+      \field{hour}{16}
+      \field{langid}{english}
+      \field{minute}{36}
+      \field{month}{2}
+      \field{second}{55}
+      \field{timezone}{Z}
+      \field{title}{Bessel Function}
+      \field{urlday}{15}
+      \field{urlmonth}{2}
+      \field{urlyear}{2021}
+      \field{year}{2021}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb C\:\\Users\\oreba\\Zotero\\storage\\2YC4Z6H9\\index.html
+      \endverb
+      \verb{urlraw}
+      \verb https://en.wikipedia.org/w/index.php?title=Bessel_function&oldid=1005618018
+      \endverb
+      \verb{url}
+      \verb https://en.wikipedia.org/w/index.php?title=Bessel_function&oldid=1005618018
+      \endverb
+    \endentry
+    \entry{NIST:DLMF}{article}{}
+      \field{sortinit}{D}
+      \field{sortinithash}{c438b3d5d027251ba63f5ed538d98af5}
+      \field{labeltitlesource}{title}
+      \field{title}{{{NIST}} Digital Library of Mathematical Functions}
+      \verb{urlraw}
+      \verb http://dlmf.nist.gov/, Release 1.1.0 of 2020-12-15
+      \endverb
+      \verb{url}
+      \verb http://dlmf.nist.gov/,%20Release%201.1.0%20of%202020-12-15
+      \endverb
+    \endentry
+    \entry{gorner2015}{article}{}
+      \name{author}{3}{}{%
+        {{hash=97ec2bd0aa4dd003498fd5e2cb54de3f}{%
+           family={Dong},
+           familyi={D\bibinitperiod},
+           given={Yiqiu},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=e67da8bcd75caf95a160f9fe9873982a}{%
+           family={Görner},
+           familyi={G\bibinitperiod},
+           given={Torsten},
+           giveni={T\bibinitperiod}}}%
+        {{hash=a4a03360db56380264153114ae28441a}{%
+           family={Kunis},
+           familyi={K\bibinitperiod},
+           given={Stefan},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{72e2beed0b0eb0db6d596e6f152ac6ab}
+      \strng{fullhash}{72e2beed0b0eb0db6d596e6f152ac6ab}
+      \strng{bibnamehash}{72e2beed0b0eb0db6d596e6f152ac6ab}
+      \strng{authorbibnamehash}{72e2beed0b0eb0db6d596e6f152ac6ab}
+      \strng{authornamehash}{72e2beed0b0eb0db6d596e6f152ac6ab}
+      \strng{authorfullhash}{72e2beed0b0eb0db6d596e6f152ac6ab}
+      \field{sortinit}{D}
+      \field{sortinithash}{c438b3d5d027251ba63f5ed538d98af5}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Recovery of image data from photoacoustic measurements asks for the inversion of the spherical mean value operator. In contrast to direct inversion methods for specific geometries, we consider a semismooth Newton scheme to solve a total variation regularized least squares problem. During the iteration, each matrix vector multiplication is realized in an efficient way using a recently proposed spectral discretization of the spherical mean value operator. All theoretical results are illustrated by numerical experiments.}
+      \field{issn}{1019-7168, 1572-9044}
+      \field{journaltitle}{Advances in Computational Mathematics}
+      \field{langid}{english}
+      \field{month}{4}
+      \field{number}{2}
+      \field{shortjournal}{Adv Comput Math}
+      \field{title}{An Algorithm for Total Variation Regularized Photoacoustic Imaging}
+      \field{urlday}{11}
+      \field{urlmonth}{2}
+      \field{urlyear}{2021}
+      \field{volume}{41}
+      \field{year}{2015}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{423\bibrangedash 438}
+      \range{pages}{16}
+      \verb{doi}
+      \verb 10.1007/s10444-014-9364-1
+      \endverb
+      \verb{file}
+      \verb C\:\\Users\\oreba\\Zotero\\storage\\Y9AEG72F\\Dong et al. - 2015 - An algorithm for total variation regularized photo.pdf
+      \endverb
+      \verb{urlraw}
+      \verb http://link.springer.com/10.1007/s10444-014-9364-1
+      \endverb
+      \verb{url}
+      \verb http://link.springer.com/10.1007/s10444-014-9364-1
+      \endverb
+    \endentry
+    \entry{evansPDE}{book}{}
+      \name{author}{1}{}{%
+        {{hash=5e5fea7ab96d885307bfecd988615c54}{%
+           family={Evan},
+           familyi={E\bibinitperiod},
+           given={Lawrence\bibnamedelima C.},
+           giveni={L\bibinitperiod\bibinitdelim C\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {AMS,2010.}%
+      }
+      \strng{namehash}{5e5fea7ab96d885307bfecd988615c54}
+      \strng{fullhash}{5e5fea7ab96d885307bfecd988615c54}
+      \strng{bibnamehash}{5e5fea7ab96d885307bfecd988615c54}
+      \strng{authorbibnamehash}{5e5fea7ab96d885307bfecd988615c54}
+      \strng{authornamehash}{5e5fea7ab96d885307bfecd988615c54}
+      \strng{authorfullhash}{5e5fea7ab96d885307bfecd988615c54}
+      \field{sortinit}{E}
+      \field{sortinithash}{c554bd1a0b76ea92b9f105fe36d9c7b0}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Partial Differential EquationsLawrence C. Evans}
+      \field{day}{1}
+      \field{month}{1}
+      \field{title}{Partial {{Differential Equations}} by {{Lawrence C}}. {{Evans}}}
+      \field{year}{2010}
+      \field{dateera}{ce}
+    \endentry
+    \entry{gorner2012}{article}{}
+      \name{author}{3}{}{%
+        {{hash=e67da8bcd75caf95a160f9fe9873982a}{%
+           family={Görner},
+           familyi={G\bibinitperiod},
+           given={Torsten},
+           giveni={T\bibinitperiod}}}%
+        {{hash=3f4d5040d2f4979b5a24918a6743ecf0}{%
+           family={Hielscher},
+           familyi={H\bibinitperiod},
+           given={Ralf},
+           giveni={R\bibinitperiod}}}%
+        {{hash=a4a03360db56380264153114ae28441a}{%
+           family={Kunis},
+           familyi={K\bibinitperiod},
+           given={Stefan},
+           giveni={S\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {American Institute of Mathematical Sciences}%
+      }
+      \strng{namehash}{7d2d5e2b740ee8e490dc73cbbc76351a}
+      \strng{fullhash}{7d2d5e2b740ee8e490dc73cbbc76351a}
+      \strng{bibnamehash}{7d2d5e2b740ee8e490dc73cbbc76351a}
+      \strng{authorbibnamehash}{7d2d5e2b740ee8e490dc73cbbc76351a}
+      \strng{authornamehash}{7d2d5e2b740ee8e490dc73cbbc76351a}
+      \strng{authorfullhash}{7d2d5e2b740ee8e490dc73cbbc76351a}
+      \field{sortinit}{G}
+      \field{sortinithash}{62eb2aa29549e4fdbd3cb154ec5711cb}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Spherical means are a widespread model in modern imaging modalities like photoacoustic tomography. Besides direct inversion methods for specific geometries, iterative methods are often used as reconstruction scheme such that each iteration asks for the efficient and accurate computation of spherical means. We consider a spectral discretization via trigonometric polynomials such that the computation can be done via nonequispaced fast Fourier transforms. Moreover, a recently developed sparse fast Fourier transform is used in the three dimensional case and gives optimal arithmetic complexity. All theoretical results are illustrated by numerical experiments.}
+      \field{journaltitle}{Inverse Problems \& Imaging}
+      \field{langid}{english}
+      \field{number}{4}
+      \field{title}{Efficient and Accurate Computation of Spherical Mean Values at Scattered Center Points}
+      \field{urlday}{11}
+      \field{urlmonth}{2}
+      \field{urlyear}{2021}
+      \field{volume}{6}
+      \field{year}{2012}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{645}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.3934/ipi.2012.6.645
+      \endverb
+      \verb{file}
+      \verb C\:\\Users\\oreba\\Zotero\\storage\\7E7QL5A8\\Görner et al. - 2012 - Efficient and accurate computation of spherical me.pdf;C\:\\Users\\oreba\\Zotero\\storage\\8XZSNF8E\\Görner et al. - 2012 - Efficient and accurate computation of spherical me.pdf;C\:\\Users\\oreba\\Zotero\\storage\\WCM834GB\\Görner et al. - 2012 - Efficient and accurate computation of spherical me.pdf;C\:\\Users\\oreba\\Zotero\\storage\\Y9YBJ482\\noLoginPage.html
+      \endverb
+      \verb{urlraw}
+      \verb https://www.aimsciences.org/article/doi/10.3934/ipi.2012.6.645
+      \endverb
+      \verb{url}
+      \verb https://www.aimsciences.org/article/doi/10.3934/ipi.2012.6.645
+      \endverb
+    \endentry
+    \entry{guadagniThesis}{online}{}
+      \name{author}{2}{}{%
+        {{hash=33067c62b7624aba8d77371257790461}{%
+           family={Guadagni},
+           familyi={G\bibinitperiod},
+           given={Joseph},
+           giveni={J\bibinitperiod}}}%
+        {{hash=7a1a49975d82778c47d1c3506cfc9eac}{%
+           family={Cerfon},
+           familyi={C\bibinitperiod},
+           given={Antoine\bibnamedelima J.},
+           giveni={A\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+      }
+      \strng{namehash}{5dfa00166916215ec929dd441b9525f5}
+      \strng{fullhash}{5dfa00166916215ec929dd441b9525f5}
+      \strng{bibnamehash}{5dfa00166916215ec929dd441b9525f5}
+      \strng{authorbibnamehash}{5dfa00166916215ec929dd441b9525f5}
+      \strng{authornamehash}{5dfa00166916215ec929dd441b9525f5}
+      \strng{authorfullhash}{5dfa00166916215ec929dd441b9525f5}
+      \field{sortinit}{G}
+      \field{sortinithash}{62eb2aa29549e4fdbd3cb154ec5711cb}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{We present a fast and spectrally accurate numerical scheme for the evaluation of the gyroaveraged electrostatic potential in non-periodic gyrokinetic-Poisson simulations. Our method relies on a reformulation of the gyrokinetic-Poisson system in which the gyroaverage in Poisson's equation is computed for the compactly supported charge density instead of the non-periodic, non-compactly supported potential itself. We calculate this gyroaverage with a combination of two Fourier transforms and a Hankel transform, which has the near optimal run time complexity \$O(N\_\{\textbackslash rho\}(P+\textbackslash hat\{P\})\textbackslash log(P+\textbackslash hat\{P\}))\$, where \$P\$ is the number of spatial grid points, \$\textbackslash hat\{P\}\$ the number of grid points in Fourier space, and \$N\_\{\textbackslash rho\}\$ the number of grid points in velocity space. We present numerical examples illustrating the performance of our code and demonstrating geometric convergence of the error.}
+      \field{day}{5}
+      \field{eprintclass}{physics}
+      \field{eprinttype}{arxiv}
+      \field{month}{7}
+      \field{title}{Fast and Spectrally Accurate Evaluation of Gyroaverages in Non-Periodic Gyrokinetic-{{Poisson}} Simulations}
+      \field{urlday}{11}
+      \field{urlmonth}{2}
+      \field{urlyear}{2021}
+      \field{year}{2017}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{eprint}
+      \verb 1707.01260
+      \endverb
+      \verb{file}
+      \verb C\:\\Users\\oreba\\Zotero\\storage\\AVJKKDRJ\\Guadagni and Cerfon - 2017 - Fast and spectrally accurate evaluation of gyroave.pdf;C\:\\Users\\oreba\\Zotero\\storage\\D6RKZ68F\\1707.html
+      \endverb
+      \verb{urlraw}
+      \verb http://arxiv.org/abs/1707.01260
+      \endverb
+      \verb{url}
+      \verb http://arxiv.org/abs/1707.01260
+      \endverb
+      \keyw{Physics - Computational Physics,Physics - Plasma Physics}
+    \endentry
+    \entry{masonCheb}{book}{}
+      \name{author}{2}{}{%
+        {{hash=46408d4d28c80bbcff2d4f7b08af2ab6}{%
+           family={Mason},
+           familyi={M\bibinitperiod},
+           given={J.\bibnamedelimi C.},
+           giveni={J\bibinitperiod\bibinitdelim C\bibinitperiod}}}%
+        {{hash=8ac5edb8e3eb3f72ddf6e86e2b780817}{%
+           family={Handscomb},
+           familyi={H\bibinitperiod},
+           given={David\bibnamedelima C.},
+           giveni={D\bibinitperiod\bibinitdelim C\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Boca Raton, Fla}%
+      }
+      \list{publisher}{1}{%
+        {Chapman and Hall/CRC}%
+      }
+      \strng{namehash}{78ed60cb3c6c2d4b1486a46bcb073102}
+      \strng{fullhash}{78ed60cb3c6c2d4b1486a46bcb073102}
+      \strng{bibnamehash}{78ed60cb3c6c2d4b1486a46bcb073102}
+      \strng{authorbibnamehash}{78ed60cb3c6c2d4b1486a46bcb073102}
+      \strng{authornamehash}{78ed60cb3c6c2d4b1486a46bcb073102}
+      \strng{authorfullhash}{78ed60cb3c6c2d4b1486a46bcb073102}
+      \field{sortinit}{M}
+      \field{sortinithash}{2e5c2f51f7fa2d957f3206819bf86dc3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Chebyshev polynomials crop up in virtually every area of numerical analysis, and they hold particular importance in recent advances in subjects such as orthogonal polynomials, polynomial approximation, numerical integration, and spectral methods. Yet no book dedicated to Chebyshev polynomials has been published since 1990, and even that work focused primarily on the theoretical aspects. A broad, up-to-date treatment is long overdue.Providing highly readable exposition on the subject's state of the art, Chebyshev Polynomials is just such a treatment. It includes rigorous yet down-to-earth coverage of the theory along with an in-depth look at the properties of all four kinds of Chebyshev polynomials-properties that lead to a range of results in areas such as approximation, series expansions, interpolation, quadrature, and integral equations. Problems in each chapter, ranging in difficulty from elementary to quite advanced, reinforce the concepts and methods presented.Far from being an esoteric subject, Chebyshev polynomials lead one on a journey through all areas of numerical analysis. This book is the ideal vehicle with which to begin this journey and one that will also serve as a standard reference for many years to come.}
+      \field{day}{17}
+      \field{edition}{1st edition}
+      \field{isbn}{978-0-8493-0355-5}
+      \field{langid}{english}
+      \field{month}{9}
+      \field{title}{Chebyshev {{Polynomials}}}
+      \field{year}{2002}
+      \field{dateera}{ce}
+    \endentry
+    \entry{rivlinCheb}{book}{}
+      \name{author}{1}{}{%
+        {{hash=f3e4755c5ddde84a0399f493d1a5939c}{%
+           family={Rivlin},
+           familyi={R\bibinitperiod},
+           given={Theodore\bibnamedelima J.},
+           giveni={T\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {New York}%
+      }
+      \list{publisher}{1}{%
+        {Wiley-Interscience}%
+      }
+      \strng{namehash}{f3e4755c5ddde84a0399f493d1a5939c}
+      \strng{fullhash}{f3e4755c5ddde84a0399f493d1a5939c}
+      \strng{bibnamehash}{f3e4755c5ddde84a0399f493d1a5939c}
+      \strng{authorbibnamehash}{f3e4755c5ddde84a0399f493d1a5939c}
+      \strng{authornamehash}{f3e4755c5ddde84a0399f493d1a5939c}
+      \strng{authorfullhash}{f3e4755c5ddde84a0399f493d1a5939c}
+      \field{sortinit}{R}
+      \field{sortinithash}{b9c68a358aea118dfa887b6e902414a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{This Secodnd Edition continues the fine tradition of its predecessor by surveying the most important properties of the Chebyshev polynomials and introducing mathematical analysis. New to this edition are approximately 80 exercises and a chapter which introduces some elementary algebraic and number theoretic properties of the Chebyshev polynomials. Additional coverage focuses on extremal and iterative properties.}
+      \field{day}{1}
+      \field{edition}{2nd edition}
+      \field{isbn}{978-0-471-62896-5}
+      \field{langid}{english}
+      \field{month}{6}
+      \field{pagetotal}{249}
+      \field{shorttitle}{Chebyshev {{Polynomials}}}
+      \field{title}{Chebyshev {{Polynomials}}: {{From Approximation Theory}} to {{Algebra}} and {{Number Theory}}}
+      \field{year}{1990}
+      \field{dateera}{ce}
+    \endentry
+    \entry{chebfun2}{article}{}
+      \name{author}{2}{}{%
+        {{hash=1e1c35e12ba2721c4b022a82d9f2d8dc}{%
+           family={Townsend},
+           familyi={T\bibinitperiod},
+           given={Alex},
+           giveni={A\bibinitperiod}}}%
+        {{hash=e3376455eaec77b00950a1dc9ce095f5}{%
+           family={Trefethen},
+           familyi={T\bibinitperiod},
+           given={Lloyd\bibnamedelima N.},
+           giveni={L\bibinitperiod\bibinitdelim N\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Society for Industrial and Applied Mathematics}%
+      }
+      \strng{namehash}{d725d970b1e440dba8be0820c45ce50b}
+      \strng{fullhash}{d725d970b1e440dba8be0820c45ce50b}
+      \strng{bibnamehash}{d725d970b1e440dba8be0820c45ce50b}
+      \strng{authorbibnamehash}{d725d970b1e440dba8be0820c45ce50b}
+      \strng{authornamehash}{d725d970b1e440dba8be0820c45ce50b}
+      \strng{authorfullhash}{d725d970b1e440dba8be0820c45ce50b}
+      \field{sortinit}{T}
+      \field{sortinithash}{51f9faf24c60c62ca764a77f78cf5666}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{An object-oriented MATLAB system is described that extends the capabilities of Chebfun to smooth functions of two variables defined on rectangles. Functions are approximated to essentially machine precision by using iterative Gaussian elimination with complete pivoting to form “chebfun2” objects representing low rank approximations. Operations such as integration, differentiation, function evaluation, and transforms are particularly efficient. Global optimization, the singular value decomposition, and rootfinding are also extended to chebfun2 objects. Numerical applications are presented.}
+      \field{day}{1}
+      \field{issn}{1064-8275}
+      \field{journaltitle}{SIAM Journal on Scientific Computing}
+      \field{month}{1}
+      \field{number}{6}
+      \field{shortjournal}{SIAM J. Sci. Comput.}
+      \field{title}{An {{Extension}} of {{Chebfun}} to {{Two Dimensions}}}
+      \field{urlday}{17}
+      \field{urlmonth}{2}
+      \field{urlyear}{2021}
+      \field{volume}{35}
+      \field{year}{2013}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{C495\bibrangedash C518}
+      \range{pages}{-1}
+      \verb{doi}
+      \verb 10.1137/130908002
+      \endverb
+      \verb{file}
+      \verb C\:\\Users\\oreba\\Zotero\\storage\\U2T8KRDI\\Townsend and Trefethen - 2013 - An Extension of Chebfun to Two Dimensions.pdf;C\:\\Users\\oreba\\Zotero\\storage\\R9225SDG\\130908002.html
+      \endverb
+      \verb{urlraw}
+      \verb https://epubs.siam.org/doi/10.1137/130908002
+      \endverb
+      \verb{url}
+      \verb https://epubs.siam.org/doi/10.1137/130908002
+      \endverb
+    \endentry
+    \entry{trefethenATAP}{book}{}
+      \name{author}{1}{}{%
+        {{hash=e3376455eaec77b00950a1dc9ce095f5}{%
+           family={Trefethen},
+           familyi={T\bibinitperiod},
+           given={Lloyd\bibnamedelima N.},
+           giveni={L\bibinitperiod\bibinitdelim N\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Society for Industrial and Applied Mathematics}%
+      }
+      \strng{namehash}{e3376455eaec77b00950a1dc9ce095f5}
+      \strng{fullhash}{e3376455eaec77b00950a1dc9ce095f5}
+      \strng{bibnamehash}{e3376455eaec77b00950a1dc9ce095f5}
+      \strng{authorbibnamehash}{e3376455eaec77b00950a1dc9ce095f5}
+      \strng{authornamehash}{e3376455eaec77b00950a1dc9ce095f5}
+      \strng{authorfullhash}{e3376455eaec77b00950a1dc9ce095f5}
+      \field{sortinit}{T}
+      \field{sortinithash}{51f9faf24c60c62ca764a77f78cf5666}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Approximation Theory and Approximation Practice (“ATAP”), originally published in 2013, concerns approximation of nonperiodic functions on the interval [−1, 1], the Chebyshev setting of constructive analysis. But this is just one of three essentially equivalent situations: Chebyshev, for nonperiodic functions of x, ε [−1, 1], Fourier, for periodic functions of θ ε [−π, π], Laurent/Taylor, for functions of z on the unit circle |z| = 1.}
+      \field{day}{1}
+      \field{isbn}{978-1-61197-593-2}
+      \field{month}{1}
+      \field{pagetotal}{364}
+      \field{series}{Other {{Titles}} in {{Applied Mathematics}}}
+      \field{title}{Approximation {{Theory}} and {{Approximation Practice}}, {{Extended Edition}}}
+      \field{urlday}{11}
+      \field{urlmonth}{2}
+      \field{urlyear}{2021}
+      \field{year}{2019}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{doi}
+      \verb 10.1137/1.9781611975949
+      \endverb
+      \verb{file}
+      \verb C\:\\Users\\oreba\\Zotero\\storage\\NGPNLIK8\\1.html
+      \endverb
+      \verb{urlraw}
+      \verb https://epubs.siam.org/doi/book/10.1137/1.9781611975949
+      \endverb
+      \verb{url}
+      \verb https://epubs.siam.org/doi/book/10.1137/1.9781611975949
+      \endverb
+    \endentry
+    \entry{vicoFast}{article}{}
+      \name{author}{3}{}{%
+        {{hash=6acd58259e84a59730baaa635520224f}{%
+           family={Vico},
+           familyi={V\bibinitperiod},
+           given={Felipe},
+           giveni={F\bibinitperiod}}}%
+        {{hash=8c77ca7fd95c56a0c41ce2aba4b7f130}{%
+           family={Greengard},
+           familyi={G\bibinitperiod},
+           given={Leslie},
+           giveni={L\bibinitperiod}}}%
+        {{hash=cd55cac9d12ac36002de3cfb10b99647}{%
+           family={Ferrando},
+           familyi={F\bibinitperiod},
+           given={Miguel},
+           giveni={M\bibinitperiod}}}%
+      }
+      \strng{namehash}{b21d44a6814a7762138d65b84bb874d2}
+      \strng{fullhash}{b21d44a6814a7762138d65b84bb874d2}
+      \strng{bibnamehash}{b21d44a6814a7762138d65b84bb874d2}
+      \strng{authorbibnamehash}{b21d44a6814a7762138d65b84bb874d2}
+      \strng{authornamehash}{b21d44a6814a7762138d65b84bb874d2}
+      \strng{authorfullhash}{b21d44a6814a7762138d65b84bb874d2}
+      \field{sortinit}{V}
+      \field{sortinithash}{02432525618c08e2b03cac47c19764af}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{We introduce a fast algorithm for computing volume potentials – that is, the convolution of a translation invariant, free-space Green's function with a compactly supported source distribution defined on a uniform grid. The algorithm relies on regularizing the Fourier transform of the Green's function by cutting off the interaction in physical space beyond the domain of interest. This permits the straightforward application of trapezoidal quadrature and the standard FFT, with superalgebraic convergence for smooth data. Moreover, the method can be interpreted as employing a Nystrom discretization of the corresponding integral operator, with matrix entries which can be obtained explicitly and rapidly. This is of use in the design of preconditioners or fast direct solvers for a variety of volume integral equations. The method proposed permits the computation of any derivative of the potential, at the cost of an additional FFT.}
+      \field{day}{15}
+      \field{issn}{0021-9991}
+      \field{journaltitle}{Journal of Computational Physics}
+      \field{langid}{english}
+      \field{month}{10}
+      \field{shortjournal}{Journal of Computational Physics}
+      \field{title}{Fast Convolution with Free-Space {{Green}}'s Functions}
+      \field{urlday}{17}
+      \field{urlmonth}{2}
+      \field{urlyear}{2021}
+      \field{volume}{323}
+      \field{year}{2016}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{191\bibrangedash 203}
+      \range{pages}{13}
+      \verb{doi}
+      \verb 10.1016/j.jcp.2016.07.028
+      \endverb
+      \verb{file}
+      \verb C\:\\Users\\oreba\\Zotero\\storage\\GN4JLAEW\\Vico et al. - 2016 - Fast convolution with free-space Green's functions.pdf;C\:\\Users\\oreba\\Zotero\\storage\\T8LYP6BG\\S0021999116303230.html
+      \endverb
+      \verb{urlraw}
+      \verb https://www.sciencedirect.com/science/article/pii/S0021999116303230
+      \endverb
+      \verb{url}
+      \verb https://www.sciencedirect.com/science/article/pii/S0021999116303230
+      \endverb
+      \keyw{Convolution,FFT,Free space,Green's function,Volume potential}
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+

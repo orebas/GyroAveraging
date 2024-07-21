@@ -1,27 +1,65 @@
+\boolfalse {citerequest}\boolfalse {citetracker}\boolfalse {pagetracker}\boolfalse {backtracker}\relax 
+\defcounter {refsection}{0}\relax 
 \contentsline {section}{Abstract}{iii}{}%
+\defcounter {refsection}{0}\relax 
 \contentsline {section}{List of Figures}{v}{}%
+\defcounter {refsection}{0}\relax 
 \contentsline {section}{List of Tables}{vi}{}%
+\defcounter {refsection}{0}\relax 
 \contentsline {chapter}{\numberline {1}Introduction}{1}{}%
+\defcounter {refsection}{0}\relax 
 \contentsline {section}{\numberline {1.1}Background}{1}{}%
+\defcounter {refsection}{0}\relax 
 \contentsline {section}{\numberline {1.2}Outline}{2}{}%
+\defcounter {refsection}{0}\relax 
 \contentsline {chapter}{\numberline {2}Background}{3}{}%
+\defcounter {refsection}{0}\relax 
 \contentsline {section}{\numberline {2.1}Harmonic Analysis}{3}{}%
+\defcounter {refsection}{0}\relax 
 \contentsline {section}{\numberline {2.2}Harmonic Analysis of the Spherical Mean }{4}{}%
+\defcounter {refsection}{0}\relax 
 \contentsline {section}{\numberline {2.3}Chebyshev Approximation}{5}{}%
+\defcounter {refsection}{0}\relax 
 \contentsline {chapter}{\numberline {3}Four discretizations}{7}{}%
+\defcounter {refsection}{0}\relax 
 \contentsline {section}{\numberline {3.1}Defining the problem}{7}{}%
+\defcounter {refsection}{0}\relax 
 \contentsline {section}{\numberline {3.2}Bilinear interpolation}{8}{}%
+\defcounter {refsection}{0}\relax 
 \contentsline {section}{\numberline {3.3}Bicubic Interpolation}{10}{}%
+\defcounter {refsection}{0}\relax 
 \contentsline {subsection}{\numberline {3.3.1}Interpolation formula}{10}{}%
+\defcounter {refsection}{0}\relax 
 \contentsline {subsection}{\numberline {3.3.2}Bicubic interpolation: Precomputed matrix}{10}{}%
+\defcounter {refsection}{0}\relax 
 \contentsline {subsection}{\numberline {3.3.3}Bicubic Interpolation: Gyroaveraging}{11}{}%
+\defcounter {refsection}{0}\relax 
 \contentsline {section}{\numberline {3.4}Fourier transform based gyroaveraging}{11}{}%
+\defcounter {refsection}{0}\relax 
 \contentsline {section}{\numberline {3.5}Chebyshev Spectral gyroaveraging}{12}{}%
-\contentsline {subsection}{\numberline {3.5.1}Dense Chebyshev gyroaveraging matrix: Precomputation}{14}{}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.5.1}Dense Chebyshev gyroaveraging matrix: Precomputation }{14}{}%
+\defcounter {refsection}{0}\relax 
 \contentsline {subsection}{\numberline {3.5.2}Chebyshev gyroaveraging: Algorithm }{15}{}%
-\contentsline {chapter}{\numberline {4}Numerical Results}{17}{}%
-\contentsline {section}{\numberline {4.1}Gallery of test functions}{17}{}%
-\contentsline {section}{\numberline {4.2}Testing environment and setup}{18}{}%
-\contentsline {section}{\numberline {4.3}Performance and Convergence Plots}{19}{}%
-\contentsline {chapter}{\numberline {A}One more comment}{23}{}%
-\contentsline {chapter}{Bibliography}{24}{}%
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{\numberline {4}Design Considerations}{17}{}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {4.1}Objectives}{17}{}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {4.2}Design decisions}{17}{}%
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{\numberline {5}Numerical Results}{22}{}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {5.1}Gallery of test functions}{22}{}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {5.2}Testing environment and setup}{23}{}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {5.3}Performance and Convergence Plots}{24}{}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {5.4}Discussion of numerical results}{24}{}%
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{\numberline {6}Conclusion}{30}{}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {6.1}Proof of concept}{30}{}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {6.2}Further development}{30}{}%
