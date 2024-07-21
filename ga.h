@@ -51,6 +51,12 @@ namespace OOGA {
 struct gridDomain {
     using RealT = double;
     RealT xmin = 0, xmax = 0, ymin = 0, ymax = 0, rhomin = 0, rhomax = 0;
+    gridDomain(double rmin = 0, double rmax = 0) {
+        xmin = ymin = -1;
+        xmax = ymax = 1;
+        rhomax = rmax;
+        rhomin = rmin;
+    }
 };
 
 struct fileCache {
@@ -442,6 +448,16 @@ class functionGrid {
         std::sort(rhoset.begin(), rhoset.end());
     }
 
+    functionGrid(const gridDomain &g, int rc, int discretizationN, bool cheb = false)
+        : xcount(discretizationN), ycount(discretizationN), rhocount(rc), rhoset(LinearSpacedArray<RealT>(g.rhomin, g.rhomax, rc)), gridValues(rhocount, xcount, ycount) {
+        if (cheb) {
+            xset = chebPoints<RealT>(xcount);
+            yset = chebPoints<RealT>(ycount);
+        } else {
+            xset = LinearSpacedArray<RealT>(g.xmin, g.xmax, xcount);
+            yset = LinearSpacedArray<RealT>(g.ymin, g.ymax, ycount);
+        }
+    }
     void interpIndexSearch(const RealT x, const RealT y, int &xindex,
                            int &yindex) const {
         if ((x < xset[0]) || (y < yset[0]) || (x > xset.back()) ||
@@ -500,16 +516,15 @@ class functionGrid {
                     RealT y0 = f.yset[k], y1 = f.yset[k + 1];
                     Matrix<RealT, 4, 4> X, Y, RHS, A, temp1, temp2;
 
-                    RHS << d(i, j, k, 0), d(i, j, k + 1, 0), d(i, j, k, 2),
-                        d(i, j, k + 1, 2), d(i, j + 1, k, 0),
-                        d(i, j + 1, k + 1, 0), d(i, j + 1, k, 2),
-                        d(i, j + 1, k + 1, 2), d(i, j, k, 1), d(i, j, k + 1, 1),
-                        d(i, j, k, 3), d(i, j, k + 1, 3), d(i, j + 1, k, 1),
-                        d(i, j + 1, k + 1, 1), d(i, j + 1, k, 3),
-                        d(i, j + 1, k + 1, 3);
+                    RHS << d(i, j, k, 0), d(i, j, k + 1, 0), d(i, j, k, 2), d(i, j, k + 1, 2),
+                        d(i, j + 1, k, 0), d(i, j + 1, k + 1, 0), d(i, j + 1, k, 2), d(i, j + 1, k + 1, 2),
+                        d(i, j, k, 1), d(i, j, k + 1, 1), d(i, j, k, 3), d(i, j, k + 1, 3),
+                        d(i, j + 1, k, 1), d(i, j + 1, k + 1, 1), d(i, j + 1, k, 3), d(i, j + 1, k + 1, 3);
+
                     X << 1, x0, x0 * x0, x0 * x0 * x0, 1, x1, x1 * x1,
                         x1 * x1 * x1, 0, 1, 2 * x0, 3 * x0 * x0, 0, 1, 2 * x1,
                         3 * x1 * x1;
+
                     Y << 1, 1, 0, 0, y0, y1, 1, 1, y0 * y0, y1 * y1, 2 * y0,
                         2 * y1, y0 * y0 * y0, y1 * y1 * y1, 3 * y0 * y0,
                         3 * y1 * y1;

@@ -589,12 +589,13 @@ int main(int argc, char* argv[]) {
     using std::abs;
     using std::max;
 
-    auto rungeFunc = [](double row, double ex, double why) -> double {
-        return ((1.0 - ex * ex) * (1.0 - why * why)) / (1 + 25 * ((ex - 0.2) * (ex - 0.2) + (why + 0.5) * (why + 0.5)));
-    };
-
     auto polyFunc = [](double row, double ex, double why) -> double {
         return ((1.0 - ex * ex) * (1.0 - why * why) * (1 - 0.0 * 3.0 * ex * why));
+    };
+
+    auto rungeFunc = [](double row, double ex, double why) -> double {
+        return ((1.0 - ex * ex) * (1.0 - why * why)) / (1 + 25 * 
+        ((ex - 0.2) * (ex - 0.2) + (why + 0.5) * (why + 0.5)));
     };
 
     auto sqrtFunc = [](double row, double ex, double why) -> double {
